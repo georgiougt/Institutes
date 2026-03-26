@@ -74,7 +74,7 @@ export class InstitutesService {
       },
       include: {
         branches: {
-          where: { isMain: true },
+          where: cityId ? { cityId } : { isMain: true },
           include: { city: true, area: true },
           take: 1
         },
