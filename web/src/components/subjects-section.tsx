@@ -6,6 +6,7 @@ import { SubjectCard } from './subject-card';
 const SUBJECTS = [
   { name: 'Μαθηματικά', image: '/subjects/math.png', href: '/search?query=Μαθηματικά' },
   { name: 'Φυσική', image: '/subjects/physics.png', href: '/search?query=Φυσική' },
+  { name: 'Μελετητήριο', image: '/subjects/study.png', href: '/search?query=Μελετητήριο' },
   { name: 'Αγγλικά', image: '/subjects/english.jpg', href: '/search?query=Αγγλικά' },
   { name: 'Φιλολογικά', image: '/subjects/philology.png', href: '/search?query=Φιλολογικά' },
   { name: 'Παγκύπριες', image: '/subjects/panellinies.png', href: '/search?query=Παγκύπριες' },
@@ -40,7 +41,7 @@ export function SubjectsSection() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6"
         >
           {SUBJECTS.map((subject) => (
             <motion.div key={subject.name} variants={item}>
