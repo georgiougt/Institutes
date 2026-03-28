@@ -28,7 +28,7 @@ export default function ServicesManagerPage({ params }: { params: Promise<{ id: 
     const fetchData = async () => {
       try {
         // Fetch all available services for catalog
-        const catRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/metadata/lists`);
+        const catRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/metadata/lists`, { cache: 'no-store' });
         const lists = await catRes.json();
         setAllServices(lists.services || []);
 

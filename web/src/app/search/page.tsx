@@ -2,6 +2,12 @@ import Link from 'next/link';
 import { Star, MapPin, Globe, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/footer';
+import dynamic from 'next/dynamic';
+
+const SearchMap = dynamic(() => import('@/components/SearchMap'), { 
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-slate-50 animate-pulse flex items-center justify-center text-slate-400 font-bold">Φόρτωση Χάρτη...</div>
+});
 
 async function performSearch(query?: string, location?: string) {
   try {
@@ -105,12 +111,10 @@ export default async function SearchResultsPage({
           </div>
         </div>
 
-        {/* Sidebar Space (Map placeholder) */}
+        {/* Sidebar Space (Map) */}
         <div className="hidden lg:block w-[350px] shrink-0">
-          <div className="sticky top-28 h-[600px] w-full bg-gray-50 rounded-lg border border-gray-200 flex flex-col items-center justify-center p-6 text-center">
-            <MapPin className="h-10 w-10 text-gray-300 mb-4" />
-            <h3 className="font-bold text-gray-700">Χάρτης</h3>
-            <p className="text-sm text-gray-500 mt-2">Η λειτουργία χάρτη θα είναι διαθέσιμη σύντομα.</p>
+          <div className="sticky top-28 h-[600px] w-full bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+            <SearchMap institutes={results} />
           </div>
         </div>
       </main>
