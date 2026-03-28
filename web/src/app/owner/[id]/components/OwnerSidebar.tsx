@@ -80,12 +80,6 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
       href: `/owner/${instituteId}/analytics`,
       active: pathname === `/owner/${instituteId}/analytics`,
     },
-    {
-      label: 'Team Access',
-      icon: Users,
-      href: `/owner/${instituteId}/team`,
-      active: pathname === `/owner/${instituteId}/team`,
-    },
   ];
 
   return (

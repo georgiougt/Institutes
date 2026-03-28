@@ -111,7 +111,7 @@ export default async function InstituteProfilePage({
           <div className="lg:col-span-2 space-y-12">
             
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="grid grid-cols-2 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
               <div className="space-y-1">
                 <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Services</p>
                 <div className="flex items-center gap-2">
@@ -124,20 +124,6 @@ export default async function InstituteProfilePage({
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-emerald-500" />
                   <p className="text-sm font-bold">{institute.branches?.length || 0} Κέντρα</p>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Students</p>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-amber-500" />
-                  <p className="text-sm font-bold">50+ Μαθητές</p>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Experience</p>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-rose-500" />
-                  <p className="text-sm font-bold">10+ Έτη</p>
                 </div>
               </div>
             </div>
