@@ -2,12 +2,7 @@ import Link from 'next/link';
 import { Star, MapPin, Globe, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/footer';
-import dynamic from 'next/dynamic';
-
-const SearchMap = dynamic(() => import('@/components/SearchMap'), { 
-  ssr: false,
-  loading: () => <div className="h-full w-full bg-slate-50 animate-pulse flex items-center justify-center text-slate-400 font-bold">Φόρτωση Χάρτη...</div>
-});
+import ClientMap from '@/components/ClientMap';
 
 async function performSearch(query?: string, location?: string) {
   try {
@@ -114,7 +109,7 @@ export default async function SearchResultsPage({
         {/* Sidebar Space (Map) */}
         <div className="hidden lg:block w-[350px] shrink-0">
           <div className="sticky top-28 h-[600px] w-full bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
-            <SearchMap institutes={results} />
+            <ClientMap institutes={results} />
           </div>
         </div>
       </main>
