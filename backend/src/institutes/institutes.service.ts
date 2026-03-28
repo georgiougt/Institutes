@@ -22,7 +22,14 @@ export class InstitutesService {
   }
 
   async search(dto: SearchInstitutesDto) {
-    const { lat, lng, radius = 5, serviceId, cityId, query, sort } = dto;
+    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location } = dto;
+
+    if (!cityId && location) {
+      const city = await this.prisma.city.findFirst({
+        where: { name: { equals: location, mode: 'insensitive' } }
+      });
+      if (city) cityId = city.id;
+    }
 
     if (lat && lng) {
       const radiusInMeters = radius * 1000;

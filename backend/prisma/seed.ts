@@ -126,6 +126,10 @@ async function main() {
     prisma.service.upsert({ where: { name: 'Βιολογία' }, update: {}, create: { name: 'Βιολογία', category: 'Μέση Εκπαίδευση' } }),
     prisma.service.upsert({ where: { name: 'Ιστορία' }, update: {}, create: { name: 'Ιστορία', category: 'Μέση Εκπαίδευση' } }),
     prisma.service.upsert({ where: { name: 'Λογιστική' }, update: {}, create: { name: 'Λογιστική', category: 'Επαγγελματικά' } }),
+    prisma.service.upsert({ where: { name: 'Αρχαία Ελληνικά' }, update: {}, create: { name: 'Αρχαία Ελληνικά', category: 'Μέση Εκπαίδευση' } }),
+    prisma.service.upsert({ where: { name: 'Λατινικά' }, update: {}, create: { name: 'Λατινικά', category: 'Μέση Εκπαίδευση' } }),
+    prisma.service.upsert({ where: { name: 'Ρωσικά' }, update: {}, create: { name: 'Ρωσικά', category: 'Ξένες Γλώσσες' } }),
+    prisma.service.upsert({ where: { name: 'Γερμανικά' }, update: {}, create: { name: 'Γερμανικά', category: 'Ξένες Γλώσσες' } }),
   ]);
 
   // 4. Create Demo Institutes
@@ -169,7 +173,7 @@ async function main() {
         branches: {
           create: {
             name: 'Κεντρικό',
-            phone: `22${Math.floor(100000 + Math.random() * 900000)}`,
+            phone: `${d.city.nameEn === 'Nicosia' ? '22' : d.city.nameEn === 'Famagusta' ? '23' : d.city.nameEn === 'Limassol' ? '25' : d.city.nameEn === 'Larnaca' ? '24' : '26'}${Math.floor(100000 + Math.random() * 900000)}`,
             address: d.addr,
             cityId: d.city.id,
             latitude: d.lat,

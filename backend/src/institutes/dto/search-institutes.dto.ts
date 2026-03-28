@@ -46,4 +46,9 @@ export class SearchInstitutesDto {
   @IsOptional()
   @IsString()
   sort?: 'distance' | 'newest';
+
+  @ApiPropertyOptional({ description: 'Filter by city name' })
+  @IsOptional()
+  @IsString()
+  location?: string;
 }

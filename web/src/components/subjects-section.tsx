@@ -10,6 +10,10 @@ const SUBJECTS = [
   { name: 'Αγγλικά', image: '/subjects/english.jpg', href: '/search?query=Αγγλικά' },
   { name: 'Φιλολογικά', image: '/subjects/philology.png', href: '/search?query=Φιλολογικά' },
   { name: 'Παγκύπριες', image: '/subjects/panellinies.png', href: '/search?query=Παγκύπριες' },
+  { name: 'Αρχαία Ελληνικά', image: '/subjects/ancient_greek.png', href: '/search?query=Αρχαία Ελληνικά' },
+  { name: 'Λατινικά', image: '/subjects/latin.png', href: '/search?query=Λατινικά' },
+  { name: 'Ρωσικά', image: '/subjects/russian.png', href: '/search?query=Ρωσικά' },
+  { name: 'Γερμανικά', image: '/subjects/german.png', href: '/search?query=Γερμανικά' },
 ];
 
 export function SubjectsSection() {
@@ -41,7 +45,7 @@ export function SubjectsSection() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"
         >
           {SUBJECTS.map((subject) => (
             <motion.div key={subject.name} variants={item}>
