@@ -17,10 +17,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  ExternalLink
+  ExternalLink,
+  LogOut
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 interface OwnerSidebarProps {
   instituteId: string;
@@ -28,7 +30,13 @@ interface OwnerSidebarProps {
 
 export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/');
+  };
 
   const routes = [
     {
@@ -146,6 +154,13 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
           <Settings className="h-5 w-5 shrink-0" />
           {!isCollapsed && <span className="text-sm">Account Settings</span>}
         </Link>
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-all text-left"
+        >
+          <LogOut className="h-5 w-5 shrink-0" />
+          {!isCollapsed && <span className="text-sm font-medium">Logout</span>}
+        </button>
       </div>
     </aside>
   );
