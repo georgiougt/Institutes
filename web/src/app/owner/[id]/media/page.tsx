@@ -47,9 +47,14 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
   const addImage = async () => {
     if (!newImageUrl) return;
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/media`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ url: newImageUrl, caption: 'New Gallery Image' }),
       });
       if (res.ok) {
@@ -64,7 +69,12 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
 
   const deleteImage = async (id: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/media/${id}`, { method: 'DELETE' });
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/media/${id}`, { 
+        method: 'DELETE',
+        headers: { 'X-User-Id': userId }
+      });
       if (res.ok) {
         setImages(prev => prev.filter(img => img.id !== id));
       }
@@ -75,9 +85,14 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
 
   const setAsLogo = async (url: string) => {
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/logo`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ url }),
       });
       if (res.ok) {

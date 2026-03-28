@@ -28,7 +28,18 @@ export class PermissionGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    let user = request.user;
+
+    // As a pseudo-auth mechanism for this demo without full JWT:
+    if (!user) {
+      const headerUserId = request.headers['x-user-id'];
+      if (headerUserId) {
+        user = await this.prisma.user.findUnique({
+          where: { id: headerUserId },
+        });
+        request.user = user;
+      }
+    }
 
     if (!user) {
       throw new UnauthorizedException('Authentication required');

@@ -38,7 +38,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/metrics`);
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/metrics`, {
+          headers: { 'X-User-Id': userId }
+        });
         if (!res.ok) throw new Error('Failed to fetch');
         const metrics = await res.json();
         setData(metrics);
@@ -64,15 +68,22 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   const onSubmit = async (values: ProfileFormValues) => {
     setSaving(true);
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/profile`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify(values),
       });
       if (!res.ok) throw new Error('Failed to save');
       
       // Refresh data to show pending banners
-      const metricsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/metrics`);
+      const metricsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/metrics`, {
+        headers: { 'X-User-Id': userId }
+      });
       const metrics = await metricsRes.json();
       setData(metrics);
       
@@ -182,13 +193,21 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                <CardContent className="p-8 pt-0 space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                      <div className="space-y-4">
-                        <label className="text-sm font-bold text-slate-700">Institute Logo</label>
+                        <label className="text-sm font-bold text-slate-700">Institute Logo URL</label>
                         <div className="flex items-center gap-6">
-                           <div className="h-24 w-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden">
-                              {/* Preview logic would go here */}
-                              <div className="text-slate-300 font-bold text-xs">NO LOGO</div>
+                           <div className="h-24 w-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                              <img 
+                                src={data?.logoUrl || "https://images.unsplash.com/photo-1546410531-bc666a1a4574?q=80&w=600&auto=format&fit=crop"} 
+                                alt="Current Logo" 
+                                className="h-full w-full object-cover" 
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                              />
                            </div>
-                           <Button type="button" variant="outline" className="rounded-xl border-slate-200">Upload New</Button>
+                           <Input 
+                             {...register('logoUrl')} 
+                             placeholder="Paste an image URL for your logo" 
+                             className="rounded-xl h-12 border-slate-200 flex-1"
+                           />
                         </div>
                      </div>
                      
