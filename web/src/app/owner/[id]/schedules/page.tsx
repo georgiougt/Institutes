@@ -56,7 +56,10 @@ export default function SchedulesManagerPage({ params }: { params: Promise<{ id:
     if (!selectedBranchId) return;
     const fetchSchedules = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/schedules`);
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/schedules`, {
+          headers: { 'X-User-Id': userId }
+        });
         const allSchedules = await res.json();
         // Filter for current branch or create defaults
         const branchSchedules = allSchedules.filter((s: any) => s.branchId === selectedBranchId);
@@ -86,9 +89,13 @@ export default function SchedulesManagerPage({ params }: { params: Promise<{ id:
   const handleSave = async () => {
     setSaving(true);
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/branches/${selectedBranchId}/schedules`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ schedules }),
       });
       if (res.ok) alert('Schedules updated successfully!');

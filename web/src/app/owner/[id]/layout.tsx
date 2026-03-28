@@ -18,10 +18,11 @@ export default async function OwnerLayout({
   let name = 'Institute Dashboard';
   
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${id}/metrics`, { cache: 'no-store' });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${id}`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       status = data.status || 'PENDING';
+      if (data.name) name = data.name;
     }
   } catch (e) {
     console.error('Failed to fetch institute status', e);

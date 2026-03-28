@@ -25,7 +25,10 @@ export default function BranchesManagerPage({ params }: { params: Promise<{ id: 
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${instituteId}`);
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${instituteId}`, {
+          headers: { 'X-User-Id': userId }
+        });
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
         setBranches(data.branches || []);

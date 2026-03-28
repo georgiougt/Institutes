@@ -54,9 +54,13 @@ export default function ServicesManagerPage({ params }: { params: Promise<{ id: 
   const handleSave = async () => {
     setSaving(true);
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/services`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ serviceIds: selectedIds }),
       });
       if (res.ok) alert('Services updated successfully!');

@@ -30,7 +30,10 @@ export default function TeamAccessPage({ params }: { params: Promise<{ id: strin
 
   const fetchTeam = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/team`);
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/team`, {
+        headers: { 'X-User-Id': userId }
+      });
       if (!res.ok) throw new Error();
       const data = await res.json();
       setTeam(data);
@@ -44,9 +47,13 @@ export default function TeamAccessPage({ params }: { params: Promise<{ id: strin
   const inviteMember = async () => {
     if (!inviteEmail) return;
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/team`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ email: inviteEmail, role: inviteRole }),
       });
       if (res.ok) {
@@ -64,7 +71,11 @@ export default function TeamAccessPage({ params }: { params: Promise<{ id: strin
   const removeMember = async (memberId: string) => {
     if (!confirm('Are you sure you want to remove this member?')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/team/${memberId}`, { method: 'DELETE' });
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/team/${memberId}`, { 
+        method: 'DELETE',
+        headers: { 'X-User-Id': userId }
+      });
       if (res.ok) {
         setTeam(prev => prev.filter(m => m.id !== memberId));
       }

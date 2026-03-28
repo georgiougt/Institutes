@@ -42,7 +42,10 @@ export default function InquiriesCRMPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     const fetchInquiries = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/inquiries`);
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/inquiries`, {
+          headers: { 'X-User-Id': userId }
+        });
         if (!res.ok) throw new Error('Failed to fetch');
         const data = await res.json();
         setInquiries(data);
@@ -57,9 +60,13 @@ export default function InquiriesCRMPage({ params }: { params: Promise<{ id: str
 
   const updateStatus = async (inquiryId: string, status: string) => {
     try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/inquiries/${inquiryId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({ status }),
       });
       if (res.ok) {

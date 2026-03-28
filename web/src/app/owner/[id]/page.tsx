@@ -29,7 +29,10 @@ export default function OwnerOverviewPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/metrics`);
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/metrics`, {
+          headers: { 'X-User-Id': userId }
+        });
         if (!res.ok) throw new Error('Failed to fetch');
         const metrics = await res.json();
         setData(metrics);
