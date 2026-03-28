@@ -187,14 +187,16 @@ export default async function InstituteProfilePage({
                            <Phone className="h-4 w-4 mr-2" /> {branch.phone}
                          </Button>
                        </a>
-                       <Link 
-                         href={`https://www.google.com/maps/dir/?api=1&destination=${branch.latitude},${branch.longitude}`}
-                         target="_blank"
-                       >
-                         <Button variant="outline" size="sm" className="rounded-lg border-slate-200">
-                           Οδηγίες
-                         </Button>
-                       </Link>
+                       {branch.latitude && branch.longitude && (
+                         <Link 
+                           href={`https://www.google.com/maps/dir/?api=1&destination=${branch.latitude},${branch.longitude}`}
+                           target="_blank"
+                         >
+                           <Button variant="outline" size="sm" className="rounded-lg border-slate-200">
+                             Οδηγίες
+                           </Button>
+                         </Link>
+                       )}
                     </div>
                   </div>
                 ))}

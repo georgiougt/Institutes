@@ -181,8 +181,8 @@ export class InstitutesService {
           address: dto.address,
           phone: dto.phone,
           cityId: dto.cityId,
-          latitude: 35.1264, // Default Nicosia lat/lng for now
-          longitude: 33.3677,
+          latitude: dto.latitude ?? null,
+          longitude: dto.longitude ?? null,
           isMain: true,
           status: 'PENDING',
         },

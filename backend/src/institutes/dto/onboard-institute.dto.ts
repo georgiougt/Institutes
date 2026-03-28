@@ -61,6 +61,14 @@ export class OnboardInstituteDto {
   @IsNotEmpty()
   cityId: string;
 
+  @ApiProperty({ example: 35.1264 })
+  @IsOptional()
+  latitude?: number;
+
+  @ApiProperty({ example: 33.3677 })
+  @IsOptional()
+  longitude?: number;
+
   // Subjects
   @ApiProperty({ example: ['uuid-of-math', 'uuid-of-physics'], type: [String] })
   @IsArray()
