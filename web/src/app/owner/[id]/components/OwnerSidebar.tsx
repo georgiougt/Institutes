@@ -74,12 +74,6 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
       active: pathname === `/owner/${instituteId}/inquiries`,
       badge: 'New'
     },
-    {
-      label: 'Analytics',
-      icon: BarChart3,
-      href: `/owner/${instituteId}/analytics`,
-      active: pathname === `/owner/${instituteId}/analytics`,
-    },
   ];
 
   return (
