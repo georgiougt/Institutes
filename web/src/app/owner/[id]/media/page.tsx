@@ -27,14 +27,21 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
         const [imgsRes, instRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/media`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/media`, {
+            headers: { 'X-User-Id': userId }
+          }),
           fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${instituteId}`)
         ]);
-        const imgs = await imgsRes.json();
-        const inst = await instRes.json();
-        setImages(imgs);
-        setLogoUrl(inst.logoUrl);
+        if (imgsRes.ok) {
+          const imgs = await imgsRes.json();
+          setImages(Array.isArray(imgs) ? imgs : []);
+        }
+        if (instRes.ok) {
+          const inst = await instRes.json();
+          setLogoUrl(inst.logoUrl);
+        }
       } catch (err) {
         console.error(err);
       } finally {
