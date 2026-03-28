@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUrl, IsUUID, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsUrl, IsUUID, IsArray, ValidateIf } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateInstituteProfileDto {
@@ -13,6 +13,7 @@ export class UpdateInstituteProfileDto {
   description?: string;
 
   @ApiProperty({ required: false })
+  @ValidateIf((o) => !!o.website)
   @IsUrl()
   @IsOptional()
   website?: string;

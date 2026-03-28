@@ -70,13 +70,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
     try {
       const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
 
+      // Remove empty strings and null values to avoid validation errors
+      const cleanValues = Object.fromEntries(
+        Object.entries(values).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      );
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/profile`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
           'X-User-Id': userId
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(cleanValues),
       });
       if (!res.ok) throw new Error('Failed to save');
       
