@@ -234,4 +234,14 @@ export class InstituteMgmtService {
       where: { id: memberId }
     });
   }
+
+  async updateBranch(branchId: string, dto: any) {
+    if (dto.cityId && dto.radius === undefined) {
+       // Optional: logic to clear radius or handle city change
+    }
+    return this.prisma.branch.update({
+      where: { id: branchId },
+      data: dto
+    });
+  }
 }

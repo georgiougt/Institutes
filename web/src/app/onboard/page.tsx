@@ -28,7 +28,7 @@ import Link from 'next/link';
 
 interface Metadata {
   cities: { id: string; name: string }[];
-  services: { id: string; name: string }[];
+  services: { id: string; name: string; category?: string }[];
 }
 
 export default function OnboardPage() {
@@ -365,23 +365,44 @@ export default function OnboardPage() {
                   <CardDescription>Ποια μαθήματα διδάσκονται στο φροντιστήριο σας;</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8">
-                  <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto mb-6 p-1">
-                    {metadata?.services.map(service => (
-                      <div 
-                        key={service.id}
-                        onClick={() => toggleService(service.id)}
-                        className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                          formData.serviceIds.includes(service.id)
-                            ? 'bg-primary/5 border-primary ring-1 ring-primary'
-                            : 'bg-white border-slate-100 hover:border-slate-200'
-                        }`}
-                      >
-                        <div className={`h-5 w-5 rounded-md flex items-center justify-center border ${
-                          formData.serviceIds.includes(service.id) ? 'bg-primary border-primary' : 'bg-white border-slate-300'
-                        }`}>
-                          {formData.serviceIds.includes(service.id) && <Check className="h-3 w-3 text-white" />}
+                  <div className="max-h-[400px] overflow-y-auto mb-6 pr-2 -mr-2 space-y-8">
+                    {Object.entries(
+                      (metadata?.services || []).reduce((acc, s) => {
+                        const cat = s.category || 'Λοιπά';
+                        if (!acc[cat]) acc[cat] = [];
+                        acc[cat].push(s);
+                        return acc;
+                      }, {} as Record<string, any[]>)
+                    )
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([category, services]) => (
+                      <div key={category} className="space-y-3">
+                        <div className="flex items-center gap-2 px-1">
+                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{category}</h4>
+                          <div className="h-px flex-1 bg-slate-100" />
                         </div>
-                        <span className="text-sm font-medium">{service.name}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                          {services
+                            .sort((a: any, b: any) => a.name.localeCompare(b.name))
+                            .map(service => (
+                            <div 
+                              key={service.id}
+                              onClick={() => toggleService(service.id)}
+                              className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                                formData.serviceIds.includes(service.id)
+                                  ? 'bg-primary/5 border-primary ring-1 ring-primary'
+                                  : 'bg-white border-slate-100 hover:border-slate-200'
+                              }`}
+                            >
+                              <div className={`h-5 w-5 rounded-md flex items-center justify-center border transition-colors ${
+                                formData.serviceIds.includes(service.id) ? 'bg-primary border-primary' : 'bg-white border-slate-300'
+                              }`}>
+                                {formData.serviceIds.includes(service.id) && <Check className="h-3 w-3 text-white" />}
+                              </div>
+                              <span className="text-sm font-medium">{service.name}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>

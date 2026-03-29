@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InstituteMgmtService } from './institute-mgmt.service';
-import { UpdateInstituteProfileDto } from './dto/owner-dashboard.dto';
+import { UpdateInstituteProfileDto, UpdateBranchDto } from './dto/owner-dashboard.dto';
 import { PermissionGuard } from '../common/guards/permissions.guard';
 import { RequirePermissions, InstituteRole } from '../common/decorators/permissions.decorator';
 
@@ -68,6 +68,17 @@ export class OwnerInstitutesController {
     @Body('serviceIds') serviceIds: string[]
   ) {
     return this.mgmtService.updateServices(id, serviceIds);
+  }
+
+  // ─── BRANCHES / LOCATIONS ──────────────────────────────────────────────
+
+  @Patch('branches/:branchId')
+  @ApiOperation({ summary: 'Update branch details' })
+  async updateBranch(
+    @Param('branchId') branchId: string,
+    @Body() dto: UpdateBranchDto
+  ) {
+    return this.mgmtService.updateBranch(branchId, dto);
   }
 
   // ─── SCHEDULES ──────────────────────────────────────────────────────────

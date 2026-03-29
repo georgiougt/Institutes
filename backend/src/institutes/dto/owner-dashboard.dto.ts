@@ -40,3 +40,32 @@ export class BulkUpdateServicesDto {
   @IsUUID('4', { each: true })
   serviceIds: string[];
 }
+export class UpdateBranchDto {
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @ApiProperty({ required: false })
+  @IsUUID()
+  @IsOptional()
+  cityId?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  latitude?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  longitude?: number;
+}
