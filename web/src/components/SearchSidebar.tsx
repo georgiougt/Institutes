@@ -47,6 +47,17 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
     })
   }, [searchParams])
 
+  // Automatic location on mount
+  useEffect(() => {
+    const hasCoords = searchParams.has('lat') && searchParams.has('lng');
+    const isFirstLoad = !sessionStorage.getItem('has_auto_located');
+
+    if (!hasCoords && isFirstLoad) {
+      handleGetLocation();
+      sessionStorage.setItem('has_auto_located', 'true');
+    }
+  }, []);
+
   // Fetch metadata once
   useEffect(() => {
     const fetchMetadata = async () => {
