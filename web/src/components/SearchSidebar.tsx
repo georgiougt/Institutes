@@ -11,7 +11,11 @@ interface Metadata {
   services: { id: string; name: string }[]
 }
 
-export function SearchSidebar() {
+interface SearchSidebarProps {
+  className?: string;
+}
+
+export function SearchSidebar({ className }: SearchSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
@@ -116,7 +120,7 @@ export function SearchSidebar() {
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm sticky top-28 space-y-8">
+    <div className={cn("bg-white border border-gray-100 rounded-xl p-6 shadow-sm sticky top-28 space-y-8", className)}>
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <Filter className="h-4 w-4" /> Φίλτρα

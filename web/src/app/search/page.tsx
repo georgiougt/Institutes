@@ -6,6 +6,14 @@ import { Footer } from '@/components/footer';
 import ClientMap from '@/components/ClientMap';
 import { cn } from "@/lib/utils";
 import { SearchSidebar } from '@/components/SearchSidebar';
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetHeader, 
+  SheetTitle, 
+  SheetTrigger, 
+  SheetClose 
+} from '@/components/ui/sheet';
 
 async function performSearch(params: { 
   query?: string; 
@@ -105,8 +113,30 @@ export default async function SearchResultsPage({
             </h1>
             
             <div className="lg:hidden">
-               {/* Mobile Filter Trigger could go here */}
-               <Button variant="outline" size="sm" className="rounded-full">Φίλτρα</Button>
+               <Sheet>
+                 <SheetTrigger asChild>
+                   <Button variant="outline" size="sm" className="rounded-full shadow-sm border-gray-200 font-bold px-5">
+                     Φίλτρα
+                   </Button>
+                 </SheetTrigger>
+                 <SheetContent side="left" className="p-0 overflow-y-auto">
+                   <div className="p-6">
+                     <SheetHeader>
+                       <SheetTitle>Φίλτρα Αναζήτησης</SheetTitle>
+                     </SheetHeader>
+                     <div className="mt-4">
+                       <SearchSidebar className="static border-none p-0 shadow-none bg-transparent" />
+                     </div>
+                     <div className="mt-8 pb-10">
+                       <SheetClose asChild>
+                         <Button className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-widest cursor-pointer">
+                           Προβολή Αποτελεσμάτων
+                         </Button>
+                       </SheetClose>
+                     </div>
+                   </div>
+                 </SheetContent>
+               </Sheet>
             </div>
           </div>
 
