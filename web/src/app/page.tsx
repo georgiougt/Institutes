@@ -37,27 +37,15 @@ export default async function Home() {
         />
         <div className="absolute inset-0 bg-black/60" />
 
-        {/* Header */}
         <header className="relative z-10 px-4 sm:px-8 py-6 flex items-center justify-between w-full">
           {/* Logo Yelp-Style */}
           <Link className="flex items-center gap-1 group shrink-0" href="/">
             <span className="text-red-600 font-extrabold text-3xl leading-none">*</span>
-            <span className="font-extrabold text-3xl tracking-tighter text-white">EduTrack</span>
+            <span className="font-extrabold text-3xl tracking-tighter text-white">ToFrontistirio</span>
           </Link>
           
           <nav className="flex gap-2 items-center shrink-0">
-            <Link className="hidden lg:flex items-center text-sm font-bold text-white hover:underline underline-offset-4 px-3 h-10" href="/onboard">Για Φροντιστήρια</Link>
-            <Link className="hidden lg:flex items-center text-sm font-bold text-white hover:underline underline-offset-4 px-3 h-10" href="/search">Γράψε Κριτική</Link>
-            <Link href="/login" className="hidden sm:flex items-center">
-              <Button variant="ghost" className="font-bold text-white hover:bg-white/20 hover:text-white px-4 h-10">
-                Σύνδεση
-              </Button>
-            </Link>
-            <Link href="/onboard" className="flex items-center ml-2">
-              <Button className="font-bold rounded bg-red-600 hover:bg-red-700 text-white border-0 px-6 h-10 shadow-md">
-                Εγγραφή
-              </Button>
-            </Link>
+            <Link className="hidden lg:flex items-center text-sm font-bold text-white hover:underline underline-offset-4 px-3 h-10" href="/search">Βρες Φροντιστήριο</Link>
           </nav>
         </header>
 

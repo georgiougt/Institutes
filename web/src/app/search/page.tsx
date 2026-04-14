@@ -53,16 +53,8 @@ export default async function SearchResultsPage({
       <header className="px-6 py-4 border-b border-gray-100 shadow-sm flex items-center justify-between sticky top-0 bg-white z-40">
          <Link href="/" className="flex items-center gap-1 group shrink-0">
             <span className="text-red-600 font-extrabold text-3xl leading-none">*</span>
-            <span className="font-extrabold text-2xl tracking-tighter text-slate-900">EduTrack</span>
+            <span className="font-extrabold text-2xl tracking-tighter text-slate-900">ToFrontistirio</span>
          </Link>
-         <div className="flex items-center gap-3 shrink-0">
-            <Link href="/onboard" className="hidden sm:block">
-              <Button variant="ghost" className="font-bold text-gray-500 text-xs h-9">Για Φροντιστήρια</Button>
-            </Link>
-            <Link href="/login">
-              <Button className="font-bold rounded-lg bg-red-600 hover:bg-red-700 text-white px-5 h-9 text-xs shadow-sm">Είσοδος</Button>
-            </Link>
-         </div>
       </header>
 
       <div className="flex flex-1 relative">
@@ -183,7 +175,20 @@ export default async function SearchResultsPage({
                   </p>
 
                   <div className="flex flex-wrap gap-5 text-xs font-bold text-slate-400 uppercase tracking-widest pt-5 border-t border-slate-50">
-                    <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Χάρτης</div>
+                    {/* Map Link */}
+                    {inst.branches?.[0]?.latitude && inst.branches?.[0]?.longitude ? (
+                      <a 
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${inst.branches[0].latitude},${inst.branches[0].longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-red-600 transition-colors"
+                      >
+                        <MapPin className="h-3.5 w-3.5" /> Χάρτης
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Χάρτης</div>
+                    )}
+
                     {inst.distanceKm !== undefined && (
                       <div className="flex items-center gap-1.5 text-red-600">
                         <Navigation className="h-3 w-3 fill-red-600" /> 
@@ -192,8 +197,32 @@ export default async function SearchResultsPage({
                           : `${inst.distanceKm.toFixed(1)}km`}
                       </div>
                     )}
-                    <div className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> {inst.branches?.[0]?.phone || 'Τηλέφωνο'}</div>
-                    <div className="flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Website</div>
+
+                    {/* Phone Link */}
+                    {inst.branches?.[0]?.phone ? (
+                      <a 
+                        href={`tel:${inst.branches[0].phone}`}
+                        className="flex items-center gap-1.5 hover:text-red-600 transition-colors"
+                      >
+                        <Phone className="h-3.5 w-3.5" /> {inst.branches[0].phone}
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5" /> Τηλέφωνο</div>
+                    )}
+
+                    {/* Website Link */}
+                    {inst.website ? (
+                      <a 
+                        href={inst.website.startsWith('http') ? inst.website : `https://${inst.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-red-600 transition-colors"
+                      >
+                        <Globe className="h-3.5 w-3.5" /> Website
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-slate-300"><Globe className="h-3.5 w-3.5" /> Website</div>
+                    )}
                   </div>
                 </div>
               </div>

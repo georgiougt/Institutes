@@ -21,9 +21,9 @@ export function Footer() {
           </ul>
         </div>
         <div>
-          <h4 className="text-gray-900 font-bold mb-4 text-[15px]">EduTrack για Επιχειρήσεις</h4>
+          <h4 className="text-gray-900 font-bold mb-4 text-[15px]">Για Φροντιστήρια</h4>
           <ul className="space-y-2 font-medium">
-            <li><Link href="/onboard" className="hover:underline text-[#0073bb]">Διεκδικήστε τη σελίδα σας</Link></li>
+            <li><Link href="/onboard" className="hover:underline text-[#0073bb]">Προσθήκη Φροντιστηρίου</Link></li>
             <li><Link href="/login" className="hover:underline text-[#0073bb]">Σύνδεση Ιδιοκτήτη</Link></li>
           </ul>
         </div>
@@ -34,7 +34,7 @@ export function Footer() {
       
       <div className="container px-4 md:px-6 mx-auto text-center flex flex-col justify-center items-center">
         <div className="w-[120px] mb-2 opacity-30 grayscale filter invert hidden md:block" />
-        <p className="font-medium text-[12px]">Copyright © 2026 EduTrack Inc. EduTrack, and related marks are registered trademarks of EduTrack.</p>
+        <p className="font-medium text-[12px]">Copyright © 2026 ToFrontistirio. ToFrontistirio, and related marks are registered trademarks of ToFrontistirio.</p>
       </div>
     </footer>
   );

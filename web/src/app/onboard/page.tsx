@@ -445,7 +445,7 @@ export default function OnboardPage() {
       </div>
 
       <p className="mt-8 text-slate-500 text-sm max-w-lg text-center">
-        Συνεχίζοντας, συμφωνείτε με τους Όρους Χρήσης και την Πολιτική Απορρήτου του EduTrack. 
+        Συνεχίζοντας, συμφωνείτε με τους Όρους Χρήσης και την Πολιτική Απορρήτου του ToFrontistirio. 
         Όλες οι πληροφορίες θα επαληθευτούν από την ομάδα μας.
       </p>
     </div>

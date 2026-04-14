@@ -42,7 +42,7 @@ export function StepAccount() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Καλώς ορίσατε στο EduTrack</h1>
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Καλώς ορίσατε στο ToFrontistirio</h1>
         <p className="text-lg text-slate-500">
           Η πιο σύγχρονη πλατφόρμα για την προβολή του εκπαιδευτικού σας κέντρου.
           Ξεκινήστε δημιουργώντας τον λογαριασμό σας.

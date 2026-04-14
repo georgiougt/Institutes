@@ -57,7 +57,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
           <Link className="flex items-center gap-1 group mb-2" href="/">
             <span className="text-red-600 font-extrabold text-4xl leading-none">*</span>
-            <span className="font-extrabold text-4xl tracking-tighter text-slate-900">EduTrack</span>
+            <span className="font-extrabold text-4xl tracking-tighter text-slate-900">ToFrontistirio</span>
           </Link>
           <p className="text-slate-500 font-medium">Σύνδεση στην πλατφόρμα</p>
         </div>

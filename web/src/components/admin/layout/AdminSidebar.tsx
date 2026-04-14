@@ -75,9 +75,9 @@ export function AdminSidebar({ currentPath }: { currentPath: string }) {
       {/* Logo */}
       <div className="h-16 flex items-center gap-2.5 px-5 border-b border-slate-800">
         <div className="h-8 w-8 rounded-lg bg-indigo-500 flex items-center justify-center">
-          <Shield className="h-4 w-4 text-white" />
+          <span className="text-red-600 font-extrabold text-3xl leading-none">*</span>
         </div>
-        <span className="font-bold text-base text-white tracking-tight">EduTrack Admin</span>
+        <span className="font-bold text-base text-white tracking-tight">ToFrontistirio Admin</span>
       </div>
 
       {/* Nav */}

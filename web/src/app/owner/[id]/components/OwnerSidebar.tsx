@@ -87,7 +87,7 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
             <div className="bg-red-600 p-2 rounded-xl text-white">
               <Building2 className="h-6 w-6" />
             </div>
-            <span className="font-bold text-xl tracking-tight text-white uppercase">EduTrack</span>
+            <span className="font-bold text-xl tracking-tight text-white uppercase">ToFrontistirio</span>
           </div>
         )}
         <Button 
