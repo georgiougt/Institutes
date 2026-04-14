@@ -131,16 +131,16 @@ export default function ServicesManagerPage({ params }: { params: Promise<{ id: 
 
          {/* Right Side: Catalog Grid */}
          <div className="lg:col-span-3 space-y-12">
-            {Object.entries(
+            (Object.entries(
               filteredServices.reduce((acc, s) => {
                 const cat = s.category || 'Λοιπά';
                 if (!acc[cat]) acc[cat] = [];
                 acc[cat].push(s);
                 return acc;
               }, {} as Record<string, any[]>)
-            )
+            ) as [string, any[]][])
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([category, services]: [string, any[]]) => (
+            .map(([category, services]) => (
               <div key={category} className="space-y-6">
                 <div className="flex items-center justify-between">
                    <div className="flex items-center gap-3">
