@@ -13,16 +13,20 @@ export class InstitutesService {
     let ids: string[] = [];
 
     if (lat && lng) {
-      // Find IDs of 3 nearest institutes using PostGIS
+      // Find IDs of 3 nearest institutes using Haversine formula (Standard SQL)
       const nearby: any[] = await this.prisma.$queryRaw`
-        SELECT DISTINCT i.id
+        SELECT 
+          i.id,
+          6371 * acos(
+            cos(radians(${lat})) * cos(radians(b.latitude)) * 
+            cos(radians(b.longitude) - radians(${lng})) + 
+            sin(radians(${lat})) * sin(radians(b.latitude))
+          ) as distance
         FROM "Institute" i
         INNER JOIN "Branch" b ON b."instituteId" = i.id
         WHERE i.status = 'APPROVED'
-        ORDER BY ST_Distance(
-          b.location::geography, 
-          ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
-        ) ASC
+        AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+        ORDER BY distance ASC
         LIMIT 3;
       `;
       ids = nearby.map(n => n.id);
