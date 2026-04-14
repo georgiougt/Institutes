@@ -140,7 +140,7 @@ export default function ServicesManagerPage({ params }: { params: Promise<{ id: 
               }, {} as Record<string, any[]>)
             )
             .sort(([a], [b]) => a.localeCompare(b))
-            .map(([category, services]) => (
+            .map(([category, services]: [string, any[]]) => (
               <div key={category} className="space-y-6">
                 <div className="flex items-center justify-between">
                    <div className="flex items-center gap-3">
