@@ -13,9 +13,9 @@ const SUBJECTS = [
   { name: 'Αρχαία Ελληνικά', image: '/subjects/ancient_greek.png', href: '/search?serviceId=2b0b9c17-2d43-46d1-b110-e181b9479aaa' },
   { name: 'Λατινικά', image: '/subjects/latin.png', href: '/search?serviceId=1a8f1989-cd34-4c6c-925b-daa9d90864fd' },
   { name: 'Ρωσικά', image: '/subjects/russian.png', href: '/search?serviceId=0511d3e7-31d4-4c96-9f3f-03871ec91cc9' },
-  { name: 'Γερμανικά', image: '/subjects/german.png', href: '/search?serviceId=7d5130e9-32f6-443d-8f13-85ca7aa92056' },
-  { name: 'Γαλλικά', image: '/subjects/french.png', href: '/search?serviceId=509f6ff3-c4d9-46e3-8c71-b3926d324468' },
-  { name: 'Ιταλικά', image: '/subjects/italian.png', href: '/search?serviceId=b650692e-684c-4f1b-919b-411bee918569' },
+  { name: 'Γερμανικά', image: '/subjects/German.png', href: '/search?serviceId=7d5130e9-32f6-443d-8f13-85ca7aa92056' },
+  { name: 'Γαλλικά', image: '/subjects/French.png', href: '/search?serviceId=509f6ff3-c4d9-46e3-8c71-b3926d324468' },
+  { name: 'Ιταλικά', image: '/subjects/Italian.png', href: '/search?serviceId=b650692e-684c-4f1b-919b-411bee918569' },
 ];
 
 export function SubjectsSection() {
