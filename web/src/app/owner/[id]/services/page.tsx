@@ -131,7 +131,7 @@ export default function ServicesManagerPage({ params }: { params: Promise<{ id: 
 
          {/* Right Side: Catalog Grid */}
          <div className="lg:col-span-3 space-y-12">
-            (Object.entries(
+            {(Object.entries(
               filteredServices.reduce((acc, s) => {
                 const cat = s.category || 'Λοιπά';
                 if (!acc[cat]) acc[cat] = [];
