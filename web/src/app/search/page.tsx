@@ -114,11 +114,13 @@ export default async function SearchResultsPage({
             
             <div className="lg:hidden">
                <Sheet>
-                 <SheetTrigger asChild>
-                   <Button variant="outline" size="sm" className="rounded-full shadow-sm border-gray-200 font-bold px-5">
-                     Φίλτρα
-                   </Button>
-                 </SheetTrigger>
+                 <SheetTrigger
+                   render={
+                     <Button variant="outline" size="sm" className="rounded-full shadow-sm border-gray-200 font-bold px-5">
+                       Φίλτρα
+                     </Button>
+                   }
+                 />
                  <SheetContent side="left" className="p-0 overflow-y-auto">
                    <div className="p-6">
                      <SheetHeader>
@@ -128,11 +130,13 @@ export default async function SearchResultsPage({
                        <SearchSidebar className="static border-none p-0 shadow-none bg-transparent" />
                      </div>
                      <div className="mt-8 pb-10">
-                       <SheetClose asChild>
-                         <Button className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-widest cursor-pointer">
-                           Προβολή Αποτελεσμάτων
-                         </Button>
-                       </SheetClose>
+                       <SheetClose
+                         render={
+                           <Button className="w-full h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-sm uppercase tracking-widest cursor-pointer">
+                             Προβολή Αποτελεσμάτων
+                           </Button>
+                         }
+                       />
                      </div>
                    </div>
                  </SheetContent>
