@@ -9,6 +9,12 @@ const SearchMap = dynamic(() => import('./SearchMap'), {
   </div>
 });
 
-export default function ClientMap({ institutes }: { institutes: any[] }) {
-  return <SearchMap institutes={institutes} />;
+export default function ClientMap({ 
+  institutes, 
+  userLocation 
+}: { 
+  institutes: any[], 
+  userLocation?: { lat: number, lng: number } 
+}) {
+  return <SearchMap institutes={institutes} userLocation={userLocation} />;
 }

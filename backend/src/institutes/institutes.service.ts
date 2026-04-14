@@ -9,20 +9,64 @@ import * as bcrypt from 'bcryptjs';
 export class InstitutesService {
   constructor(private prisma: PrismaService) {}
 
-  async getRecent() {
-    return this.prisma.institute.findMany({
-      where: { status: 'APPROVED' },
+  async getRecent(lat?: number, lng?: number) {
+    let ids: string[] = [];
+
+    if (lat && lng) {
+      // Find IDs of 3 nearest institutes using PostGIS
+      const nearby: any[] = await this.prisma.$queryRaw`
+        SELECT DISTINCT i.id
+        FROM "Institute" i
+        INNER JOIN "Branch" b ON b."instituteId" = i.id
+        WHERE i.status = 'APPROVED'
+        ORDER BY ST_Distance(
+          b.location::geography, 
+          ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
+        ) ASC
+        LIMIT 3;
+      `;
+      ids = nearby.map(n => n.id);
+    }
+
+    const institutes = await this.prisma.institute.findMany({
+      where: ids.length > 0 
+        ? { id: { in: ids } } 
+        : { status: 'APPROVED' },
       include: {
         images: { take: 1 },
         owner: { select: { firstName: true } },
+        branches: { include: { city: true }, take: 1 },
+        reviews: {
+          where: { status: 'APPROVED' },
+          select: { rating: true },
+        },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: ids.length > 0 ? undefined : { createdAt: 'desc' },
       take: 3,
+    });
+
+    // If we used IDs, we need to sort them by the original ID order (distance)
+    const sortedInstitutes = ids.length > 0 
+      ? ids.map(id => institutes.find(i => i.id === id)).filter(Boolean) as typeof institutes
+      : institutes;
+
+    return sortedInstitutes.map((inst) => {
+      const reviewCount = inst.reviews.length;
+      const avgRating = reviewCount > 0 
+        ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount 
+        : 0;
+      
+      const { reviews, ...rest } = inst;
+      return {
+        ...rest,
+        reviewCount,
+        avgRating,
+      };
     });
   }
 
   async search(dto: SearchInstitutesDto) {
-    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location } = dto;
+    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating } = dto;
 
     if (!cityId && location) {
       const city = await this.prisma.city.findFirst({
@@ -34,38 +78,75 @@ export class InstitutesService {
     if (lat && lng) {
       const radiusInMeters = radius * 1000;
       
-      // Expanded geospatial query to include service name matching
-      const results = await this.prisma.$queryRaw`
-        SELECT DISTINCT
-          i.id as "instituteId",
-          i.name as "instituteName",
-          i."logoUrl",
-          b.id as "nearestBranchId",
-          b.address,
-          b.phone,
-          c.name as "cityName",
-          ST_Distance(
-            b.location::geography, 
-            ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography
-          ) / 1000 as "distanceKm"
+      // Find IDs and distances of matching institutes nearby using Haversine formula
+      // 6371 is the radius of the Earth in KM
+      const nearby: any[] = await this.prisma.$queryRaw`
+        SELECT 
+          i.id,
+          MIN(6371 * acos(
+            cos(radians(${lat})) * cos(radians(b.latitude)) * 
+            cos(radians(b.longitude) - radians(${lng})) + 
+            sin(radians(${lat})) * sin(radians(b.latitude))
+          )) as "distanceKm"
         FROM "Institute" i
         INNER JOIN "Branch" b ON b."instituteId" = i.id
-        LEFT JOIN "City" c ON c.id = b."cityId"
         LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
         LEFT JOIN "Service" s ON s.id = "is"."serviceId"
         WHERE i.status = 'APPROVED'
-        AND ST_DWithin(
-          b.location::geography, 
-          ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography, 
-          ${radiusInMeters}
-        )
+        AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
         ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
         ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
+        ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
+        GROUP BY i.id
+        HAVING MIN(6371 * acos(
+          cos(radians(${lat})) * cos(radians(b.latitude)) * 
+          cos(radians(b.longitude) - radians(${lng})) + 
+          sin(radians(${lat})) * sin(radians(b.latitude))
+        )) <= ${radius}
         ORDER BY "distanceKm" ASC
         LIMIT 50;
       `;
-      
-      return results;
+
+      const ids = nearby.map(n => n.id);
+      if (ids.length === 0) return [];
+
+      // Fetch full records for these IDs
+      const results = await this.prisma.institute.findMany({
+        where: { id: { in: ids } },
+        include: {
+          branches: { include: { city: true, area: true } },
+          services: { include: { service: true } },
+          images: { take: 1 },
+          reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
+        }
+      });
+
+      // Map statistics and merge distance from SQL query
+      return results.map(inst => {
+        const reviewCount = inst.reviews.length;
+        const avgRating = reviewCount > 0 
+          ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount 
+          : 0;
+        
+        const distanceData = nearby.find(n => n.id === inst.id);
+        
+        return {
+          id: inst.id,
+          name: inst.name,
+          description: inst.description,
+          logoUrl: inst.logoUrl,
+          website: inst.website,
+          images: inst.images,
+          branches: inst.branches,
+          services: inst.services,
+          avgRating,
+          reviewCount,
+          distanceKm: distanceData?.distanceKm,
+          cityName: inst.branches[0]?.city?.name,
+          areaName: inst.branches[0]?.area?.name,
+        };
+      }).filter(inst => !minRating || inst.avgRating >= minRating)
+        .sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0)); // Re-sort to maintain SQL order
     }
 
     // Fallback simple Prisma lookup if no coordinates provided
@@ -81,25 +162,40 @@ export class InstitutesService {
       },
       include: {
         branches: {
-          where: cityId ? { cityId } : { isMain: true },
           include: { city: true, area: true },
-          take: 1
         },
         services: {
           include: { service: true }
         },
-        images: { take: 1 }
+        images: { take: 1 },
+        reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
       },
       take: 50,
       orderBy: { createdAt: 'desc' }
     });
 
-    // Flatten for consistent frontend consumption
-    return institutes.map(inst => ({
-      ...inst,
-      cityName: inst.branches[0]?.city?.name,
-      areaName: inst.branches[0]?.area?.name,
-    }));
+    // Flatten for consistent frontend consumption and add stats
+    return institutes.map(inst => {
+      const reviewCount = inst.reviews.length;
+      const avgRating = reviewCount > 0 
+        ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount 
+        : 0;
+
+      return {
+        id: inst.id,
+        name: inst.name,
+        description: inst.description,
+        logoUrl: inst.logoUrl,
+        website: inst.website,
+        images: inst.images,
+        branches: inst.branches,
+        services: inst.services,
+        avgRating,
+        reviewCount,
+        cityName: inst.branches[0]?.city?.name,
+        areaName: inst.branches[0]?.area?.name,
+      };
+    }).filter(inst => !minRating || inst.avgRating >= minRating);
   }
 
   async findOne(id: string) {

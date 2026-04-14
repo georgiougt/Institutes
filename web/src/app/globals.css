@@ -176,3 +176,8 @@ iframe.goog-te-banner-frame {
   border: none !important;
   box-shadow: none !important;
 }
+
+/* Hide Leaflet Attribution */
+.leaflet-control-attribution {
+  display: none !important;
+}

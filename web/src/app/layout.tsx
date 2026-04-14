@@ -22,13 +22,15 @@ export const metadata: Metadata = {
   description: 'Find the best tutoring centers and learning institutes near you.',
 };
 
+import { Toaster } from 'sonner';
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="el" className={cn("font-sans", geist.variable)}>
+    <html lang="el" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
       <body className={`${outfit.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         {/* Google Translate Hidden Element */}
         <div id="google_translate_element" style={{ display: 'none' }}></div>
@@ -55,6 +57,7 @@ export default function RootLayout({
           {children}
         </main>
         {/* We will inject a Footer here */}
+        <Toaster position="top-center" />
       </body>
     </html>
   );

@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Loader2, AlertCircle, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,7 +33,6 @@ export default function LoginPage() {
 
       const user = await res.json();
       
-      // Store user info in localStorage for this demo (Real app would use cookies/JWT)
       localStorage.setItem('user', JSON.stringify(user));
 
       if (user.role === 'ADMIN') {

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { 
   LayoutDashboard, Building2, Users, BookOpen, MapPin, 
   Mail, Shield, Star, BarChart3, Settings, ScrollText,
-  UserCog, X, FileWarning, ChevronRight
+  UserCog, X, FileWarning, ChevronRight, MessageSquare
 } from 'lucide-react';
 
 type NavItem = {
@@ -49,6 +49,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
       { label: 'Locations', href: '/admin/locations', icon: <MapPin className="h-4 w-4" /> },
       { label: 'Moderation', href: '/admin/moderation', icon: <FileWarning className="h-4 w-4" /> },
       { label: 'Featured', href: '/admin/featured', icon: <Star className="h-4 w-4" /> },
+      { label: 'Reviews', href: '/admin/reviews', icon: <MessageSquare className="h-4 w-4" /> },
     ],
   },
   {

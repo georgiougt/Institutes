@@ -18,15 +18,18 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 interface SearchMapProps {
   institutes: any[];
+  userLocation?: { lat: number; lng: number };
 }
 
 function ChangeView({ center }: { center: [number, number] }) {
   const map = useMap();
-  map.setView(center, map.getZoom());
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
   return null;
 }
 
-export default function SearchMap({ institutes }: SearchMapProps) {
+export default function SearchMap({ institutes, userLocation }: SearchMapProps) {
   // Filter institutes that have branches with coordinates
   const markers = institutes.flatMap(inst => 
     (inst.branches || [])
@@ -40,23 +43,45 @@ export default function SearchMap({ institutes }: SearchMapProps) {
       }))
   );
 
-  // Default center to the first marker or Nicosia/Limassol area
-  const defaultCenter: [number, number] = markers.length > 0 
-    ? markers[0].position 
-    : [35.1264, 33.3677];
+  // Determine map center
+  const getCenter = (): [number, number] => {
+    if (markers.length > 0) return markers[0].position;
+    if (userLocation) return [userLocation.lat, userLocation.lng];
+    return [35.1264, 33.3677]; // Default Nicosia
+  };
+
+  const center = getCenter();
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-gray-200">
       <MapContainer 
-        center={defaultCenter} 
+        center={center} 
         zoom={13} 
         scrollWheelZoom={false}
         className="h-full w-full"
+        attributionControl={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        
+        {/* User Location Marker */}
+        {userLocation && (
+          <Marker 
+            position={[userLocation.lat, userLocation.lng]}
+            icon={L.divIcon({
+              className: 'custom-div-icon',
+              html: `<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);"></div>`,
+              iconSize: [16, 16],
+              iconAnchor: [8, 8]
+            })}
+          >
+            <Popup>
+              <div className="p-1 font-bold text-xs">Είσαι εδώ (σύμφωνα με το browser)</div>
+            </Popup>
+          </Marker>
+        )}
+
         {markers.map((marker) => (
           <Marker key={marker.id} position={marker.position}>
             <Popup>
@@ -67,13 +92,13 @@ export default function SearchMap({ institutes }: SearchMapProps) {
                   href={`/institute/${marker.instituteId}`}
                   className="text-xs font-bold text-red-600 hover:underline"
                 >
-                  View Profile
+                  Προβολή Προφίλ
                 </Link>
               </div>
             </Popup>
           </Marker>
         ))}
-        {markers.length > 0 && <ChangeView center={markers[0].position} />}
+        <ChangeView center={center} />
       </MapContainer>
     </div>
   );

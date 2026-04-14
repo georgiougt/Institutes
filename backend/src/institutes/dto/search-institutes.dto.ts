@@ -24,7 +24,7 @@ export class SearchInstitutesDto {
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  @Max(100)
+  @Max(30)
   radius?: number;
 
   @ApiPropertyOptional({ description: 'Filter by specific service ID' })
@@ -51,4 +51,12 @@ export class SearchInstitutesDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @ApiPropertyOptional({ description: 'Minimum average rating' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @Max(5)
+  minRating?: number;
 }

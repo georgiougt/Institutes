@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/footer';
 import { ContactButton, SendMessageButton } from '@/components/contact-buttons';
+import { ReviewSection } from '@/components/reviews/ReviewSection';
 
 async function getInstitute(id: string) {
   try {
@@ -202,6 +203,11 @@ export default async function InstituteProfilePage({
                 ))}
               </div>
             </section>
+
+            {/* Reviews Section */}
+            <section id="reviews">
+              <ReviewSection instituteId={resolvedParams.id} />
+            </section>
           </div>
 
           {/* Right Column: Sticky Contact Card & Meta */}
@@ -237,10 +243,10 @@ export default async function InstituteProfilePage({
                   <span className="text-sm font-bold text-slate-600 group-hover:text-red-600 transition-colors">Website</span>
                   <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-red-600" />
                 </Link>
-                <div className="flex items-center justify-between group cursor-pointer border-t border-slate-200 pt-4">
-                  <span className="text-sm font-bold text-slate-600 group-hover:text-red-600 transition-colors">Κριτικές (Coming Soon)</span>
+                <Link href="#reviews" className="flex items-center justify-between group cursor-pointer border-t border-slate-200 pt-4">
+                  <span className="text-sm font-bold text-slate-600 group-hover:text-red-600 transition-colors">Κριτικές</span>
                   <MessageSquare className="h-4 w-4 text-slate-400 group-hover:text-red-600" />
-                </div>
+                </Link>
               </div>
 
             </div>

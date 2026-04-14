@@ -89,6 +89,7 @@ model User {
   auditLogs         AuditLog[]        @relation("AuditActor")
   claimsSubmitted   Claim[]
   reviewAssignments ReviewAssignment[]
+  reviews           Review[]
 }
 
 // ─── INSTITUTE ──────────────────────────────────────────────────────────────
@@ -125,6 +126,7 @@ model Institute {
   featuredListings  FeaturedListing[]
   moderationNotes   ModerationNote[]
   statusHistory     InstituteStatusHistory[]
+  reviews           Review[]
 
   @@index([status])
   @@index([ownerId])
@@ -443,4 +445,25 @@ model PlatformSetting {
   value           Json
   updatedBy       String?
   updatedAt       DateTime          @updatedAt
+}
+
+// ─── REVIEWS ─────────────────────────────────────────────────────────────────
+
+model Review {
+  id            String    @id @default(uuid())
+  instituteId   String
+  userId        String?
+  guestName     String?
+  rating        Int       // 1 to 5
+  comment       String?
+  status        RevStatus @default(PENDING)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  institute     Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([instituteId])
+  @@index([userId])
+  @@index([status])
 }
