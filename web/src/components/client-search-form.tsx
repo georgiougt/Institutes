@@ -55,7 +55,7 @@ export function ClientSearchForm() {
       {/* Subject Select */}
       <div className="relative flex-[1.2] flex items-center bg-white px-4 border-r border-gray-200">
          <BookOpen className="h-5 w-5 text-gray-400 mr-2 shrink-0" />
-         <Select value={serviceId} onValueChange={setServiceId}>
+         <Select value={serviceId} onValueChange={(v) => setServiceId(v || 'all')}>
            <SelectTrigger className="h-12 border-0 shadow-none focus:ring-0 text-[15px] font-bold px-1 bg-transparent text-slate-700">
              <SelectValue placeholder="Τι μάθημα;" />
            </SelectTrigger>
@@ -84,7 +84,7 @@ export function ClientSearchForm() {
       {/* Location Select */}
       <div className="relative flex-1 flex items-center bg-white px-4">
          <MapPin className="h-5 w-5 text-gray-400 mr-2 shrink-0" />
-         <Select value={location} onValueChange={setLocation}>
+         <Select value={location} onValueChange={(v) => setLocation(v || 'all')}>
            <SelectTrigger className="h-12 border-0 shadow-none focus:ring-0 text-[15px] font-bold px-1 bg-transparent text-slate-700">
              <SelectValue placeholder="Που;" />
            </SelectTrigger>
