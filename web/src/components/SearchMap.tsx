@@ -21,10 +21,14 @@ interface SearchMapProps {
   userLocation?: { lat: number; lng: number };
 }
 
-function ChangeView({ center }: { center: [number, number] }) {
+function MapFix({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, map.getZoom());
+    // Force recalculation of container size
+    setTimeout(() => {
+      map.invalidateSize();
+      map.setView(center, map.getZoom());
+    }, 100);
   }, [center, map]);
   return null;
 }
@@ -98,7 +102,7 @@ export default function SearchMap({ institutes, userLocation }: SearchMapProps) 
             </Popup>
           </Marker>
         ))}
-        <ChangeView center={center} />
+        <MapFix center={center} />
       </MapContainer>
     </div>
   );

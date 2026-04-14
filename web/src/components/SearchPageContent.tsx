@@ -266,6 +266,7 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
         )}>
           <div className="sticky top-[73px] h-[calc(100vh-73px)] w-full">
             <ClientMap 
+              key={viewMode}
               institutes={results} 
               userLocation={userLocation}
             />
