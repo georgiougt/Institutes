@@ -14,7 +14,7 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <div>
               <label className="text-xs font-medium text-slate-500 mb-1 block">Default Page Title</label>
-              <input type="text" defaultValue="EduTrack - Find Learning Centers" className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
+              <input type="text" defaultValue="ToFrontistirio - Find Learning Centers" className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400" />
             </div>
             <div>
               <label className="text-xs font-medium text-slate-500 mb-1 block">Meta Description</label>

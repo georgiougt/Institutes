@@ -80,7 +80,7 @@ function OwnerDashboardContent() {
           <div className="bg-red-600 p-2 rounded-xl text-white">
             <Building2 className="h-6 w-6" />
           </div>
-          <span className="font-bold text-xl tracking-tight text-slate-900">EduTrack Owner</span>
+          <span className="font-bold text-xl tracking-tight text-slate-900">ToFrontistirio Owner</span>
         </div>
 
         <nav className="flex-1 p-4 space-y-1.5">

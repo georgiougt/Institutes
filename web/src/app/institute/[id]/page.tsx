@@ -41,7 +41,7 @@ export default async function InstituteProfilePage({
       <header className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-50">
         <Link href="/" className="flex items-center gap-1 group shrink-0">
           <span className="text-red-600 font-extrabold text-3xl leading-none">*</span>
-          <span className="font-extrabold text-3xl tracking-tighter text-slate-900">EduTrack</span>
+          <span className="font-extrabold text-3xl tracking-tighter text-slate-900">ToFrontistirio</span>
         </Link>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" className="font-bold text-gray-600">
