@@ -48,7 +48,7 @@ export function StepLocation() {
               </SelectTrigger>
               <SelectContent>
                 {cities.map(c => (
-                  <SelectItem key={c.id} value={c.id} label={c.name}>{c.name}</SelectItem>
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

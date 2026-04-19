@@ -60,7 +60,7 @@ export function ClientSearchForm() {
              <SelectValue placeholder="Τι μάθημα;" />
            </SelectTrigger>
            <SelectContent className="max-h-[300px]">
-             <SelectItem value="all" className="font-bold" label="Όλα τα μαθήματα">Όλα τα μαθήματα</SelectItem>
+             <SelectItem value="all" className="font-bold">Όλα τα μαθήματα</SelectItem>
              {metadata?.services.map((s) => (
                <SelectItem key={s.id} value={s.id} className="font-medium" label={s.name}>
                  {s.name}
