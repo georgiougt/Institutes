@@ -21,8 +21,8 @@ interface Metadata {
 export function ClientSearchForm() {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [serviceId, setServiceId] = useState<string>("");
-  const [location, setLocation] = useState("");
+  const [serviceId, setServiceId] = useState<string>("all");
+  const [location, setLocation] = useState("all");
   const [metadata, setMetadata] = useState<Metadata | null>(null);
 
   useEffect(() => {
@@ -44,8 +44,8 @@ export function ClientSearchForm() {
     e.preventDefault();
     const params = new URLSearchParams();
     if (query) params.append('query', query);
-    if (location && location !== "") params.append("cityId", location);
-    if (serviceId && serviceId !== "") params.append("serviceId", serviceId);
+    if (location && location !== "all") params.append("cityId", location);
+    if (serviceId && serviceId !== "all") params.append("serviceId", serviceId);
     
     router.push(`/search?${params.toString()}`);
   };
@@ -60,9 +60,9 @@ export function ClientSearchForm() {
              <SelectValue placeholder="Τι μάθημα;" />
            </SelectTrigger>
            <SelectContent className="max-h-[300px]">
-             <SelectItem value="" className="font-bold">Όλα τα μαθήματα</SelectItem>
+             <SelectItem value="all" className="font-bold" label="Όλα τα μαθήματα">Όλα τα μαθήματα</SelectItem>
              {metadata?.services.map((s) => (
-               <SelectItem key={s.id} value={s.id} className="font-medium">
+               <SelectItem key={s.id} value={s.id} className="font-medium" label={s.name}>
                  {s.name}
                </SelectItem>
              ))}
@@ -84,14 +84,14 @@ export function ClientSearchForm() {
       {/* Location Select */}
       <div className="relative flex-1 flex items-center bg-white px-4">
          <MapPin className="h-5 w-5 text-gray-400 mr-2 shrink-0" />
-         <Select value={location || ""} onValueChange={(v) => setLocation(v || "")}>
+         <Select value={location || "all"} onValueChange={(v) => setLocation(v || "all")}>
            <SelectTrigger className="h-12 border-0 shadow-none focus:ring-0 text-[15px] font-bold px-1 bg-transparent text-slate-700">
              <SelectValue placeholder="Που;" />
            </SelectTrigger>
            <SelectContent>
-             <SelectItem value="" className="font-bold">Όλες οι πόλεις</SelectItem>
+             <SelectItem value="all" className="font-bold" label="Όλες οι πόλεις">Όλες οι πόλεις</SelectItem>
              {metadata?.cities.map((city) => (
-               <SelectItem key={city.id} value={city.id} className="font-medium">
+               <SelectItem key={city.id} value={city.id} className="font-medium" label={city.name}>
                  {city.name}
                </SelectItem>
              ))}
