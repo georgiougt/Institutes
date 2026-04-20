@@ -37,7 +37,7 @@ interface ContactFormDialogProps {
   instituteId: string;
   instituteName: string;
   services?: any[];
-  trigger?: React.ReactNode;
+  trigger?: React.ReactElement;
 }
 
 export function ContactFormDialog({ instituteId, instituteName, services = [], trigger }: ContactFormDialogProps) {
