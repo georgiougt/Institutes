@@ -75,14 +75,14 @@ export function ContactFormDialog({ instituteId, instituteName, services = [], t
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
+      <DialogTrigger 
+        render={trigger || (
           <Button className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-12 gap-2">
             <MessageSquare className="h-4 w-4" />
             Στείλτε Μήνυμα
           </Button>
         )}
-      </DialogTrigger>
+      />
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl">
         <DialogHeader className="p-8 bg-red-600 text-white">
           <div className="flex items-center gap-3 mb-2">
