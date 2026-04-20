@@ -33,6 +33,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
+import { LocationPicker } from '@/components/ui/location-picker';
 
 export default function BranchesManagerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id: instituteId } = use(params);
@@ -111,6 +113,23 @@ export default function BranchesManagerPage({ params }: { params: Promise<{ id: 
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAddressSelect = (address: string, lat: number, lng: number) => {
+    setEditingBranch((prev: any) => ({
+      ...prev,
+      address,
+      latitude: lat,
+      longitude: lng
+    }));
+  };
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    setEditingBranch((prev: any) => ({
+      ...prev,
+      latitude: lat,
+      longitude: lng
+    }));
   };
 
   if (loading) return <div className="p-8 text-slate-400 font-medium animate-pulse text-center">Φόρτωση τοποθεσιών...</div>;
@@ -255,13 +274,27 @@ export default function BranchesManagerPage({ params }: { params: Promise<{ id: 
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="address" className="font-bold text-slate-700">Διεύθυνση</Label>
-                <Input 
-                  id="address" 
-                  value={editingBranch.address} 
-                  onChange={(e) => setEditingBranch({...editingBranch, address: e.target.value})}
+                <Label htmlFor="address" className="font-bold text-slate-700">Διεύθυνση / Αναζήτηση</Label>
+                <AddressAutocomplete 
+                  defaultValue={editingBranch.address}
+                  onAddressSelect={handleAddressSelect}
                   className="rounded-xl border-slate-200"
                 />
+              </div>
+
+              <div className="space-y-3">
+                 <Label className="font-bold text-slate-700 flex items-center gap-2">
+                    <Navigation className="h-4 w-4 text-red-600" />
+                    Προσδιορισμός στο χάρτη
+                 </Label>
+                 <LocationPicker 
+                    lat={editingBranch.latitude} 
+                    lng={editingBranch.longitude}
+                    onChange={handleLocationChange}
+                 />
+                 <p className="text-[10px] text-slate-400 font-medium italic">
+                    Μπορείτε να σύρετε την πινέζα για να διορθώσετε την ακριβή τοποθεσία.
+                 </p>
               </div>
 
               <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 space-y-3">
