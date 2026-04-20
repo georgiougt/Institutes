@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query, Post, Body, UnauthorizedException, InternalServerErrorException, ConflictException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, UnauthorizedException, InternalServerErrorException, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InstitutesService } from './institutes.service';
 import { SearchInstitutesDto } from './dto/search-institutes.dto';
 import { OnboardInstituteDto } from './dto/onboard-institute.dto';
 import { LoginDto } from './dto/login.dto';
+import { CreateContactRequestDto } from './dto/contact-request.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Institutes')
@@ -24,18 +25,20 @@ export class InstitutesController {
     return this.institutesService.getRecent(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get details of a specific institute' })
-  @ApiResponse({ status: 200, description: 'Return a single institute with all its branches and services.' })
-  @ApiResponse({ status: 404, description: 'Institute not found.' })
-  findOne(@Param('id') id: string) {
-    return this.institutesService.findOne(id);
-  }
-
   @Get('metadata/lists')
   @ApiOperation({ summary: 'Get list of cities and services for dropdowns' })
   metadata() {
     return this.institutesService.getMetadata();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get details of a specific institute' })
+  @ApiResponse({ status: 200, description: 'Return a single institute with all its branches and services.' })
+  @ApiResponse({ status: 404, description: 'Institute not found.' })
+  async findOne(@Param('id') id: string) {
+    const institute = await this.institutesService.findOne(id);
+    if (!institute) throw new NotFoundException('Institute not found');
+    return institute;
   }
 
   @Post('onboard')
@@ -77,5 +80,14 @@ export class InstitutesController {
   @ApiOperation({ summary: 'Get institutes for a specific owner' })
   async findByOwner(@Param('id') ownerId: string) {
     return this.institutesService.findByOwner(ownerId);
+  }
+
+  @Post(':id/contact')
+  @ApiOperation({ summary: 'Send a contact message to an institute' })
+  async sendContact(
+    @Param('id') id: string,
+    @Body() dto: CreateContactRequestDto
+  ) {
+    return this.institutesService.createContactRequest(id, dto);
   }
 }

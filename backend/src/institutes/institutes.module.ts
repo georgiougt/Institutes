@@ -5,10 +5,11 @@ import { InstitutesService } from './institutes.service';
 import { InstituteMgmtService } from './institute-mgmt.service';
 import { OnboardingController } from './onboarding/onboarding.controller';
 import { OnboardingService } from './onboarding/onboarding.service';
+import { StorageService } from '../common/storage/storage.service';
 
 @Module({
   controllers: [InstitutesController, OwnerInstitutesController, OnboardingController],
-  providers: [InstitutesService, InstituteMgmtService, OnboardingService],
-  exports: [InstitutesService, InstituteMgmtService, OnboardingService]
+  providers: [InstitutesService, InstituteMgmtService, OnboardingService, StorageService],
+  exports: [InstitutesService, InstituteMgmtService, OnboardingService, StorageService]
 })
 export class InstitutesModule {}

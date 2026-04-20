@@ -229,7 +229,11 @@ export default async function InstituteProfilePage({
                     <Clock className="h-4 w-4" />
                     <span>Ανοιχτά σήμερα: 14:00 - 21:00</span>
                   </div>
-                  <SendMessageButton />
+                  <SendMessageButton 
+                    instituteId={institute.id} 
+                    instituteName={institute.name}
+                    services={institute.services}
+                  />
                 </div>
               </div>
 

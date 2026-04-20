@@ -37,7 +37,7 @@ export class InstitutesService {
         ? { id: { in: ids } } 
         : { status: 'APPROVED' },
       include: {
-        images: { take: 1 },
+        images: { orderBy: { createdAt: 'desc' }, take: 1 },
         owner: { select: { firstName: true } },
         branches: { include: { city: true }, take: 1 },
         reviews: {
@@ -120,7 +120,7 @@ export class InstitutesService {
         include: {
           branches: { include: { city: true, area: true } },
           services: { include: { service: true } },
-          images: { take: 1 },
+          images: { orderBy: { createdAt: 'desc' }, take: 1 },
           reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
         }
       });
@@ -171,7 +171,7 @@ export class InstitutesService {
         services: {
           include: { service: true }
         },
-        images: { take: 1 },
+        images: { orderBy: { createdAt: 'desc' }, take: 1 },
         reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
       },
       take: 50,
@@ -330,6 +330,20 @@ export class InstitutesService {
         branches: { include: { city: true } },
         images: true,
       },
+    });
+  }
+
+  async createContactRequest(instituteId: string, dto: any) {
+    return this.prisma.contactRequest.create({
+      data: {
+        instituteId,
+        guestName: dto.guestName,
+        guestEmail: dto.guestEmail,
+        guestPhone: dto.guestPhone,
+        message: dto.message,
+        serviceId: dto.serviceId,
+        userId: dto.userId,
+      }
     });
   }
 }

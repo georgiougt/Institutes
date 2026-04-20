@@ -68,6 +68,12 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
       active: pathname === `/owner/${instituteId}/media`,
     },
     {
+      label: 'Analytics',
+      icon: BarChart3,
+      href: `/owner/${instituteId}/analytics`,
+      active: pathname === `/owner/${instituteId}/analytics`,
+    },
+    {
       label: 'Inquiries',
       icon: MessageSquare,
       href: `/owner/${instituteId}/inquiries`,

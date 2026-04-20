@@ -10,8 +10,11 @@ import {
   Maximize2,
   X,
   PlusCircle,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Upload,
+  Loader2
 } from 'lucide-react';
+import { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +26,9 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
   const [images, setImages] = useState<any[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,6 +80,74 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/upload`, {
+        method: 'POST',
+        headers: { 
+          'X-User-Id': userId
+        },
+        body: formData,
+      });
+
+      if (res.ok) {
+        const added = await res.json();
+        setImages(prev => [added, ...prev]);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      } else {
+        const err = await res.json();
+        alert(err.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading file');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/logo/upload`, {
+        method: 'POST',
+        headers: { 
+          'X-User-Id': userId
+        },
+        body: formData,
+      });
+
+      if (res.ok) {
+        const updated = await res.json();
+        setLogoUrl(updated.logoUrl);
+        if (logoInputRef.current) logoInputRef.current.value = '';
+      } else {
+        const err = await res.json();
+        alert(err.message || 'Logo upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading logo');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const deleteImage = async (id: string) => {
     try {
       const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
@@ -121,6 +195,22 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
           <p className="text-slate-500">Manage your institute's photos, logo, and visual assets.</p>
         </div>
         <div className="flex gap-4">
+           <input 
+             type="file" 
+             ref={fileInputRef} 
+             className="hidden" 
+             accept="image/*"
+             onChange={handleFileUpload}
+           />
+           <Button 
+             onClick={() => fileInputRef.current?.click()}
+             disabled={uploading}
+             className="bg-slate-900 hover:bg-slate-800 text-white rounded-2xl h-14 px-8 font-black shadow-xl shadow-slate-200 gap-2"
+           >
+             {uploading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+             {uploading ? 'Processing...' : 'Upload Photo'}
+           </Button>
+
            <div className="flex gap-2 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 items-center pr-4">
               <div className="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
                  <LinkIcon className="h-4 w-4" />
@@ -147,19 +237,29 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
          <div className="space-y-6">
             <Card className="border-none shadow-sm bg-white overflow-hidden text-center p-8">
                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-50 pb-4">Main Logo</p>
-               <div className="relative group mx-auto mb-6">
+               <input 
+                 type="file" 
+                 ref={logoInputRef} 
+                 className="hidden" 
+                 accept="image/*"
+                 onChange={handleLogoUpload}
+               />
+               <div 
+                 className="relative group mx-auto mb-6 cursor-pointer"
+                 onClick={() => !uploading && logoInputRef.current?.click()}
+               >
                   <div className="h-32 w-32 rounded-3xl bg-slate-50 border-2 border-dashed border-slate-200 mx-auto flex items-center justify-center overflow-hidden">
-                     {logoUrl ? (
+                     {uploading && !fileInputRef.current?.value ? (
+                        <Loader2 className="h-8 w-8 text-red-600 animate-spin" />
+                     ) : logoUrl ? (
                          <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
                      ) : (
                          <PlusCircle className="h-8 w-8 text-slate-200" />
                      )}
                   </div>
-                  {logoUrl && (
-                    <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center cursor-pointer">
-                       <p className="text-white font-bold text-xs">Change Logo</p>
-                    </div>
-                  )}
+                  <div className="absolute inset-0 bg-red-600/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center">
+                     <p className="text-white font-bold text-xs">{logoUrl ? 'Change Logo' : 'Upload Logo'}</p>
+                  </div>
                </div>
                <p className="text-xs text-slate-400 font-medium leading-relaxed">
                   The logo is used throughout the platform and in search results.
@@ -204,12 +304,6 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
                           </Button>
                        </div>
                     </div>
-
-                    {!img.isApproved && (
-                      <Badge className="absolute top-4 left-4 bg-amber-500/90 backdrop-blur-md border-none text-[10px] font-bold py-1">
-                         PENDING REVIEW
-                      </Badge>
-                    )}
                  </div>
                ))}
 

@@ -10,10 +10,11 @@ export class InstituteMgmtService {
     const institute = await this.prisma.institute.findUnique({
       where: { id: instituteId },
       include: {
-        branches: true,
+        branches: { include: { schedules: true } },
         services: true,
         images: true,
         contactRequests: {
+          include: { service: true },
           orderBy: { createdAt: 'desc' },
           take: 5
         }
@@ -26,11 +27,12 @@ export class InstituteMgmtService {
       where: { instituteId, status: 'NEW' }
     });
 
-    const completeness = this.calculateCompleteness(institute);
+    const completenessData = this.calculateCompleteness(institute);
 
     return {
       status: institute.status,
-      completeness,
+      completeness: completenessData.score,
+      completenessSteps: completenessData.steps,
       unreadInquiries,
       recentInquiries: institute.contactRequests,
       stats: {
@@ -41,17 +43,21 @@ export class InstituteMgmtService {
     };
   }
 
-  private calculateCompleteness(institute: any): number {
-    let score = 0;
-    if (institute.name) score += 10;
-    if (institute.description && (institute.description as string).length > 50) score += 15;
-    if (institute.logoUrl) score += 10;
-    if (institute.website) score += 5;
-    if (institute.branches && (institute.branches as any[]).length > 0) score += 20;
-    if (institute.branches && (institute.branches as any[]).some((b: any) => b.latitude && b.longitude)) score += 10;
-    if (institute.services && (institute.services as any[]).length > 0) score += 15;
-    if (institute.images && (institute.images as any[]).length > 0) score += 15;
-    return Math.min(score, 100);
+  private calculateCompleteness(institute: any): { score: number, steps: any[] } {
+    const steps = [
+      { label: 'Add a profile logo', path: 'profile', value: 10, completed: !!institute.logoUrl },
+      { label: 'Add a detailed description', path: 'profile', value: 15, completed: !!(institute.description && (institute.description as string).length >= 35) },
+      { label: 'Add images to media gallery', path: 'media', value: 15, completed: !!(institute.images && (institute.images as any[]).length > 0) },
+      { label: 'Define operating schedule', path: 'schedules', value: 10, completed: !!(institute.branches && (institute.branches as any[]).some((b: any) => b.schedules && b.schedules.length > 0)) },
+      { label: 'Add at least one branch', path: 'branches', value: 15, completed: !!(institute.branches && (institute.branches as any[]).length > 0) },
+      { label: 'Set branch location on map', path: 'branches', value: 10, completed: !!(institute.branches && (institute.branches as any[]).some((b: any) => b.latitude && b.longitude)) },
+      { label: 'Add services or subjects', path: 'services', value: 15, completed: !!(institute.services && (institute.services as any[]).length > 0) },
+      { label: 'Provide basic info (Name)', path: 'profile', value: 5, completed: !!institute.name },
+      { label: 'Add a website URL', path: 'profile', value: 5, completed: !!institute.website }
+    ];
+
+    const score = steps.reduce((acc, step) => acc + (step.completed ? step.value : 0), 0);
+    return { score: Math.min(score, 100), steps };
   }
 
   async updateProfile(instituteId: string, dto: UpdateInstituteProfileDto) {
@@ -96,7 +102,10 @@ export class InstituteMgmtService {
   async getInquiries(instituteId: string) {
     return this.prisma.contactRequest.findMany({
       where: { instituteId },
-      include: { notes: true },
+      include: { 
+        notes: true,
+        service: true
+      },
       orderBy: { createdAt: 'desc' }
     });
   }
@@ -173,7 +182,7 @@ export class InstituteMgmtService {
         instituteId,
         url,
         caption,
-        isApproved: false // Requires admin mod eventually
+        isApproved: true // Auto-approved for now as per owner feedback
       }
     });
   }

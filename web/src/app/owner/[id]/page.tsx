@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { 
+import Link from 'next/link';
+import {  
   Building2, 
   Target, 
   MessageSquare, 
@@ -48,12 +49,7 @@ export default function OwnerOverviewPage({ params }: { params: Promise<{ id: st
   if (loading) return <div className="p-8 text-slate-400 font-medium animate-pulse">Loading dashboard...</div>;
   if (!data) return <div className="p-8 text-red-500 font-medium">Error loading data.</div>;
 
-  const stats = [
-    { label: 'Profile Views', value: '1.2k', change: '+12%', icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Total Inquiries', value: data.unreadInquiries + (data.recentInquiries?.length || 0), change: `+${data.unreadInquiries}`, icon: MessageSquare, color: 'text-red-600', bg: 'bg-red-50' },
-    { label: 'Conversion Rate', value: '4.2%', change: '+0.4%', icon: MousePointer2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Favorites', value: '156', change: '+18', icon: Target, color: 'text-amber-600', bg: 'bg-amber-50' },
-  ];
+
 
   const recentInquiries = data.recentInquiries || [];
   const completeness = data.completeness;
@@ -111,26 +107,38 @@ export default function OwnerOverviewPage({ params }: { params: Promise<{ id: st
                        <span className="text-3xl font-black text-slate-900">{completeness}%</span>
                     </div>
                  </div>
-                 
-                 <div className="flex-1 space-y-4">
+                                  <div className="flex-1 space-y-4">
                     <p className="text-slate-600 leading-relaxed font-medium">
-                       Your profile is almost ready for maximum visibility! Complete the remaining steps to improve your search ranking.
+                       {completeness === 100 
+                          ? "Your profile is fully optimized for maximum visibility! Keep maintaining your content to rank higher."
+                          : "Your profile is almost ready for maximum visibility! Complete the remaining steps to improve your search ranking."}
                     </p>
                     <div className="space-y-2">
-                       <div className="flex items-center gap-2 text-sm text-slate-500 line-through decoration-slate-300">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                          Add secondary branch branches
-                       </div>
-                       <div className="flex items-center gap-2 text-sm text-slate-900 font-semibold group cursor-pointer hover:text-red-600 transition-colors">
-                          <AlertCircle className="h-4 w-4 text-amber-500 group-hover:text-red-500" />
-                          Add a profile cover image (+15%)
-                          <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-                       </div>
-                       <div className="flex items-center gap-2 text-sm text-slate-900 font-semibold group cursor-pointer hover:text-red-600 transition-colors">
-                          <AlertCircle className="h-4 w-4 text-amber-500 group-hover:text-red-500" />
-                          Specify opening hours (+10%)
-                          <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-                       </div>
+                       {(() => {
+                         const steps = data.completenessSteps || [];
+                         const completed = steps.filter((s: any) => s.completed);
+                         const uncompleted = steps.filter((s: any) => !s.completed);
+                         const display = [...completed.slice(0, Math.max(0, 3 - uncompleted.length)), ...uncompleted.slice(0, 3)].slice(0, 3);
+                         
+                         return display.map((step: any, idx: number) => (
+                           step.completed ? (
+                             <div key={idx} className="flex items-center gap-2 text-sm text-slate-500 line-through decoration-slate-300">
+                                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                {step.label}
+                             </div>
+                           ) : (
+                             <Link 
+                               key={idx} 
+                               href={`/owner/${instituteId}/${step.path || 'profile'}`}
+                               className="flex items-center gap-2 text-sm text-slate-900 font-semibold group cursor-pointer hover:text-red-600 transition-colors block"
+                             >
+                                <AlertCircle className="h-4 w-4 text-amber-500 group-hover:text-red-500 shrink-0" />
+                                {step.label} <span className="text-red-600/80 group-hover:text-red-600">(+{step.value}%)</span>
+                                <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all shrink-0" />
+                             </Link>
+                           )
+                         ));
+                       })()}
                     </div>
                  </div>
               </div>
@@ -171,28 +179,7 @@ export default function OwnerOverviewPage({ params }: { params: Promise<{ id: st
         </Card>
       </div>
 
-      {/* Mini Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-         {stats.map((stat, idx) => (
-           <Card key={idx} className="border-none shadow-sm bg-white overflow-hidden group cursor-pointer active:scale-95 transition-all">
-              <CardContent className="p-6">
-                 <div className="flex items-start justify-between">
-                    <div>
-                       <p className="text-sm font-medium text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
-                       <h3 className="text-3xl font-black text-slate-900 tracking-tighter">{stat.value}</h3>
-                       <p className="text-xs font-bold text-emerald-500 mt-1 flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          {stat.change}
-                       </p>
-                    </div>
-                    <div className={cn("p-3 rounded-2xl transition-all group-hover:scale-110 group-hover:rotate-6 shadow-sm", stat.bg, stat.color)}>
-                       <stat.icon className="h-6 w-6" />
-                    </div>
-                 </div>
-              </CardContent>
-           </Card>
-         ))}
-      </div>
+
 
       {/* Recent Activity & Inquiries */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -238,18 +225,26 @@ export default function OwnerOverviewPage({ params }: { params: Promise<{ id: st
                <CardTitle className="text-lg font-bold">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-3">
-               <Button className="w-full justify-start gap-3 h-14 rounded-xl border-slate-200" variant="outline">
-                  <ImageIcon className="h-5 w-5 text-blue-500" />
-                  <span className="font-bold text-slate-700">Upload Media</span>
-               </Button>
-               <Button className="w-full justify-start gap-3 h-14 rounded-xl border-slate-200" variant="outline">
-                  <MapPin className="h-5 w-5 text-red-500" />
-                  <span className="font-bold text-slate-700">Add New Branch</span>
-               </Button>
-               <Button className="w-full justify-start gap-3 h-14 rounded-xl border-slate-200" variant="outline">
-                  <Users className="h-5 w-5 text-emerald-500" />
-                  <span className="font-bold text-slate-700">Invite Team Member</span>
-               </Button>
+               <Link href={`/owner/${instituteId}/media`} className="block group">
+                 <Button className="w-full justify-start gap-3 h-14 rounded-xl border-slate-200 group-hover:border-blue-200 group-hover:bg-blue-50 transition-all" variant="outline">
+                    <ImageIcon className="h-5 w-5 text-blue-500" />
+                    <span className="font-bold text-slate-700">Upload Media</span>
+                 </Button>
+               </Link>
+               
+               <Link href={`/owner/${instituteId}/inquiries`} className="block group">
+                 <Button className="w-full justify-start gap-3 h-14 rounded-xl border-slate-200 group-hover:border-red-200 group-hover:bg-red-50 transition-all" variant="outline">
+                    <MessageSquare className="h-5 w-5 text-red-500" />
+                    <span className="font-bold text-slate-700">View Inquiries</span>
+                 </Button>
+               </Link>
+
+               <Link href={`/owner/${instituteId}/schedules`} className="block group">
+                 <Button className="w-full justify-start gap-3 h-14 rounded-xl border-slate-200 group-hover:border-emerald-200 group-hover:bg-emerald-50 transition-all" variant="outline">
+                    <Calendar className="h-5 w-5 text-emerald-500" />
+                    <span className="font-bold text-slate-700">Update Schedule</span>
+                 </Button>
+               </Link>
                <div className="pt-6">
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                      <div className="flex items-center gap-2 mb-2 text-slate-900 font-bold">

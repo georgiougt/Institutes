@@ -3,22 +3,23 @@
 import { useEffect, useState, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { 
-  Building2, 
   Info, 
-  ImageIcon, 
   Globe, 
-  Hash, 
   Save, 
   Eye,
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
+import { useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface ProfileFormValues {
   name: string;
@@ -32,8 +33,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [initialProfile, setInitialProfile] = useState<any>(null);
 
-  const { register, handleSubmit, reset } = useForm<ProfileFormValues>();
+  const { register, handleSubmit, reset, setValue, watch } = useForm<ProfileFormValues>();
+  const description = watch('description') || '';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,6 +53,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
         // In a real app we'd fetch the full profile object
         const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${instituteId}`);
         const profile = await profileRes.json();
+        setInitialProfile(profile);
         reset({
           name: profile.name,
           description: profile.description,
@@ -92,14 +96,20 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
       const metrics = await metricsRes.json();
       setData(metrics);
       
-      alert('Profile updated! Note: Name changes require admin review.');
+      const isNameChanged = values.name !== initialProfile?.name;
+      
+      toast.success('Profile updated successfully!', {
+         description: isNameChanged ? 'Note: Name changes require admin review.' : 'All changes have been saved.'
+      });
     } catch (err) {
       console.error(err);
-      alert('Error saving profile');
+      toast.error('Error saving profile');
     } finally {
       setSaving(false);
     }
   };
+
+
 
   if (loading) return <div className="p-8 text-slate-400 font-medium animate-pulse">Loading profile settings...</div>;
 
@@ -146,10 +156,6 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
             <Info className="h-4 w-4 mr-2" />
             Basic Info
           </TabsTrigger>
-          <TabsTrigger value="branding" className="rounded-xl data-[state=active]:bg-red-50 data-[state=active]:text-red-600">
-            <ImageIcon className="h-4 w-4 mr-2" />
-            Branding
-          </TabsTrigger>
           <TabsTrigger value="social" className="rounded-xl data-[state=active]:bg-red-50 data-[state=active]:text-red-600">
             <Globe className="h-4 w-4 mr-2" />
             Contacts & Socials
@@ -178,56 +184,47 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                   </div>
                   
                   <div className="space-y-2">
-                     <label className="text-sm font-bold text-slate-700">Full Description</label>
+                     <div className="flex justify-between items-center">
+                        <label className="text-sm font-bold text-slate-700">Full Description</label>
+                        <span className={cn(
+                          "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                          description.length >= 35 ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
+                        )}>
+                          {description.length} characters
+                        </span>
+                     </div>
                      <Textarea 
                        {...register('description')} 
                        placeholder="Tell students about your teaching philosophy, history, and success rates..." 
                        className="rounded-xl min-h-[200px] border-slate-200"
+                     />
+                     <div className="flex items-center gap-2 mt-1">
+                        {description.length >= 35 ? (
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600">
+                            <CheckCircle2 className="h-3 w-3" /> Description goal met! (+15% progress)
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
+                            <AlertCircle className="h-3 w-3 text-amber-500" /> 
+                            Write at least <span className="text-slate-600 text-xs font-black">35 characters</span> to unlock the completeness bonus.
+                          </div>
+                        )}
+                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                     <label className="text-sm font-bold text-slate-700">Website URL</label>
+                     <Input 
+                       {...register('website')} 
+                       placeholder="https://www.example.com" 
+                       className="rounded-xl h-12 border-slate-200"
                      />
                   </div>
                </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="branding" className="space-y-6">
-            <Card className="border-none shadow-sm bg-white">
-               <CardHeader>
-                  <CardTitle>Logo & Branding</CardTitle>
-                  <CardDescription>Add visual elements that help your institute stand out.</CardDescription>
-               </CardHeader>
-               <CardContent className="p-8 pt-0 space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-slate-700">Institute Logo URL</label>
-                        <div className="flex items-center gap-6">
-                           <div className="h-24 w-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
-                              <img 
-                                src={data?.logoUrl || "https://images.unsplash.com/photo-1546410531-bc666a1a4574?q=80&w=600&auto=format&fit=crop"} 
-                                alt="Current Logo" 
-                                className="h-full w-full object-cover" 
-                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                              />
-                           </div>
-                           <Input 
-                             {...register('logoUrl')} 
-                             placeholder="Paste an image URL for your logo" 
-                             className="rounded-xl h-12 border-slate-200 flex-1"
-                           />
-                        </div>
-                     </div>
-                     
-                     <div className="space-y-4">
-                        <label className="text-sm font-bold text-slate-700">Website URL</label>
-                        <Input 
-                          {...register('website')} 
-                          placeholder="https://www.example.com" 
-                          className="rounded-xl h-12 border-slate-200"
-                        />
-                     </div>
-                  </div>
-               </CardContent>
-            </Card>
-          </TabsContent>
+
 
           <TabsContent value="social">
             <Card className="border-none shadow-sm bg-white">

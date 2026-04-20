@@ -8,10 +8,14 @@ import {
   Body, 
   NotFoundException,
   BadRequestException,
-  UseGuards
+  UseGuards,
+  UseInterceptors,
+  UploadedFile
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { InstituteMgmtService } from './institute-mgmt.service';
+import { StorageService } from '../common/storage/storage.service';
 import { UpdateInstituteProfileDto, UpdateBranchDto } from './dto/owner-dashboard.dto';
 import { PermissionGuard } from '../common/guards/permissions.guard';
 import { RequirePermissions, InstituteRole } from '../common/decorators/permissions.decorator';
@@ -20,7 +24,10 @@ import { RequirePermissions, InstituteRole } from '../common/decorators/permissi
 @Controller('owner/institutes')
 @UseGuards(PermissionGuard)
 export class OwnerInstitutesController {
-  constructor(private readonly mgmtService: InstituteMgmtService) {}
+  constructor(
+    private readonly mgmtService: InstituteMgmtService,
+    private readonly storageService: StorageService
+  ) {}
 
   @Get(':id/metrics')
   @RequirePermissions({ instituteRoles: [InstituteRole.OWNER, InstituteRole.MANAGER, InstituteRole.STAFF] })
@@ -119,6 +126,20 @@ export class OwnerInstitutesController {
     return this.mgmtService.addImage(id, url, caption);
   }
 
+  @Post(':id/upload')
+  @RequirePermissions({ instituteRoles: [InstituteRole.OWNER, InstituteRole.MANAGER, InstituteRole.STAFF] })
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload image to gallery' })
+  async uploadMedia(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('caption') caption?: string
+  ) {
+    if (!file) throw new BadRequestException('No file uploaded');
+    const url = await this.storageService.uploadImage(file, `${id}/gallery`);
+    return this.mgmtService.addImage(id, url, caption);
+  }
+
   @Delete('media/:imageId')
   @ApiOperation({ summary: 'Delete image from gallery' })
   async deleteMedia(@Param('imageId') imageId: string) {
@@ -132,6 +153,19 @@ export class OwnerInstitutesController {
     @Param('id') id: string,
     @Body('url') url: string
   ) {
+    return this.mgmtService.setLogo(id, url);
+  }
+
+  @Post(':id/logo/upload')
+  @RequirePermissions({ instituteRoles: [InstituteRole.OWNER, InstituteRole.MANAGER] })
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload and set institute logo' })
+  async uploadLogo(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    if (!file) throw new BadRequestException('No file uploaded');
+    const url = await this.storageService.uploadImage(file, `${id}/logos`);
     return this.mgmtService.setLogo(id, url);
   }
 

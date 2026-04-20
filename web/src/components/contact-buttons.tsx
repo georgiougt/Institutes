@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { MessageSquare } from 'lucide-react';
+import { ContactFormDialog } from './ContactFormDialog';
 
 export function ContactButton() {
   return (
@@ -14,13 +14,18 @@ export function ContactButton() {
   );
 }
 
-export function SendMessageButton() {
+interface SendMessageButtonProps {
+  instituteId: string;
+  instituteName: string;
+  services?: any[];
+}
+
+export function SendMessageButton({ instituteId, instituteName, services }: SendMessageButtonProps) {
   return (
-    <Button 
-      className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold h-12"
-      onClick={() => alert('Η φόρμα επικοινωνίας θα είναι σύντομα διαθέσιμη.')}
-    >
-      Στείλτε Μήνυμα
-    </Button>
+    <ContactFormDialog 
+      instituteId={instituteId}
+      instituteName={instituteName}
+      services={services || []}
+    />
   );
 }

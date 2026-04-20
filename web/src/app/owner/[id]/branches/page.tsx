@@ -53,7 +53,7 @@ export default function BranchesManagerPage({ params }: { params: Promise<{ id: 
           fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${instituteId}`, {
             headers: { 'X-User-Id': userId }
           }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/metadata`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/metadata/lists`)
         ]);
 
         if (!instRes.ok || !metaRes.ok) throw new Error('Failed to fetch');
