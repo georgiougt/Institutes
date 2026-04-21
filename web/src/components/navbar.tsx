@@ -10,8 +10,10 @@ interface NavbarProps {
 
 export function Navbar({ className, transparent = false }: NavbarProps) {
   return (
-    <header className={cn(
-      "fixed top-0 z-50 px-4 sm:px-8 py-4 flex items-center justify-between w-full transition-all duration-300",
+    <header 
+      translate="no"
+      className={cn(
+        "fixed top-0 z-50 px-4 sm:px-8 py-4 flex items-center justify-between w-full transition-all duration-300",
       transparent ? "bg-transparent" : "bg-white border-b border-slate-200",
       className
     )}>

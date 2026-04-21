@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
   const [lang, setLang] = useState('el');
-  const [isChanging, setIsChanging] = useState(false);
 
   useEffect(() => {
     // Check for existing Google Translate cookie
@@ -22,33 +21,47 @@ export function LanguageSwitcher() {
   const handleLanguageChange = (newLang: string) => {
     if (newLang === lang) return;
     
-    setIsChanging(true);
-    setLang(newLang);
-    
-    // Google Translate uses a specific cookie format: /source/target
-    const cookieValue = newLang === 'en' ? '/el/en' : '/el/el';
-    
-    // Set cookie for both current domain and subdomains
+    console.log('Changing language to:', newLang);
     const domain = window.location.hostname;
-    document.cookie = `googtrans=${cookieValue}; path=/;`;
-    document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain};`;
     
-    // Triggers Google Translate to re-process the page
-    // Adding a short delay so the user can see the "Changing Language" message
-    setTimeout(() => {
-      window.location.reload();
-    }, 500);
+    if (newLang === 'el') {
+      // THE ULTIMATE NUCLEAR COOKIE CLEAR
+      const cookieName = 'googtrans';
+      const domainParts = domain.split('.');
+      const paths = ['/', '', '/search', '/contact', '/login', '/admin'];
+      
+      // We want to hit every possible combination that could EXIST
+      while (domainParts.length >= 2) { // Stop at 'com' or 'net'
+        const d = domainParts.join('.');
+        paths.forEach(p => {
+          const base = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+          document.cookie = `${base} path=${p}; domain=${d};`;
+          document.cookie = `${base} path=${p}; domain=.${d};`;
+          document.cookie = `${base} path=${p};`;
+        });
+        domainParts.shift();
+      }
+      
+      // Generic clears
+      document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "googtrans=; path=/;"; // Sometimes value as empty works better than expire
+    } else {
+      // SET COOKIE for English
+      const cookieValue = '/el/en';
+      document.cookie = `googtrans=${cookieValue}; path=/;`;
+      document.cookie = `googtrans=${cookieValue}; path=/; domain=.${domain};`;
+    }
+    
+    // FORCE RELOAD IMMEDIATELY
+    window.location.reload();
   };
 
   return (
-    <div className="w-full group">
+    <div className="w-full group" translate="no">
       <h4 className="text-gray-900 font-bold mb-4 text-[15px] flex items-center gap-2">
-        {lang === 'el' ? 'Γλώσσα' : 'Language'}
+        <span translate="no">{lang === 'el' ? 'Γλώσσα' : 'Language'}</span>
       </h4>
-      <div className={cn(
-        "relative transition-opacity duration-300",
-        isChanging ? "opacity-50 pointer-events-none" : "opacity-100"
-      )}>
+      <div className="relative">
         <select 
           value={lang}
           onChange={(e) => handleLanguageChange(e.target.value)}
@@ -60,13 +73,6 @@ export function LanguageSwitcher() {
         <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-500">
            <ChevronDown size={20} className="sm:size-4" />
         </div>
-        {isChanging && (
-          <div className="absolute -top-10 left-0 right-0 flex justify-center">
-            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase animate-pulse">
-              {lang === 'el' ? 'ΑΛΛΑΓΗ ΓΛΩΣΣΑΣ...' : 'CHANGING LANGUAGE...'}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
