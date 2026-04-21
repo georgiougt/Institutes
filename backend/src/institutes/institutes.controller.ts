@@ -82,6 +82,14 @@ export class InstitutesController {
     return this.institutesService.findByOwner(ownerId);
   }
 
+  @Post('general/contact')
+  @ApiOperation({ summary: 'Send a general platform contact message' })
+  async sendGeneralContact(
+    @Body() dto: CreateContactRequestDto
+  ) {
+    return this.institutesService.createContactRequest(null, dto);
+  }
+
   @Post(':id/contact')
   @ApiOperation({ summary: 'Send a contact message to an institute' })
   async sendContact(

@@ -7,7 +7,7 @@ import { Footer } from '@/components/footer';
 import { cn } from "@/lib/utils";
 
 import { SubjectsSection } from '@/components/subjects-section';
-
+import { Navbar } from '@/components/navbar';
 import { RecentActivityFeed } from '@/components/recent-activity-feed';
 
 async function getRecentInstitutes() {
@@ -37,17 +37,7 @@ export default async function Home() {
         />
         <div className="absolute inset-0 bg-black/60" />
 
-        <header className="relative z-10 px-4 sm:px-8 py-6 flex items-center justify-between w-full">
-          {/* Logo Yelp-Style */}
-          <Link className="flex items-center gap-1 group shrink-0" href="/">
-            <span className="text-red-600 font-extrabold text-3xl leading-none">*</span>
-            <span className="font-extrabold text-3xl tracking-tighter text-white">ToFrontistirio</span>
-          </Link>
-          
-          <nav className="flex gap-2 items-center shrink-0">
-            <Link className="hidden lg:flex items-center text-sm font-bold text-white hover:underline underline-offset-4 px-3 h-10" href="/search">Βρες Φροντιστήριο</Link>
-          </nav>
-        </header>
+        <Navbar transparent />
 
         {/* Hero Content */}
         <div className="relative z-10 flex-1 flex flex-col justify-center items-center px-4 w-full -mt-10">

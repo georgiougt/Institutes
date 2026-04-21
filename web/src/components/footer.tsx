@@ -8,8 +8,8 @@ export function Footer() {
         <div>
           <h4 className="text-gray-900 font-bold mb-4 text-[15px]">Σχετικά</h4>
           <ul className="space-y-2 font-medium">
-            <li><Link href="#" className="hover:underline text-[#0073bb]">Σχετικά με εμάς</Link></li>
-            <li><Link href="#" className="hover:underline text-[#0073bb]">Επικοινωνία</Link></li>
+            {/* <li><Link href="#" className="hover:underline text-[#0073bb]">Σχετικά με εμάς</Link></li> */}
+            <li><Link href="/contact" className="hover:underline text-[#0073bb]">Επικοινωνία</Link></li>
           </ul>
         </div>
         <div>

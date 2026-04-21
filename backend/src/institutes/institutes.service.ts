@@ -333,10 +333,10 @@ export class InstitutesService {
     });
   }
 
-  async createContactRequest(instituteId: string, dto: any) {
+  async createContactRequest(instituteId: string | null, dto: any) {
     return this.prisma.contactRequest.create({
       data: {
-        instituteId,
+        instituteId: instituteId ?? undefined,
         guestName: dto.guestName,
         guestEmail: dto.guestEmail,
         guestPhone: dto.guestPhone,
