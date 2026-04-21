@@ -37,9 +37,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="el" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
-      <body className={`${outfit.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+      <body 
+        className={`${outfit.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}
+        suppressHydrationWarning
+      >
+        {/* Anti-Crash Script: Patching Node.prototype to handle Google Translate DOM manipulation */}
+        <Script id="google-translate-anticrash" strategy="beforeInteractive">
+          {`
+            (function() {
+              if (typeof Node === 'function' && Node.prototype) {
+                const originalRemoveChild = Node.prototype.removeChild;
+                Node.prototype.removeChild = function(child) {
+                  if (child.parentNode !== this) {
+                    return child;
+                  }
+                  return originalRemoveChild.apply(this, arguments);
+                };
+
+                const originalInsertBefore = Node.prototype.insertBefore;
+                Node.prototype.insertBefore = function(newNode, referenceNode) {
+                  if (referenceNode && referenceNode.parentNode !== this) {
+                    return newNode;
+                  }
+                  return originalInsertBefore.apply(this, arguments);
+                };
+              }
+            })();
+          `}
+        </Script>
+        
         {/* Google Translate Hidden Element */}
-        <div id="google_translate_element" style={{ display: 'none' }}></div>
+        <div id="google_translate_element" style={{ display: 'none' }} className="notranslate"></div>
         
         <Script id="google-translate-init" strategy="lazyOnload">
           {`
@@ -96,7 +124,7 @@ export default function RootLayout({
           {children}
         </main>
         {/* We will inject a Footer here */}
-        <Toaster position="top-center" />
+        <Toaster position="top-center" containerClassName="notranslate" />
       </body>
     </html>
   );

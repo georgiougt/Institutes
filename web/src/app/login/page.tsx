@@ -52,7 +52,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-4" translate="no">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -106,15 +106,16 @@ export default function LoginPage() {
               type="submit" 
               className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/20 transition-all flex gap-2"
               disabled={isLoading}
+              translate="no"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Γίνεται σύνδεση...
+                  <span translate="no">Γίνεται σύνδεση...</span>
                 </>
               ) : (
                 <>
-                  Σύνδεση
+                  <span translate="no">Σύνδεση</span>
                   <ArrowRight className="h-5 w-5" />
                 </>
               )}
