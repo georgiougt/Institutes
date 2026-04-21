@@ -17,16 +17,6 @@ export class PermissionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const permissions = this.reflector.getAllAndOverride<PermissionMetadata>(
-      PERMISSIONS_KEY,
-      [context.getHandler(), context.getClass()],
-    );
-
-    // If no specific permissions required, allow if authenticated
-    if (!permissions) {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest();
     let user = request.user;
 
@@ -43,6 +33,16 @@ export class PermissionGuard implements CanActivate {
 
     if (!user) {
       throw new UnauthorizedException('Authentication required');
+    }
+
+    const permissions = this.reflector.getAllAndOverride<PermissionMetadata>(
+      PERMISSIONS_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    // If no specific permissions required, allow if authenticated (we already checked user)
+    if (!permissions) {
+      return true;
     }
 
     // 1. Check Admin Roles (System Level)

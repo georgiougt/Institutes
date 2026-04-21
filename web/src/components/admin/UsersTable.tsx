@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { User, Shield, ShieldAlert, MoreHorizontal, UserCheck, UserX, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import { MessageModal } from './MessageModal';
 
 interface User {
   id: string;
@@ -21,12 +22,18 @@ interface UsersTableProps {
 
 export function UsersTable({ initialUsers }: UsersTableProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
+  const [selectedUserForMessage, setSelectedUserForMessage] = useState<User | null>(null);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
 
   const toggleStatus = async (id: string, currentStatus: boolean) => {
     try {
+      const userId = document.cookie.split('; ').find(r => r.startsWith('auth_user_id='))?.split('=')[1];
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/users/${id}/status`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': userId || '',
+        },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
       if (!res.ok) throw new Error();
@@ -82,7 +89,7 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
                 </div>
               </td>
               <td className="px-4 py-4 text-slate-500 text-xs">
-                {new Date(user.createdAt).toLocaleDateString()}
+                {user.displayDate || new Date(user.createdAt).toLocaleDateString()}
               </td>
               <td className="px-4 py-4 text-center">
                 <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
@@ -101,7 +108,13 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
                   >
                     {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                   </button>
-                  <button className="p-1.5 rounded-md hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                  <button 
+                    onClick={() => {
+                      setSelectedUserForMessage(user);
+                      setIsMessageModalOpen(true);
+                    }}
+                    className="p-1.5 rounded-md hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                  >
                     <Mail className="h-4 w-4" />
                   </button>
                   <button className="p-1.5 rounded-md hover:text-slate-600 hover:bg-slate-100 transition-colors">
@@ -113,6 +126,15 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
           ))}
         </tbody>
       </table>
+
+      <MessageModal 
+        user={selectedUserForMessage}
+        isOpen={isMessageModalOpen}
+        onClose={() => {
+          setIsMessageModalOpen(false);
+          setSelectedUserForMessage(null);
+        }}
+      />
     </div>
   );
 }

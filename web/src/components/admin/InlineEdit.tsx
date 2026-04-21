@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Edit2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface InlineEditProps {
   value: string;
@@ -12,6 +13,7 @@ interface InlineEditProps {
 }
 
 export function InlineEdit({ value, onSave, multiline }: InlineEditProps) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
   const [isSaving, setIsSaving] = useState(false);
@@ -30,6 +32,7 @@ export function InlineEdit({ value, onSave, multiline }: InlineEditProps) {
       await onSave(currentValue);
       setIsEditing(false);
       toast.success('Updated successfully');
+      router.refresh();
     } catch (err) {
       toast.error('Update failed');
     } finally {

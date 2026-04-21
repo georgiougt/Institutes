@@ -1,12 +1,12 @@
 import { AdminTopbar } from '@/components/admin/layout/AdminTopbar';
 import { UsersTable } from '@/components/admin/UsersTable';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchOwners(params: URLSearchParams) {
   try {
     params.set('role', 'OWNER');
-    const res = await fetch(`${API}/admin/users?${params.toString()}`, { cache: 'no-store' });
+    const res = await adminFetch(`/admin/users?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {

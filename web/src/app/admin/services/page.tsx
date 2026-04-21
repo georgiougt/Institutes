@@ -2,11 +2,12 @@ import { AdminTopbar } from '@/components/admin/layout/AdminTopbar';
 import { BookOpen, Plus } from 'lucide-react';
 import { ServicesTable } from '@/components/admin/ServicesTable';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { AddServiceButton } from '@/components/admin/AddServiceButton';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchServices() {
   try {
-    const res = await fetch(`${API}/admin/services`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/services', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -24,9 +25,7 @@ export default async function ServicesPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-slate-500">Manage the service taxonomy. Reorder, activate/deactivate, or add new services.</p>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
-            <Plus className="h-4 w-4" /> Add Service
-          </button>
+          <AddServiceButton />
         </div>
 
         {/* Services list */}

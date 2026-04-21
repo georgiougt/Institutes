@@ -3,7 +3,10 @@
 import React, { useState } from 'react';
 import { GripVertical, MoreHorizontal, Edit, Trash, Power, PowerOff } from 'lucide-react';
 import { StatusBadge } from '@/components/admin/StatusBadge';
+import { ServiceDialog } from './ServiceDialog';
+import { ConfirmDialog } from './ConfirmDialog';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface Service {
   id: string;
@@ -21,13 +24,26 @@ interface ServicesTableProps {
 }
 
 export function ServicesTable({ initialServices }: ServicesTableProps) {
+  const router = useRouter();
   const [services, setServices] = useState(initialServices);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+
+  // Sync state with props
+  React.useEffect(() => {
+    setServices(initialServices);
+  }, [initialServices]);
 
   const toggleStatus = async (id: string, currentStatus: boolean) => {
     try {
+      const userId = document.cookie.split('; ').find(r => r.startsWith('auth_user_id='))?.split('=')[1];
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/services/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': userId || '',
+        },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
       if (!res.ok) throw new Error();
@@ -35,6 +51,28 @@ export function ServicesTable({ initialServices }: ServicesTableProps) {
       toast.success(`Service ${!currentStatus ? 'activated' : 'deactivated'}`);
     } catch {
       toast.error('Failed to update service status');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedService) return;
+    try {
+      const userId = document.cookie.split('; ').find(r => r.startsWith('auth_user_id='))?.split('=')[1];
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/services/${selectedService.id}`, {
+        method: 'DELETE',
+        headers: { 
+          'x-user-id': userId || '',
+        },
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || 'Failed to delete');
+      }
+      toast.success('Service deleted');
+      setIsDeleteOpen(false);
+      router.refresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Error deleting service');
     }
   };
 
@@ -79,8 +117,25 @@ export function ServicesTable({ initialServices }: ServicesTableProps) {
                   >
                     {service.isActive ? <PowerOff className="h-4 w-4" /> : <Power className="h-4 w-4" />}
                   </button>
-                  <button className="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                  <button 
+                    onClick={() => {
+                      setSelectedService(service);
+                      setIsDialogOpen(true);
+                    }}
+                    className="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                    title="Edit Service"
+                  >
                     <Edit className="h-4 w-4" />
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSelectedService(service);
+                      setIsDeleteOpen(true);
+                    }}
+                    className="p-1.5 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                    title="Delete Service"
+                  >
+                    <Trash className="h-4 w-4" />
                   </button>
                 </div>
               </td>
@@ -88,6 +143,24 @@ export function ServicesTable({ initialServices }: ServicesTableProps) {
           ))}
         </tbody>
       </table>
+
+      {/* Dialogs */}
+      <ServiceDialog 
+        open={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+        service={selectedService}
+        onSuccess={() => setSelectedService(null)} 
+      />
+
+      <ConfirmDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title="Delete Service"
+        description={`Are you sure you want to delete "${selectedService?.name}"? This action cannot be undone and will fail if any institutes are currently using this service.`}
+        confirmLabel="Delete"
+        onConfirm={handleDelete}
+        variant="danger"
+      />
     </div>
   );
 }

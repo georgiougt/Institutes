@@ -1,6 +1,31 @@
+'use client';
+
 import { Bell, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { adminFetch } from '@/lib/admin-fetch';
+import { NotificationDropdown } from '../NotificationDropdown';
 
 export function AdminTopbar({ title, subtitle }: { title: string; subtitle?: string }) {
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await adminFetch('/admin/notifications');
+        if (res.ok) {
+          const data = await res.json();
+          setNotifications(data.items);
+          setTotalCount(data.totalCount);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
   return (
     <header className="h-14 bg-white border-b border-slate-200 sticky top-0 z-30 flex items-center justify-between px-6">
       <div>
@@ -29,10 +54,29 @@ export function AdminTopbar({ title, subtitle }: { title: string; subtitle?: str
           />
         </div>
         {/* Notifications */}
-        <button className="relative h-8 w-8 rounded-md flex items-center justify-center hover:bg-slate-100 transition-colors">
-          <Bell className="h-4 w-4 text-slate-500" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-        </button>
+        <div className="relative">
+          <button 
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`relative h-8 w-8 rounded-md flex items-center justify-center transition-colors ${
+              showNotifications ? 'bg-slate-100 text-indigo-600' : 'text-slate-500 hover:bg-slate-100'
+            }`}
+          >
+            <Bell className="h-4 w-4" />
+            {totalCount > 0 && (
+              <span className="absolute top-1 right-1 h-3.5 min-w-[14px] px-1 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-[8px] font-bold text-white">
+                {totalCount}
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <NotificationDropdown 
+              notifications={notifications}
+              totalCount={totalCount}
+              onClose={() => setShowNotifications(false)}
+            />
+          )}
+        </div>
       </div>
     </header>
   );

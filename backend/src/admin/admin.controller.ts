@@ -17,12 +17,14 @@ export class AdminController {
   // ─── DASHBOARD ────────────────────────────────────────────────
 
   @Get('metrics')
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN, AdminRole.SUPPORT_ADMIN, AdminRole.CONTENT_MOD] })
   @ApiOperation({ summary: 'Get dashboard KPIs' })
   getMetrics() {
     return this.adminService.getMetrics();
   }
 
   @Get('dashboard/counts')
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN, AdminRole.SUPPORT_ADMIN, AdminRole.CONTENT_MOD] })
   @ApiOperation({ summary: 'Get all dashboard counts' })
   getDashboardCounts() {
     return this.adminService.getDashboardCounts();
@@ -62,27 +64,31 @@ export class AdminController {
   }
 
   @Post('institutes/:id/approve')
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN] })
   @ApiOperation({ summary: 'Approve an institute' })
-  approveInstitute(@Param('id') id: string) {
-    return this.adminService.approveInstitute(id);
+  approveInstitute(@Param('id') id: string, @Req() req: any) {
+    return this.adminService.approveInstitute(id, req.user?.id || 'admin-system');
   }
 
   @Post('institutes/:id/reject')
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN] })
   @ApiOperation({ summary: 'Reject an institute' })
-  rejectInstitute(@Param('id') id: string, @Body() body: { reason: string }) {
-    return this.adminService.rejectInstitute(id, body.reason);
+  rejectInstitute(@Param('id') id: string, @Body() body: { reason: string }, @Req() req: any) {
+    return this.adminService.rejectInstitute(id, body.reason, req.user?.id || 'admin-system');
   }
 
   @Post('institutes/:id/suspend')
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN] })
   @ApiOperation({ summary: 'Suspend an institute' })
-  suspendInstitute(@Param('id') id: string, @Body() body: { reason: string }) {
-    return this.adminService.suspendInstitute(id, body.reason);
+  suspendInstitute(@Param('id') id: string, @Body() body: { reason: string }, @Req() req: any) {
+    return this.adminService.suspendInstitute(id, body.reason, req.user?.id || 'admin-system');
   }
 
   @Post('institutes/:id/archive')
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN] })
   @ApiOperation({ summary: 'Archive an institute' })
-  archiveInstitute(@Param('id') id: string) {
-    return this.adminService.archiveInstitute(id);
+  archiveInstitute(@Param('id') id: string, @Req() req: any) {
+    return this.adminService.archiveInstitute(id, req.user?.id || 'admin-system');
   }
 
   // ─── LEGACY ENDPOINTS (backward compat) ──────────────────────
@@ -126,6 +132,17 @@ export class AdminController {
       limit: limit ? parseInt(limit) : undefined,
       role, search,
     });
+  }
+
+  @Post('users/:id/status')
+  @ApiOperation({ summary: 'Activate or deactivate a user account' })
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN] })
+  updateUserStatus(
+    @Param('id') id: string,
+    @Body() body: { isActive: boolean },
+    @Req() req: any,
+  ) {
+    return this.adminService.updateUserStatus(id, body.isActive, req.user?.id || 'admin-system');
   }
 
   // ─── CONTACT REQUESTS ────────────────────────────────────────
@@ -243,5 +260,17 @@ export class AdminController {
   rejectRevision(@Param('id') id: string, @Body() body: { reason: string }, @Req() req: any) {
     return this.adminService.rejectRevision(id, body.reason, req.user?.id || 'admin-system');
   }
+  @Get('notifications')
+  @ApiOperation({ summary: 'Get recent admin notifications' })
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN, AdminRole.SUPPORT_ADMIN] })
+  getNotifications() {
+    return this.adminService.getNotifications();
+  }
 
+  @Get('dashboard/analytics')
+  @ApiOperation({ summary: 'Get dashboard analytics' })
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.OPS_ADMIN] })
+  getAnalytics() {
+    return this.adminService.getDashboardAnalytics();
+  }
 }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ConfirmDialog } from '@/components/admin/ConfirmDialog';
 import { ReasonModal } from '@/components/admin/ReasonModal';
 import { toast } from 'sonner';
+import { adminFetch } from '@/lib/admin-fetch';
 
 interface InstituteActionsProps {
   instituteId: string;
@@ -23,7 +24,7 @@ export function InstituteActions({ instituteId, instituteName, status }: Institu
   const handleApprove = async () => {
     setIsPending(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/institutes/${instituteId}/approve`, {
+      const res = await adminFetch(`/admin/institutes/${instituteId}/approve`, {
         method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to approve');
@@ -40,9 +41,8 @@ export function InstituteActions({ instituteId, instituteName, status }: Institu
   const handleReject = async (reason: string) => {
     setIsPending(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/institutes/${instituteId}/reject`, {
+      const res = await adminFetch(`/admin/institutes/${instituteId}/reject`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason }),
       });
       if (!res.ok) throw new Error('Failed to reject');
@@ -59,9 +59,8 @@ export function InstituteActions({ instituteId, instituteName, status }: Institu
   const handleSuspend = async (reason: string) => {
     setIsPending(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/institutes/${instituteId}/suspend`, {
+      const res = await adminFetch(`/admin/institutes/${instituteId}/suspend`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason }),
       });
       if (!res.ok) throw new Error('Failed to suspend');
@@ -78,7 +77,7 @@ export function InstituteActions({ instituteId, instituteName, status }: Institu
   const handleArchive = async () => {
     setIsPending(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/institutes/${instituteId}/archive`, {
+      const res = await adminFetch(`/admin/institutes/${instituteId}/archive`, {
         method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to archive');

@@ -5,11 +5,11 @@ import Link from 'next/link';
 import { InstituteActions } from '@/components/admin/InstituteActions';
 import { InlineEdit } from '@/components/admin/InlineEdit';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchInstitute(id: string) {
   try {
-    const res = await fetch(`${API}/admin/institutes/${id}`, { cache: 'no-store' });
+    const res = await adminFetch(`/admin/institutes/${id}`, { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -18,9 +18,8 @@ async function fetchInstitute(id: string) {
 }
 
 async function updateInstitute(id: string, data: any) {
-  const res = await fetch(`${API}/admin/institutes/${id}`, {
+  const res = await adminFetch(`/admin/institutes/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('Update failed');
@@ -29,18 +28,31 @@ async function updateInstitute(id: string, data: any) {
 
 function computeCompleteness(inst: any): number {
   let score = 0;
+  // Basic Info (25%)
   if (inst.name) score += 10;
-  if (inst.description?.length > 50) score += 15;
+  if (inst.description) {
+    score += 5;
+    if (inst.description.length >= 50) score += 10;
+  }
+  
+  // Taxonomies (15%)
   if (inst.services?.length > 0) score += 15;
+  
+  // Contact & Location (35%)
   const main = inst.branches?.find((b: any) => b.isMain) || inst.branches?.[0];
   if (main?.phone) score += 10;
   if (main?.email) score += 5;
   if (main?.address) score += 10;
   if (main?.latitude && main?.longitude) score += 10;
+  
+  // Media & Schedules (20%)
   if (inst.branches?.some((b: any) => b.schedules?.length > 0)) score += 10;
   if (inst.images?.length > 0) score += 10;
+  
+  // Verification (5%)
   if (inst.owner) score += 5;
-  return score;
+  
+  return Math.min(score, 100);
 }
 
 export default async function InstituteDetailPage({
@@ -127,7 +139,7 @@ export default async function InstituteDetailPage({
               />
               <div className="h-6 w-px bg-slate-200 mx-2" />
               <Link
-                href={`/institutes/${id}`}
+                href={`/institute/${id}`}
                 target="_blank"
                 className="px-4 py-2 rounded-lg bg-white border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
               >

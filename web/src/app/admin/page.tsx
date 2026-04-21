@@ -9,11 +9,11 @@ import Link from 'next/link';
 
 // ─── DATA FETCHING ──────────────────────────────────────────────────────
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchMetrics() {
   try {
-    const res = await fetch(`${API}/admin/metrics`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/metrics', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -23,7 +23,7 @@ async function fetchMetrics() {
 
 async function fetchPendingInstitutes() {
   try {
-    const res = await fetch(`${API}/admin/requests`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/requests', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     const data = await res.json();
     return data.slice(0, 5);
@@ -34,7 +34,7 @@ async function fetchPendingInstitutes() {
 
 async function fetchRecentContacts() {
   try {
-    const res = await fetch(`${API}/admin/contact-requests?limit=5`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/contact-requests?limit=5', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     const data = await res.json();
     return Array.isArray(data) ? data.slice(0, 5) : (data.data || []).slice(0, 5);
@@ -45,7 +45,7 @@ async function fetchRecentContacts() {
 
 async function fetchRecentAudit() {
   try {
-    const res = await fetch(`${API}/admin/audit-logs?limit=8`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/audit-logs?limit=8', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     const data = await res.json();
     return Array.isArray(data) ? data.slice(0, 8) : (data.data || []).slice(0, 8);
@@ -54,11 +54,9 @@ async function fetchRecentAudit() {
   }
 }
 
-// ─── COUNTS ─────────────────────────────────────────────────────────────
-
 async function fetchCounts() {
   try {
-    const res = await fetch(`${API}/admin/dashboard/counts`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/dashboard/counts', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -77,42 +75,38 @@ async function fetchCounts() {
   }
 }
 
+async function fetchAnalytics() {
+  try {
+    const res = await adminFetch('/admin/dashboard/analytics', { cache: 'no-store' });
+    if (!res.ok) throw new Error();
+    return await res.json();
+  } catch {
+    return {
+      dailyRegistrations: [],
+      categoryDistribution: [],
+      statusBreakdown: [],
+    };
+  }
+}
+
 // ─── PAGE ───────────────────────────────────────────────────────────────
 
 import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
 
-// Mock data for charts
-const mockData = {
-  dailyRegistrations: [
-    { date: '01 Mar', count: 2 },
-    { date: '03 Mar', count: 5 },
-    { date: '05 Mar', count: 3 },
-    { date: '07 Mar', count: 8 },
-    { date: '09 Mar', count: 4 },
-    { date: '11 Mar', count: 12 },
-    { date: '13 Mar', count: 7 },
-    { date: '15 Mar', count: 15 },
-  ],
-  categoryDistribution: [
-    { name: 'Languages', value: 45 },
-    { name: 'Mathematics', value: 32 },
-    { name: 'Sciences', value: 28 },
-    { name: 'Computing', value: 18 },
-    { name: 'Arts', value: 12 },
-  ],
-  statusBreakdown: [
-    { name: 'Approved', value: 120 },
-    { name: 'Pending', value: 15 },
-    { name: 'Rejected', value: 8 },
-  ]
-};
+//   statusBreakdown: [
+//     { name: 'Approved', value: 120 },
+//     { name: 'Pending', value: 15 },
+//     { name: 'Rejected', value: 8 },
+//   ]
+// };
 
 export default async function AdminDashboard() {
-  const [metrics, counts, pendingInstitutes, recentAudit] = await Promise.all([
+  const [metrics, counts, pendingInstitutes, recentAudit, analytics] = await Promise.all([
     fetchMetrics(),
     fetchCounts(),
     fetchPendingInstitutes(),
     fetchRecentAudit(),
+    fetchAnalytics(),
   ]);
 
   return (
@@ -160,7 +154,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* ── Analytics ─────────────────────────────────────────── */}
-        <AnalyticsCharts data={mockData} />
+        <AnalyticsCharts data={analytics} />
 
         {/* ── Alerts ───────────────────────────────────────────── */}
         {(metrics.pendingRequests > 0 || counts.openClaims > 0) && (

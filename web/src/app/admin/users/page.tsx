@@ -1,11 +1,11 @@
 import { AdminTopbar } from '@/components/admin/layout/AdminTopbar';
 import { UsersTable } from '@/components/admin/UsersTable';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchUsers(params: URLSearchParams) {
   try {
-    const res = await fetch(`${API}/admin/users?${params.toString()}`, { cache: 'no-store' });
+    const res = await adminFetch(`/admin/users?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -25,7 +25,17 @@ export default async function UsersPage({
   if (resolvedParams.search) params.set('search', resolvedParams.search);
   params.set('limit', '25');
 
-  const { data: users, meta } = await fetchUsers(params);
+  const { data: usersData, meta } = await fetchUsers(params);
+  
+  // Format dates on the server to prevent hydration mismatch
+  const users = usersData.map((u: any) => ({
+    ...u,
+    displayDate: new Date(u.createdAt).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    })
+  }));
 
   return (
     <>

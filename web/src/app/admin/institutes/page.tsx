@@ -4,11 +4,11 @@ import { Building2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { InstitutesTable } from '@/components/admin/InstitutesTable';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchInstitutes(params: URLSearchParams) {
   try {
-    const res = await fetch(`${API}/admin/institutes?${params.toString()}`, { cache: 'no-store' });
+    const res = await adminFetch(`/admin/institutes?${params.toString()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {

@@ -2,11 +2,11 @@ import { AdminTopbar } from '@/components/admin/layout/AdminTopbar';
 import { MapPin, Plus } from 'lucide-react';
 import Link from 'next/link';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+import { adminFetch } from '@/lib/admin-fetch';
 
 async function fetchCities() {
   try {
-    const res = await fetch(`${API}/admin/cities`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/cities', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {
@@ -16,7 +16,7 @@ async function fetchCities() {
 
 async function fetchAreas() {
   try {
-    const res = await fetch(`${API}/admin/areas`, { cache: 'no-store' });
+    const res = await adminFetch('/admin/areas', { cache: 'no-store' });
     if (!res.ok) throw new Error();
     return await res.json();
   } catch {

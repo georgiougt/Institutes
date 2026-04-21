@@ -35,6 +35,10 @@ export default function LoginPage() {
       
       localStorage.setItem('user', JSON.stringify(user));
 
+      // Set cookies for middleware and server components
+      document.cookie = `auth_role=${user.role}; path=/; max-age=86400; SameSite=Lax`;
+      document.cookie = `auth_user_id=${user.id}; path=/; max-age=86400; SameSite=Lax`;
+
       if (user.role === 'ADMIN') {
         router.push('/admin');
       } else {
