@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { AdminTopbar } from '@/components/admin/layout/AdminTopbar';
 import { ScrollText } from 'lucide-react';
 

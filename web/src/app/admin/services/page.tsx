@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { AdminTopbar } from '@/components/admin/layout/AdminTopbar';
 import { BookOpen, Plus } from 'lucide-react';
 import { ServicesTable } from '@/components/admin/ServicesTable';
