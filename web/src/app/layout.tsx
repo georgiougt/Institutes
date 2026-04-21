@@ -124,7 +124,9 @@ export default function RootLayout({
           {children}
         </main>
         {/* We will inject a Footer here */}
-        <Toaster position="top-center" containerClassName="notranslate" />
+        <div className="notranslate">
+          <Toaster position="top-center" />
+        </div>
       </body>
     </html>
   );
