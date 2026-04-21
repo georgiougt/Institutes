@@ -41,7 +41,7 @@ export default function RootLayout({
         {/* Google Translate Hidden Element */}
         <div id="google_translate_element" style={{ display: 'none' }}></div>
         
-        <Script id="google-translate-init" strategy="afterInteractive">
+        <Script id="google-translate-init" strategy="lazyOnload">
           {`
             function googleTranslateElementInit() {
               new google.translate.TranslateElement({
@@ -51,11 +51,44 @@ export default function RootLayout({
                 autoDisplay: false
               }, 'google_translate_element');
             }
+
+            // More aggressive way to hide the banner and fix the layout shift
+            const style = document.createElement('style');
+            style.innerHTML = \`
+              .goog-te-banner-frame.skiptranslate, 
+              .goog-te-banner-frame, 
+              #goog-gt-tt, 
+              .goog-te-balloon-frame,
+              .VIpgJd-ZVi9od-ORHb-OEVmcd,
+              .skiptranslate[id*=":2.container"],
+              iframe.VIpgJd-ZVi9od-ORHb-OEVmcd { 
+                display: none !important; 
+                visibility: hidden !important; 
+              }
+              body { 
+                top: 0 !important; 
+                position: static !important;
+              }
+              .goog-text-highlight {
+                background-color: transparent !important;
+                box-shadow: none !important;
+              }
+            \`;
+            document.head.appendChild(style);
+
+            // Periodic check to ensure the banner stays hidden
+            setInterval(() => {
+              const banner = document.querySelector('.goog-te-banner-frame');
+              if (banner) banner.style.display = 'none';
+              if (document.body.style.top !== '0px') {
+                document.body.style.top = '0px';
+              }
+            }, 1000);
           `}
         </Script>
         <Script
           src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
 
         {/* We will inject a Navbar here */}

@@ -27,7 +27,7 @@ export function Footer() {
             <li><Link href="/login" className="hover:underline text-[#0073bb]">Σύνδεση Ιδιοκτήτη</Link></li>
           </ul>
         </div>
-        <div className="flex flex-col items-start gap-4">
+        <div className="flex flex-col items-start gap-4 pt-4 border-t border-gray-100 sm:border-t-0 sm:pt-0">
            <LanguageSwitcher />
         </div>
       </div>

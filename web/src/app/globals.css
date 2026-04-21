@@ -138,29 +138,26 @@
   }
 }
 
-/* Hide Google Translate Top Bar */
-.goog-te-banner-frame.skiptranslate, 
+/* Hide Google Translate completely */
+.goog-te-banner-frame.skiptranslate,
 .goog-te-gadget-icon,
-.goog-te-gadget-simple span {
+.goog-te-gadget-simple,
+.goog-te-menu-value span:nth-child(2),
+.goog-te-menu-value span:nth-child(3),
+.goog-te-menu-value span:nth-child(5),
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.skiptranslate[id*=":2.container"],
+iframe.VIpgJd-ZVi9od-ORHb-OEVmcd {
   display: none !important;
 }
 
-.goog-te-gadget-simple {
-  background-color: transparent !important;
-  border: none !important;
-  padding: 0 !important;
+.goog-te-menu-frame {
+  display: none !important;
 }
 
 body {
   top: 0 !important;
-}
-
-iframe.goog-te-banner-frame {
-  display: none !important;
-}
-
-#google_translate_element {
-  display: none !important;
+  position: static !important;
 }
 
 .goog-tooltip {
@@ -175,6 +172,10 @@ iframe.goog-te-banner-frame {
   background-color: transparent !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+#google_translate_element {
+  display: none !important;
 }
 
 /* Hide Leaflet Attribution */
