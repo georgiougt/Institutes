@@ -29,6 +29,12 @@ export function AddressAutocomplete({
   });
 
   useEffect(() => {
+    if (isLoaded && !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+      console.warn("AddressAutocomplete: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is missing. Autocomplete will not work.");
+    }
+  }, [isLoaded]);
+
+  useEffect(() => {
     setInputValue(defaultValue);
   }, [defaultValue]);
 
@@ -70,7 +76,7 @@ export function AddressAutocomplete({
         onLoad={onLoad}
         onPlaceChanged={onPlaceChanged}
         options={{
-          componentRestrictions: { country: "cy" }, // Restrict to Cyprus since the app context seems to be Greece/Cyprus
+          componentRestrictions: { country: ["cy", "gr"] }, // Allow Cyprus and Greece
           fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
         }}
       >
