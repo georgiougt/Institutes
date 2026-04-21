@@ -31,4 +31,9 @@ export class CreateContactRequestDto {
   @IsUUID()
   @IsOptional()
   userId?: string;
+
+  @ApiProperty({ example: 'Website Interest', required: false })
+  @IsString()
+  @IsOptional()
+  subject?: string;
 }

@@ -1,0 +1,165 @@
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Loader2, Globe, Send, Sparkles, User, Mail, Phone } from 'lucide-react';
+
+interface InterestFormValues {
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  message: string;
+}
+
+interface InterestFormDialogProps {
+  instituteName?: string;
+  trigger?: React.ReactElement;
+  defaultValues?: Partial<InterestFormValues>;
+}
+
+export function InterestFormDialog({ instituteName, trigger, defaultValues }: InterestFormDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<InterestFormValues>({
+    defaultValues
+  });
+
+  const onSubmit = async (data: InterestFormValues) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/general/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          subject: 'Website Interest',
+          message: `Ενδιαφέρον για Δωρεάν Ιστοσελίδα${instituteName ? ` (Από: ${instituteName})` : ''}. \n\nΣημειώσεις: ${data.message}`
+        }),
+      });
+
+      if (res.ok) {
+        toast.success('Το ενδιαφέρον σας καταγράφηκε!', {
+          description: 'Ήρθατε ένα βήμα πιο κοντά στην νέα σας ιστοσελίδα. Θα επικοινωνήσουμε μαζί σας σύντομα.'
+        });
+        reset();
+        setOpen(false);
+      } else {
+        throw new Error('Failed to send interest');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Σφάλμα κατά την αποστολή', {
+        description: 'Παρακαλούμε προσπαθήστε ξανά αργότερα.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <Button className="bg-white text-indigo-600 hover:bg-white/90 font-black px-6 rounded-xl h-10 shadow-lg shadow-indigo-200">
+            Ενδιαφέρομαι
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl">
+        <DialogHeader className="p-8 bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
+            <Globe className="h-40 w-40" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                <Sparkles className="h-6 w-6 text-yellow-300" />
+              </div>
+              <DialogTitle className="text-2xl font-black italic tracking-tight">Digital Presence Offer</DialogTitle>
+            </div>
+            <DialogDescription className="text-indigo-100 font-medium text-base">
+              Συμπληρώστε τα στοιχεία σας για να ξεκινήσουμε την δημιουργία της νέας σας επαγγελματικής ιστοσελίδας.
+            </DialogDescription>
+          </div>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6 bg-white">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="guestName" className="font-bold text-slate-700 flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-slate-400" /> Ονοματεπώνυμο
+              </Label>
+              <Input 
+                id="guestName" 
+                {...register('guestName', { required: true })} 
+                placeholder="Ιωάννης Παπαδόπουλος"
+                className="rounded-xl border-slate-200 h-11"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="guestEmail" className="font-bold text-slate-700 flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5 text-slate-400" /> Email
+                </Label>
+                <Input 
+                  id="guestEmail" 
+                  type="email"
+                  {...register('guestEmail', { required: true })} 
+                  placeholder="info@example.com"
+                  className="rounded-xl border-slate-200 h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guestPhone" className="font-bold text-slate-700 flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5 text-slate-400" /> Τηλέφωνο
+                </Label>
+                <Input 
+                  id="guestPhone" 
+                  {...register('guestPhone', { required: true })} 
+                  placeholder="99123456"
+                  className="rounded-xl border-slate-200 h-11"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="message" className="font-bold text-slate-700">Επιπλέον Σημειώσεις (Προαιρετικό)</Label>
+              <Textarea 
+                id="message" 
+                {...register('message')} 
+                placeholder="π.χ. Έχω ήδη logo, Θέλω συγκεκριμένα χρώματα κτλ..."
+                className="rounded-xl min-h-[80px] border-slate-200 p-4"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="pt-2">
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black h-14 rounded-xl shadow-xl shadow-indigo-100 gap-2 text-lg transition-all"
+            >
+              {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+              {loading ? 'Αποστολή...' : 'Εκδήλωση Ενδιαφέροντος'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

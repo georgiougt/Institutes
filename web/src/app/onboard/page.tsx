@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from '@/components/ui/badge';
+import { WebsiteOfferCard } from '@/components/WebsiteOfferCard';
 import Link from 'next/link';
 
 interface Metadata {
@@ -284,6 +285,19 @@ export default function OnboardPage() {
                       onChange={e => setFormData({...formData, website: e.target.value})}
                     />
                   </div>
+
+                  {/* Free Website Upsell */}
+                  {!formData.website && (
+                    <WebsiteOfferCard 
+                      className="mt-4"
+                      instituteName={formData.instituteName}
+                      defaultValues={{
+                        guestName: `${formData.firstName} ${formData.lastName}`,
+                        guestEmail: formData.email,
+                        guestPhone: formData.phone
+                      }}
+                    />
+                  )}
                   <div className="flex gap-4 mt-6">
                     <Button variant="outline" onClick={handleBack} className="flex-1 h-12">
                       <ChevronLeft className="mr-2 h-4 w-4" /> Πίσω

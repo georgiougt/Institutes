@@ -169,6 +169,7 @@ model ContactRequest {
   guestEmail  String?
   guestPhone  String?
   serviceId   String?
+  subject     String?
   message     String
   status      ContactStatus @default(NEW)
   isSpam      Boolean       @default(false)

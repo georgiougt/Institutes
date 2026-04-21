@@ -12,6 +12,7 @@ interface ContactRequest {
   guestEmail: string | null;
   guestPhone: string | null;
   message: string;
+  subject: string | null;
   status: string;
   createdAt: string;
   institute?: { id: string; name: string } | null;
@@ -52,6 +53,7 @@ export function ContactRequestsTable({ initialRequests }: ContactRequestsTablePr
             <tr className="border-b border-slate-100 bg-slate-50/50">
               <th className="text-left font-semibold text-slate-600 px-5 py-3 text-xs uppercase tracking-wider">Date</th>
               <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">From</th>
+              <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">Subject</th>
               <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">Institute</th>
               <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider hidden md:table-cell">Message</th>
               <th className="text-center font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">Status</th>
@@ -85,6 +87,15 @@ export function ContactRequestsTable({ initialRequests }: ContactRequestsTablePr
                       {req.user ? `${req.user.firstName} ${req.user.lastName}` : req.guestName || 'Unknown'}
                     </p>
                     <p className="text-xs text-slate-400">{req.user?.email || req.guestEmail || ''}</p>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    {req.subject === 'Website Interest' ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase tracking-tighter">
+                        Website Offer
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-500">{req.subject || <span className="text-slate-300">General</span>}</span>
+                    )}
                   </td>
                   <td className="px-4 py-3.5 text-sm text-slate-600">
                     {req.institute?.name || <span className="text-slate-300">—</span>}

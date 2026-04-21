@@ -341,6 +341,7 @@ export class InstitutesService {
         guestEmail: dto.guestEmail,
         guestPhone: dto.guestPhone,
         message: dto.message,
+        subject: dto.subject,
         serviceId: dto.serviceId,
         userId: dto.userId,
       }

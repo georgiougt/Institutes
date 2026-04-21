@@ -20,6 +20,7 @@ interface ContactRequest {
   guestEmail: string | null;
   guestPhone: string | null;
   message: string;
+  subject: string | null;
   status: string;
   createdAt: string;
   institute?: { name: string } | null;
@@ -72,7 +73,7 @@ export function ContactRequestDetailModal({ request, isOpen, onClose, onStatusUp
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden border-none shadow-2xl rounded-3xl">
         {/* Header Header */}
-        <div className="bg-slate-50 border-b border-slate-100 p-8">
+        <div className="bg-slate-50 border-b border-slate-100 p-8 pb-4">
           <div className="flex justify-between items-start mb-6">
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
@@ -80,16 +81,28 @@ export function ContactRequestDetailModal({ request, isOpen, onClose, onStatusUp
               </div>
               <div>
                 <DialogTitle className="text-2xl font-black text-slate-900 leading-none mb-2">Message Details</DialogTitle>
-                <div className="flex items-center gap-2 text-slate-500 font-medium text-sm">
-                  <Calendar className="h-3.5 w-3.5" />
-                  {new Date(request.createdAt).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                <div className="flex items-center gap-3">
+                   <div className="flex items-center gap-2 text-slate-500 font-medium text-sm">
+                     <Calendar className="h-3.5 w-3.5" />
+                     {new Date(request.createdAt).toLocaleDateString('el-GR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                   </div>
+                   {request.subject && (
+                     <span className={cn(
+                       "px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border",
+                       request.subject === 'Website Interest' 
+                        ? "bg-indigo-100 text-indigo-700 border-indigo-200" 
+                        : "bg-slate-100 text-slate-500 border-slate-200"
+                     )}>
+                       {request.subject}
+                     </span>
+                   )}
                 </div>
               </div>
             </div>
             <StatusBadge status={request.status} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-white p-4 rounded-2xl border border-slate-200/60 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
                 <User className="h-3 w-3" /> Sender Info

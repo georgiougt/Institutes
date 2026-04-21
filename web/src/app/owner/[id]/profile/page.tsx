@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge';
 
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { WebsiteOfferCard } from '@/components/WebsiteOfferCard';
 
 interface ProfileFormValues {
   name: string;
@@ -212,13 +213,27 @@ export default function PublicProfilePage({ params }: { params: Promise<{ id: st
                      </div>
                   </div>
 
-                  <div className="space-y-2">
-                     <label className="text-sm font-bold text-slate-700">Website URL</label>
-                     <Input 
-                       {...register('website')} 
-                       placeholder="https://www.example.com" 
-                       className="rounded-xl h-12 border-slate-200"
-                     />
+                  <div className="space-y-4">
+                     <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700">Website URL</label>
+                        <Input 
+                          {...register('website')} 
+                          placeholder="https://www.example.com" 
+                          className="rounded-xl h-12 border-slate-200"
+                        />
+                     </div>
+
+                     {/* Free Website Upsell */}
+                     {!watch('website') && (
+                       <WebsiteOfferCard 
+                         instituteName={data?.name || initialProfile?.name}
+                         defaultValues={{
+                           guestName: JSON.parse(localStorage.getItem('user') || '{}').firstName + ' ' + JSON.parse(localStorage.getItem('user') || '{}').lastName,
+                           guestEmail: JSON.parse(localStorage.getItem('user') || '{}').email,
+                           guestPhone: JSON.parse(localStorage.getItem('user') || '{}').phone || ''
+                         }}
+                       />
+                     )}
                   </div>
                </CardContent>
             </Card>
