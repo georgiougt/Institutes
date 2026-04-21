@@ -13,7 +13,7 @@ import {
   MessageSquare,
   BarChart3,
   Users,
-  Settings,
+  LogOut,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/lib/supabase';
 
 interface OwnerSidebarProps {
   instituteId: string;
@@ -145,13 +146,16 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
           <ExternalLink className="h-5 w-5 shrink-0" />
           {!isCollapsed && <span className="text-sm">Public Page</span>}
         </Link>
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-all"
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            window.location.href = '/';
+          }}
+          className="flex items-center gap-3 w-full px-3 py-3 rounded-xl hover:bg-red-500/10 text-slate-400 hover:text-red-500 transition-all font-medium"
         >
-          <Settings className="h-5 w-5 shrink-0" />
-          {!isCollapsed && <span className="text-sm">Account Settings</span>}
-        </Link>
+          <LogOut className="h-5 w-5 shrink-0" />
+          {!isCollapsed && <span className="text-sm">Logout</span>}
+        </button>
       </div>
     </aside>
   );
