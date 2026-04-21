@@ -72,13 +72,13 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
+      <DialogTrigger 
+        render={trigger || (
           <Button className="bg-white text-indigo-600 hover:bg-white/90 font-black px-6 rounded-xl h-10 shadow-lg shadow-indigo-200">
             Ενδιαφέρομαι
           </Button>
         )}
-      </DialogTrigger>
+      />
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl">
         <DialogHeader className="p-8 bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 text-white relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
