@@ -458,6 +458,28 @@ export class AdminService {
     };
   }
 
+  async updateContactRequestStatus(id: string, status: string, adminId: string) {
+    const oldVal = await this.prisma.contactRequest.findUnique({ where: { id } });
+    if (!oldVal) throw new NotFoundException(`Contact request ${id} not found`);
+
+    const updated = await this.prisma.contactRequest.update({
+      where: { id },
+      data: { status: status as any },
+    });
+
+    await this.audit.log({
+      actorId: adminId,
+      actionType: 'contact.update_status',
+      entityType: 'ContactRequest',
+      entityId: id,
+      reason: `Status changed from ${oldVal.status} to ${status}`,
+      oldValues: { status: oldVal.status },
+      newValues: { status },
+    });
+
+    return updated;
+  }
+
   // ─── SERVICES ────────────────────────────────────────────────
 
   async getServices() {

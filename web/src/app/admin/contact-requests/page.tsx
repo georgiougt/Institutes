@@ -4,6 +4,7 @@ import { Mail } from 'lucide-react';
 import Link from 'next/link';
 
 import { adminFetch } from '@/lib/admin-fetch';
+import { ContactRequestsTable } from '@/components/admin/ContactRequestsTable';
 
 async function fetchContactRequests(params: URLSearchParams) {
   try {
@@ -45,46 +46,7 @@ export default async function ContactRequestsPage({
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="text-left font-semibold text-slate-600 px-5 py-3 text-xs uppercase tracking-wider">Date</th>
-                <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">From</th>
-                <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">Institute</th>
-                <th className="text-left font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider hidden md:table-cell">Message</th>
-                <th className="text-center font-semibold text-slate-600 px-4 py-3 text-xs uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {requests.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-16">
-                    <div className="flex flex-col items-center">
-                      <div className="h-12 w-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
-                        <Mail className="h-6 w-6 text-slate-400" />
-                      </div>
-                      <p className="text-sm font-medium text-slate-500">No contact requests</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                requests.map((req: any) => (
-                  <tr key={req.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-5 py-3.5 text-xs text-slate-500">{new Date(req.createdAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-3.5">
-                      <p className="text-sm font-medium text-slate-700">{req.user?.firstName || req.guestName || 'Unknown'}</p>
-                      <p className="text-xs text-slate-400">{req.user?.email || req.guestEmail || ''}</p>
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-slate-600">{req.institute?.name || '—'}</td>
-                    <td className="px-4 py-3.5 hidden md:table-cell text-xs text-slate-500 max-w-xs truncate">{req.message}</td>
-                    <td className="px-4 py-3.5 text-center"><StatusBadge status={req.status} /></td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <ContactRequestsTable initialRequests={requests} />
       </div>
     </>
   );

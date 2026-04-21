@@ -161,6 +161,17 @@ export class AdminController {
     });
   }
 
+  @Post('contact-requests/:id/status')
+  @ApiOperation({ summary: 'Update contact request status' })
+  @RequirePermissions({ adminRoles: [AdminRole.SUPER_ADMIN, AdminRole.SUPPORT_ADMIN] })
+  updateContactRequestStatus(
+    @Param('id') id: string,
+    @Body() body: { status: string },
+    @Req() req: any,
+  ) {
+    return this.adminService.updateContactRequestStatus(id, body.status, req.user?.id || 'admin-system');
+  }
+
   // ─── SERVICES ────────────────────────────────────────────────
 
   @Get('services')
