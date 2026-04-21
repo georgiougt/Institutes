@@ -35,7 +35,9 @@ export function AddressAutocomplete({
   }, [isLoaded]);
 
   useEffect(() => {
-    setInputValue(defaultValue);
+    if (defaultValue && defaultValue !== inputValue) {
+      setInputValue(defaultValue);
+    }
   }, [defaultValue]);
 
   const onLoad = (autocomplete: google.maps.places.Autocomplete) => {
