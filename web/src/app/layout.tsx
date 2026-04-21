@@ -18,8 +18,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Institute Tracking Platform',
-  description: 'Find the best tutoring centers and learning institutes near you.',
+  title: {
+    default: 'ToFrontistirio — Βρες Φροντιστήριο Κοντά Σου',
+    template: '%s | ToFrontistirio',
+  },
+  description: 'Η πιο ολοκληρωμένη πλατφόρμα αναζήτησης φροντιστηρίων στην Κύπρο. Βρες αξιολογήσεις, τιμές και τοποθεσίες.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 import { Toaster } from 'sonner';
