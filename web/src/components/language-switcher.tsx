@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
   const [lang, setLang] = useState('el');
