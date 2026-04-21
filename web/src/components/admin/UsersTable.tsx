@@ -14,6 +14,7 @@ interface User {
   adminRole?: string | null;
   isActive: boolean;
   createdAt: string;
+  displayDate?: string;
 }
 
 interface UsersTableProps {
