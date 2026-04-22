@@ -91,9 +91,24 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
               </div>
               <DialogTitle className="text-2xl font-black italic tracking-tight">Digital Presence Offer</DialogTitle>
             </div>
-            <DialogDescription className="text-indigo-100 font-medium text-base">
-              Συμπληρώστε τα στοιχεία σας για να ξεκινήσουμε την δημιουργία της νέας σας επαγγελματικής ιστοσελίδας.
+            <DialogDescription className="text-indigo-100 font-medium text-sm leading-relaxed">
+              Μέσω του ToFrontistirio, αποκτάτε τον δικό σας ιστότοπο χωρίς κόστος σχεδίασης (Development). 
+              Ισχύουν οι ακόλουθες ετήσιες χρεώσεις για την φιλοξενία, το domain και την άδεια χρήσης:
             </DialogDescription>
+            
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="bg-white/10 rounded-xl p-3 border border-white/20 backdrop-blur-sm">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300 mb-1">Landing Page</p>
+                <p className="text-lg font-black leading-none">€400<span className="text-xs font-normal opacity-70">/έτος</span></p>
+                <p className="text-[10px] mt-1 opacity-80">Περιλαμβάνει Hosting & License</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-3 border border-white/20 backdrop-blur-sm">
+                <p className="text-[10px] font-black uppercase tracking-widest text-yellow-300 mb-1">5-Page Website</p>
+                <p className="text-lg font-black leading-none">€600<span className="text-xs font-normal opacity-70">/έτος</span></p>
+                <p className="text-[10px] mt-1 opacity-80">Πλήρης Ιστότοπος & Hosting</p>
+              </div>
+            </div>
+            <p className="text-[10px] mt-3 italic opacity-60 text-center">Σημείωση: Ισχύουν όροι και προϋποθέσεις συνεργασίας.</p>
           </div>
         </DialogHeader>
         

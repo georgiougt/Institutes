@@ -40,12 +40,12 @@ export function WebsiteOfferCard({ className, instituteName, defaultValues }: We
             <span className="bg-yellow-400 text-indigo-900 text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full">SPECIAL OFFER</span>
             <Sparkles className="h-3.5 w-3.5 text-yellow-300 fill-yellow-300" />
           </div>
-          <h3 className="text-xl font-black tracking-tight leading-tight">
-            Χρειάζεστε Επαγγελματική Ιστοσελίδα;
+          <h3 className="text-xl font-black tracking-tight leading-tight uppercase">
+            Δωρεάν* Επαγγελματική Ιστοσελίδα
           </h3>
           <p className="text-indigo-100 text-sm font-medium leading-relaxed max-w-md">
-            Αποκτήστε την δική σας ιστοσελίδα <span className="font-black underline underline-offset-4 decoration-yellow-400">ΕΝΤΕΛΩΣ ΔΩΡΕΑΝ</span> από τον επίσημο συνεργάτη μας. 
-            Ενισχύστε την online παρουσία του φροντιστηρίου σας!
+            Αναβαθμίστε την ψηφιακή σας παρουσία με έναν σύγχρονο ιστότοπο χωρίς κόστος σχεδίασης και κατασκευής. 
+            <span className="block mt-1 text-[10px] opacity-80 italic">*Ισχύουν όροι και προϋποθέσεις. Η προσφορά αφορά το κόστος ανάπτυξης.</span>
           </p>
         </div>
 
