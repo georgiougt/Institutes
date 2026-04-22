@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { toast } from 'sonner';
 import { adminFetch } from '@/lib/admin-fetch';
+import { cn } from '@/lib/utils';
 
 interface ContactRequest {
   id: string;
