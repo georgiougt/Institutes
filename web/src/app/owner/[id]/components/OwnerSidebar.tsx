@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,13 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
       icon: LayoutDashboard,
       href: `/owner/${instituteId}`,
       active: pathname === `/owner/${instituteId}`,
+    },
+    {
+      label: 'Premium Services',
+      icon: Sparkles,
+      href: `/owner/${instituteId}/premium`,
+      active: pathname === `/owner/${instituteId}/premium`,
+      badge: 'PRO'
     },
     {
       label: 'Public Profile',

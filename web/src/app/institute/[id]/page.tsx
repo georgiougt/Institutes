@@ -91,7 +91,18 @@ export default async function InstituteProfilePage({
                 </div>
                 
                 <div className="flex items-center gap-2 text-white/80 text-sm font-bold">
-                  <span className="bg-red-600 px-2 py-0.5 rounded text-[10px] uppercase">Verified</span>
+                  {institute.isVerified && (
+                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] uppercase flex items-center gap-1 shadow-lg shadow-blue-900/20">
+                      <ShieldCheck className="h-3 w-3 fill-white text-blue-600" />
+                      Verified
+                    </span>
+                  )}
+                  {institute.isFeatured && (
+                    <span className="bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] uppercase flex items-center gap-1 shadow-lg shadow-amber-900/20">
+                      <Sparkles className="h-3 w-3 fill-white text-amber-500" />
+                      Featured
+                    </span>
+                  )}
                   <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {mainBranch?.city?.name || 'Ελλάδα'}</span>
                 </div>
               </div>

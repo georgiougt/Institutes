@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { InstitutesModule } from './institutes/institutes.module';
 import { AdminModule } from './admin/admin.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ReviewsModule } from './reviews/reviews.module';
     InstitutesModule,
     AdminModule,
     ReviewsModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [],

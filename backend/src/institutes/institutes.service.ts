@@ -87,6 +87,8 @@ export class InstitutesService {
       const nearby: any[] = await this.prisma.$queryRaw`
         SELECT 
           i.id,
+          i."isFeatured",
+          i."isVerified",
           MIN(6371 * acos(
             cos(radians(${lat})) * cos(radians(b.latitude)) * 
             cos(radians(b.longitude) - radians(${lng})) + 
@@ -101,13 +103,13 @@ export class InstitutesService {
         ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
         ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
         ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
-        GROUP BY i.id
+        GROUP BY i.id, i."isFeatured", i."isVerified"
         HAVING MIN(6371 * acos(
           cos(radians(${lat})) * cos(radians(b.latitude)) * 
           cos(radians(b.longitude) - radians(${lng})) + 
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
-        ORDER BY "distanceKm" ASC
+        ORDER BY i."isFeatured" DESC, "distanceKm" ASC
         LIMIT 50;
       `;
 
@@ -140,6 +142,8 @@ export class InstitutesService {
           description: inst.description,
           logoUrl: inst.logoUrl,
           website: inst.website,
+          isVerified: inst.isVerified,
+          isFeatured: inst.isFeatured,
           images: inst.images,
           branches: inst.branches,
           services: inst.services,
@@ -150,7 +154,11 @@ export class InstitutesService {
           areaName: inst.branches[0]?.area?.name,
         };
       }).filter(inst => !minRating || inst.avgRating >= minRating)
-        .sort((a, b) => (a.distanceKm || 0) - (b.distanceKm || 0)); // Re-sort to maintain SQL order
+        .sort((a, b) => {
+          if (a.isFeatured && !b.isFeatured) return -1;
+          if (!a.isFeatured && b.isFeatured) return 1;
+          return (a.distanceKm || 0) - (b.distanceKm || 0);
+        });
     }
 
     // Fallback simple Prisma lookup if no coordinates provided
@@ -175,9 +183,6 @@ export class InstitutesService {
         reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
       },
       take: 50,
-      orderBy: { createdAt: 'desc' }
-    });
-
     // Flatten for consistent frontend consumption and add stats
     return institutes.map(inst => {
       const reviewCount = inst.reviews.length;
@@ -191,6 +196,8 @@ export class InstitutesService {
         description: inst.description,
         logoUrl: inst.logoUrl,
         website: inst.website,
+        isVerified: inst.isVerified,
+        isFeatured: inst.isFeatured,
         images: inst.images,
         branches: inst.branches,
         services: inst.services,
@@ -199,7 +206,12 @@ export class InstitutesService {
         cityName: inst.branches[0]?.city?.name,
         areaName: inst.branches[0]?.area?.name,
       };
-    }).filter(inst => !minRating || inst.avgRating >= minRating);
+    }).filter(inst => !minRating || inst.avgRating >= minRating)
+      .sort((a, b) => {
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return 0; // Maintain createdAt order from Prisma if both same featured status
+      });
   }
 
   async findOne(id: string) {

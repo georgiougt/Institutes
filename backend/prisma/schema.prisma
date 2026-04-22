@@ -50,6 +50,10 @@ model Institute {
   viewCount         Int                      @default(0)
   completenessScore Int                      @default(0)
   isClaimed         Boolean                  @default(false)
+  isVerified        Boolean                  @default(false)
+  isFeatured        Boolean                  @default(false)
+  verifiedAt        DateTime?
+  verifiedUntil     DateTime?
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
   deletedAt         DateTime?
