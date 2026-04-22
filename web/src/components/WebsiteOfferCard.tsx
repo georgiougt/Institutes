@@ -55,7 +55,7 @@ export function WebsiteOfferCard({ className, instituteName, defaultValues }: We
             defaultValues={defaultValues}
             trigger={
               <button className="group w-full md:w-auto bg-white hover:bg-indigo-50 text-indigo-700 font-black px-8 py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center gap-2">
-                Θέλω Περισσότερα
+                Μάθε Περισσότερα
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
             }
