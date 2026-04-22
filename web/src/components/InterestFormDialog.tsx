@@ -108,7 +108,11 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
                 <p className="text-[10px] mt-1 opacity-80">Πλήρης Ιστότοπος & Hosting</p>
               </div>
             </div>
-            <p className="text-[10px] mt-3 italic opacity-60 text-center">Σημείωση: Ισχύουν όροι και προϋποθέσεις συνεργασίας.</p>
+            
+            <div className="mt-3 flex flex-col gap-1 text-[9px] italic opacity-70 text-center leading-tight">
+              <p>*Η κυριότητα του ιστότοπου μεταβιβάζεται στον πελάτη μετά από 2 έτη συνεχούς συνεργασίας.</p>
+              <p>Σημείωση: Ισχύουν όροι και προϋποθέσεις συνεργασίας.</p>
+            </div>
           </div>
         </DialogHeader>
         
