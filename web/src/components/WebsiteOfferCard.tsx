@@ -44,7 +44,7 @@ export function WebsiteOfferCard({ className, instituteName, defaultValues }: We
             Δωρεάν* Επαγγελματική Ιστοσελίδα
           </h3>
           <p className="text-indigo-100 text-sm font-medium leading-relaxed max-w-md">
-            Αναβαθμίστε την ψηφιακή σας παρουσία με έναν σύγχρονο ιστότοπο χωρίς κόστος σχεδίασης και κατασκευής. 
+            Αναβαθμίστε την ψηφιακή σας παρουσία με <span className="text-white font-bold underline decoration-indigo-400">Πλήρως Εξατομικευμένο Σχεδιασμό (Full Custom)</span> χωρίς κόστος κατασκευής. 
             <span className="block mt-1 text-[10px] opacity-80 italic">*Ισχύουν όροι και προϋποθέσεις. Η προσφορά αφορά το κόστος ανάπτυξης.</span>
           </p>
         </div>

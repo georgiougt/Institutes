@@ -92,7 +92,7 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
               <DialogTitle className="text-2xl font-black italic tracking-tight">Digital Presence Offer</DialogTitle>
             </div>
             <DialogDescription className="text-indigo-100 font-medium text-sm leading-relaxed">
-              Μέσω του ToFrontistirio, αποκτάτε τον δικό σας ιστότοπο χωρίς κόστος σχεδίασης (Development). 
+              Μέσω του ToFrontistirio, αποκτάτε τον δικό σας ιστότοπο με <span className="text-white font-bold">Πλήρως Εξατομικευμένο Σχεδιασμό (Full Custom)</span> και χωρίς κόστος ανάπτυξης. 
               Ισχύουν οι ακόλουθες ετήσιες χρεώσεις για την φιλοξενία, το domain και την άδεια χρήσης:
             </DialogDescription>
             
