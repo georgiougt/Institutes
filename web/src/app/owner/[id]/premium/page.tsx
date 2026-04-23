@@ -215,7 +215,10 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
                     {plan.imageIcon ? (
                       <img src={plan.imageIcon} className="h-10 w-10 object-contain mix-blend-multiply" alt={plan.title} />
                     ) : (
-                      plan.icon && <plan.icon className={cn("h-8 w-8", plan.iconColor)} />
+                      plan.icon && (() => {
+                        const Icon = plan.icon as any;
+                        return <Icon className={cn("h-8 w-8", plan.iconColor)} />;
+                      })()
                     )}
                   </div>
                   {getServiceStatus(plan.id).isActive && (
