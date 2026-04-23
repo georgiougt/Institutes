@@ -63,7 +63,7 @@ export default async function SearchResultsPage({
       <header className="px-6 py-4 border-b border-gray-100 shadow-sm flex items-center justify-between sticky top-0 bg-white z-40">
          <Link href="/" className="flex items-center shrink-0">
             <img 
-              src="/images/logo.png" 
+              src="/images/logo.svg" 
               className="h-12 sm:h-14 w-auto object-contain" 
               alt="ToFrontistirio Logo" 
             />

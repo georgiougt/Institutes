@@ -90,7 +90,7 @@ export default async function InstituteProfilePage({
       {/* ─── HEADER ─── */}
       <header className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-50">
         <Link href="/" className="flex items-center shrink-0">
-          <img src="/images/logo.png" className="h-12 sm:h-16 w-auto object-contain" alt="ToFrontistirio Logo" />
+          <img src="/images/logo.svg" className="h-12 sm:h-16 w-auto object-contain" alt="ToFrontistirio Logo" />
         </Link>
         <div className="flex items-center gap-3">
           <ShareButton name={institute.name} />
