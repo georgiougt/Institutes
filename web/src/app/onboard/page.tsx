@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { WebsiteOfferCard } from '@/components/WebsiteOfferCard';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface Metadata {
   cities: { id: string; name: string }[];
@@ -241,60 +242,59 @@ export default function OnboardPage() {
                       value={formData.password}
                       onChange={e => setFormData({...formData, password: e.target.value})}
                     />
-                  </div>
-                  <div className="space-y-2 mt-4">
-                    <label className="text-sm font-semibold text-slate-700">Επιβεβαίωση Κωδικού</label>
-                    <Input 
-                      type="password"
-                      placeholder="••••••••"
-                      value={formData.confirmPassword}
-                      onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
-                    />
-                    {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                      <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Οι κωδικοί δεν ταιριάζουν</p>
-                    )}
-                  </div>
-                  
-                  {/* Password Requirements */}
-                  <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
-                    {[
-                      { label: '8+ χαρακτήρες', met: formData.password.length >= 8 },
-                      { label: 'Κεφαλαία γράμματα', met: /[A-Z]/.test(formData.password) },
-                      { label: 'Πεζά γράμματα', met: /[a-z]/.test(formData.password) },
-                      { label: 'Αριθμοί ή σύμβολα', met: /[\d\W]/.test(formData.password) },
-                    ].map((req, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className={cn(
-                          "h-4 w-4 rounded-full flex items-center justify-center transition-colors",
-                          req.met ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-300"
-                        )}>
-                          <Check className="h-2.5 w-2.5" />
+                    
+                    <div className="space-y-2 mt-4">
+                      <label className="text-sm font-semibold text-slate-700">Επιβεβαίωση Κωδικού</label>
+                      <Input 
+                        type="password"
+                        placeholder="••••••••"
+                        value={formData.confirmPassword}
+                        onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
+                      />
+                      {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Οι κωδικοί δεν ταιριάζουν</p>
+                      )}
+                    </div>
+                    
+                    {/* Password Requirements */}
+                    <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                      {[
+                        { label: '8+ χαρακτήρες', met: formData.password.length >= 8 },
+                        { label: 'Κεφαλαία γράμματα', met: /[A-Z]/.test(formData.password) },
+                        { label: 'Πεζά γράμματα', met: /[a-z]/.test(formData.password) },
+                        { label: 'Αριθμοί ή σύμβολα', met: /[\d\W]/.test(formData.password) },
+                      ].map((req, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className={cn(
+                            "h-4 w-4 rounded-full flex items-center justify-center transition-colors",
+                            req.met ? "bg-green-100 text-green-600" : "bg-slate-100 text-slate-300"
+                          )}>
+                            <Check className="h-2.5 w-2.5" />
+                          </div>
+                          <span className={cn(
+                            "text-[11px] font-medium transition-colors",
+                            req.met ? "text-green-700" : "text-slate-400"
+                          )}>
+                            {req.label}
+                          </span>
                         </div>
-                        <span className={cn(
-                          "text-[11px] font-medium transition-colors",
-                          req.met ? "text-green-700" : "text-slate-400"
-                        )}>
-                          {req.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <Button 
-                  onClick={handleNext} 
-                  className="w-full h-12 mt-4" 
-                  disabled={
-                    !formData.email || 
-                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ||
-                    formData.password.length < 8 || 
-                    formData.password !== formData.confirmPassword ||
-                    !/[A-Z]/.test(formData.password) || 
-                    !/[a-z]/.test(formData.password) || 
-                    !/[\d\W]/.test(formData.password) ||
-                    !formData.firstName ||
-                    !formData.lastName
-                  }
-                >
+                      ))}
+                    </div>
+                  <Button 
+                    onClick={handleNext} 
+                    className="w-full h-12 mt-4" 
+                    disabled={
+                      !formData.email || 
+                      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ||
+                      formData.password.length < 8 || 
+                      formData.password !== formData.confirmPassword ||
+                      !/[A-Z]/.test(formData.password) || 
+                      !/[a-z]/.test(formData.password) || 
+                      !/[\d\W]/.test(formData.password) ||
+                      !formData.firstName ||
+                      !formData.lastName
+                    }
+                  >
                     Επόμενο <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
                 </CardContent>
