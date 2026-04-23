@@ -20,8 +20,8 @@ export function Navbar({ className, transparent = false }: NavbarProps) {
       {/* Logo Yelp-Style */}
       <Link className="flex items-center shrink-0" href="/">
         <img 
-          src="/images/logo.svg" 
-          className={cn("h-12 sm:h-16 w-auto object-contain", transparent && "brightness-0 invert")} 
+          src={transparent ? "/images/logo-white.svg" : "/images/logo.svg"} 
+          className="h-12 sm:h-16 w-auto object-contain" 
           alt="ToFrontistirio Logo" 
         />
       </Link>
