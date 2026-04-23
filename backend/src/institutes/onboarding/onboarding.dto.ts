@@ -1,9 +1,18 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray, IsInt, Min, Max, IsBoolean } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray, IsInt, Min, Max, IsBoolean, MinLength, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class OnboardingSignupDto {
   @ApiProperty() @IsEmail() @IsNotEmpty() email: string;
-  @ApiProperty() @IsString() @IsNotEmpty() password: string;
+  
+  @ApiProperty() 
+  @IsString() 
+  @IsNotEmpty() 
+  @MinLength(8, { message: 'Ο κωδικός πρέπει να είναι τουλάχιστον 8 χαρακτήρες' })
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'Ο κωδικός είναι πολύ αδύναμος (χρειάζεται κεφαλαία, πεζά, αριθμούς)',
+  })
+  password: string;
+
   @ApiProperty() @IsString() @IsOptional() firstName?: string;
   @ApiProperty() @IsString() @IsOptional() lastName?: string;
 }
