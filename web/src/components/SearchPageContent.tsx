@@ -148,7 +148,7 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
                 key={inst.id} 
                 className={cn(
                   "flex flex-col sm:flex-row gap-8 group p-4 rounded-2xl transition-all",
-                  "bg-transparent border-2 border-transparent"
+                  inst.isFeatured ? "bg-indigo-50/50 border-2 border-indigo-100 shadow-sm" : "bg-transparent border-2 border-transparent"
                 )}
               >
                 {/* Image Section */}
@@ -159,6 +159,11 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
                     alt={inst.name} 
                   />
                   <div className="absolute top-3 right-3 flex gap-2">
+                    {inst.isFeatured && (
+                      <div className="bg-white p-0.5 rounded-lg shadow-lg border border-indigo-100 flex items-center justify-center">
+                        <img src="/images/crown.gif" className="h-7 w-7 object-contain mix-blend-multiply" alt="Featured" />
+                      </div>
+                    )}
                   </div>
                   <div className="absolute bottom-3 left-3 flex gap-2">
                     <span className="bg-white/95 backdrop-blur px-2 py-0.5 rounded-lg text-[10px] font-black uppercase text-slate-900 shadow-sm border border-gray-100">
@@ -174,6 +179,16 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
                       <Link href={`/institute/${inst.id}`} className="text-2xl font-black text-slate-900 hover:text-red-600 transition-colors leading-tight">
                         {index + 1}. {inst.name}
                       </Link>
+                      {inst.isVerified && (
+                        <div className="flex items-center mt-1" title="Επαληθευμένο Φροντιστήριο">
+                          <img src="/images/verified.gif" className="h-6 w-6 object-contain mix-blend-multiply" alt="Verified" />
+                        </div>
+                      )}
+                      {inst.isFeatured && (
+                        <span className="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider border border-indigo-200 mt-1">
+                          Featured
+                        </span>
+                      )}
                     </div>
                   </div>
                   
