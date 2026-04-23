@@ -21,7 +21,7 @@ export function Navbar({ className, transparent = false }: NavbarProps) {
       <Link className="flex items-center shrink-0" href="/">
         <img 
           src="/images/logo.png" 
-          className={cn("h-10 sm:h-12 w-auto", transparent && "brightness-0 invert")} 
+          className={cn("h-12 sm:h-16 w-auto object-contain", transparent && "brightness-0 invert")} 
           alt="ToFrontistirio Logo" 
         />
       </Link>
