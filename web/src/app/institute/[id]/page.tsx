@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/footer';
 import { ContactButton, SendMessageButton } from '@/components/contact-buttons';
 import { ReviewSection } from '@/components/reviews/ReviewSection';
+import { Metadata } from 'next';
 
 async function getInstitute(id: string) {
   try {
@@ -19,6 +20,24 @@ async function getInstitute(id: string) {
     console.error('Failed to fetch institute:', error);
     return null;
   }
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const institute = await getInstitute(resolvedParams.id);
+  if (!institute) return {};
+
+  const cityName = institute.branches?.find((b: any) => b.isMain)?.city?.name || 'Κύπρος';
+  
+  return {
+    title: `${institute.name} - Φροντιστήριο στη ${cityName}`,
+    description: institute.description || `Βρείτε πληροφορίες, μαθήματα και κριτικές για το φροντιστήριο ${institute.name} στη ${cityName}.`,
+    openGraph: {
+      title: institute.name,
+      description: institute.description,
+      images: institute.images?.[0]?.url ? [institute.images[0].url] : [],
+    }
+  };
 }
 
 export default async function InstituteProfilePage({
@@ -35,8 +54,39 @@ export default async function InstituteProfilePage({
 
   const mainBranch = institute.branches?.find((b: any) => b.isMain) || institute.branches?.[0];
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'EducationalOrganization',
+    'name': institute.name,
+    'description': institute.description,
+    'image': institute.images?.[0]?.url,
+    'logo': institute.logoUrl,
+    'url': `https://tofrontistirio.com/institute/${resolvedParams.id}`,
+    'telephone': mainBranch?.phone,
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': mainBranch?.address,
+      'addressLocality': mainBranch?.city?.name,
+      'addressCountry': 'CY',
+    },
+    'geo': mainBranch?.latitude && mainBranch?.longitude ? {
+      '@type': 'GeoCoordinates',
+      'latitude': mainBranch.latitude,
+      'longitude': mainBranch.longitude,
+    } : undefined,
+    'aggregateRating': institute.rating ? {
+      '@type': 'AggregateRating',
+      'ratingValue': institute.rating,
+      'reviewCount': institute.reviewsCount || 1,
+    } : undefined,
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ─── HEADER ─── */}
       <header className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-50">
         <Link href="/" className="flex items-center gap-1 group shrink-0">
