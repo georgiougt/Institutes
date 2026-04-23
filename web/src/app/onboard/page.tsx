@@ -41,6 +41,7 @@ export default function OnboardPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    confirmPassword: '',
     firstName: '',
     lastName: '',
     instituteName: '',
@@ -242,6 +243,19 @@ export default function OnboardPage() {
                       onChange={e => setFormData({...formData, password: e.target.value})}
                     />
                     
+                    <div className="space-y-2 mt-4">
+                      <label className="text-sm font-semibold text-slate-700">Επιβεβαίωση Κωδικού</label>
+                      <Input 
+                        type="password"
+                        placeholder="••••••••"
+                        value={formData.confirmPassword}
+                        onChange={e => setFormData({...formData, confirmPassword: e.target.value})}
+                      />
+                      {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Οι κωδικοί δεν ταιριάζουν</p>
+                      )}
+                    </div>
+                    
                     {/* Password Requirements */}
                     <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
                       {[
@@ -272,10 +286,14 @@ export default function OnboardPage() {
                     className="w-full h-12 mt-4" 
                     disabled={
                       !formData.email || 
+                      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) ||
                       formData.password.length < 8 || 
+                      formData.password !== formData.confirmPassword ||
                       !/[A-Z]/.test(formData.password) || 
                       !/[a-z]/.test(formData.password) || 
-                      !/[\d\W]/.test(formData.password)
+                      !/[\d\W]/.test(formData.password) ||
+                      !formData.firstName ||
+                      !formData.lastName
                     }
                   >
                     Επόμενο <ChevronRight className="ml-2 h-4 w-4" />
@@ -338,7 +356,11 @@ export default function OnboardPage() {
                     <Button variant="outline" onClick={handleBack} className="flex-1 h-12">
                       <ChevronLeft className="mr-2 h-4 w-4" /> Πίσω
                     </Button>
-                    <Button onClick={handleNext} className="flex-[2] h-12" disabled={!formData.instituteName}>
+                    <Button 
+                      onClick={handleNext} 
+                      className="flex-[2] h-12" 
+                      disabled={formData.instituteName.length < 3 || formData.description.length < 20}
+                    >
                       Επόμενο <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -395,7 +417,11 @@ export default function OnboardPage() {
                     <Button variant="outline" onClick={handleBack} className="flex-1 h-12">
                       <ChevronLeft className="mr-2 h-4 w-4" /> Πίσω
                     </Button>
-                    <Button onClick={handleNext} className="flex-[2] h-12" disabled={!formData.cityId || !formData.address || !formData.phone}>
+                    <Button 
+                      onClick={handleNext} 
+                      className="flex-[2] h-12" 
+                      disabled={!formData.cityId || !formData.address || !/^\d{8}$/.test(formData.phone)}
+                    >
                       Επόμενο <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>

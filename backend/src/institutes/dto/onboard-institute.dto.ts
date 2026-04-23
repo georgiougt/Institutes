@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray, IsUUID, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsArray, IsUUID, MinLength, Matches } from 'class-validator';
 
 export class OnboardInstituteDto {
   // Owner info (Only needed for new registrations)
@@ -8,10 +8,13 @@ export class OnboardInstituteDto {
   @IsOptional()
   email?: string;
 
-  @ApiProperty({ example: 'password123' })
+  @ApiProperty({ example: 'Password123!' })
   @IsString()
   @IsOptional()
-  @MinLength(6)
+  @MinLength(8, { message: 'Ο κωδικός πρέπει να είναι τουλάχιστον 8 χαρακτήρες' })
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'Ο κωδικός είναι πολύ αδύναμος (χρειάζεται κεφαλαία, πεζά, αριθμούς)',
+  })
   password?: string;
 
   @ApiProperty({ example: 'Γιώργος' })
@@ -33,6 +36,7 @@ export class OnboardInstituteDto {
   @ApiProperty({ example: 'Φροντιστήριο Η Γνώση' })
   @IsString()
   @IsNotEmpty()
+  @MinLength(3, { message: 'Το όνομα του φροντιστηρίου είναι πολύ μικρό' })
   instituteName: string;
 
   @ApiProperty({ example: 'Εξειδικευμένο κέντρο μαθημάτων στην Κύπρο.' })
@@ -54,6 +58,7 @@ export class OnboardInstituteDto {
   @ApiProperty({ example: '25123456' })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^\d{8}$/, { message: 'Το τηλέφωνο πρέπει να είναι 8 ψηφία' })
   phone: string;
 
   @ApiProperty({ example: 'uuid-of-city' })
