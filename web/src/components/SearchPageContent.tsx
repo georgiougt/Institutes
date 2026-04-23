@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { Star, MapPin, Globe, Phone, Navigation, List, Map as MapIcon } from 'lucide-react';
+import { Star, MapPin, Globe, Phone, Navigation, List, Map as MapIcon, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ClientMap from '@/components/ClientMap';
 import { cn } from "@/lib/utils";
@@ -148,22 +148,17 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
                 key={inst.id} 
                 className={cn(
                   "flex flex-col sm:flex-row gap-8 group p-4 rounded-2xl transition-all",
-                  inst.isFeatured ? "bg-indigo-50/50 border-2 border-indigo-100 shadow-sm" : "bg-transparent border-2 border-transparent"
+                  "bg-transparent border-2 border-transparent"
                 )}
               >
                 {/* Image Section */}
                 <div className="w-full sm:w-[240px] h-[240px] rounded-2xl overflow-hidden shrink-0 border border-gray-100 shadow-sm relative">
                   <img 
-                    src={inst.images?.[0]?.url || inst.logoUrl || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=600&auto=format&fit=crop"} 
+                    src={inst.images?.[0]?.url || inst.logoUrl || "/images/placeholder-institute.webp"} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                     alt={inst.name} 
                   />
                   <div className="absolute top-3 right-3 flex gap-2">
-                    {inst.isFeatured && (
-                      <div className="bg-indigo-600 text-white p-1.5 rounded-lg shadow-lg">
-                        <Sparkles className="h-4 w-4" />
-                      </div>
-                    )}
                   </div>
                   <div className="absolute bottom-3 left-3 flex gap-2">
                     <span className="bg-white/95 backdrop-blur px-2 py-0.5 rounded-lg text-[10px] font-black uppercase text-slate-900 shadow-sm border border-gray-100">
@@ -179,16 +174,6 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
                       <Link href={`/institute/${inst.id}`} className="text-2xl font-black text-slate-900 hover:text-red-600 transition-colors leading-tight">
                         {index + 1}. {inst.name}
                       </Link>
-                      {inst.isVerified && (
-                        <div className="bg-blue-50 text-blue-600 p-1 rounded-full border border-blue-100 mt-1" title="Επαληθευμένο Φροντιστήριο">
-                          <ShieldCheck className="h-4 w-4 fill-blue-600 text-white" />
-                        </div>
-                      )}
-                      {inst.isFeatured && (
-                        <span className="bg-indigo-100 text-indigo-700 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider border border-indigo-200 mt-1">
-                          Featured
-                        </span>
-                      )}
                     </div>
                   </div>
                   

@@ -18,12 +18,24 @@ export function Navbar({ className, transparent = false }: NavbarProps) {
       className
     )}>
       {/* Logo Yelp-Style */}
-      <Link className="flex items-center gap-1 group shrink-0" href="/">
-        <span className="text-red-600 font-extrabold text-3xl leading-none">*</span>
-        <span className={cn(
-          "font-extrabold text-3xl tracking-tighter transition-colors",
-          transparent ? "text-white" : "text-slate-900"
-        )}>ToFrontistirio</span>
+      <Link className="flex items-center gap-2 group shrink-0" href="/">
+        <div className="h-10 w-10 flex items-center justify-center bg-red-600 rounded-xl shadow-lg shadow-red-900/20 group-hover:scale-105 transition-transform">
+          <span className="text-white font-black text-2xl">Φ</span>
+        </div>
+        <div className="flex flex-col -space-y-1">
+          <span className={cn(
+            "font-black text-2xl tracking-tighter transition-colors",
+            transparent ? "text-white" : "text-slate-900"
+          )}>
+            To<span className="text-red-600">Frontistirio</span>
+          </span>
+          <span className={cn(
+            "text-[8px] font-bold uppercase tracking-[0.2em] transition-colors",
+            transparent ? "text-white/60" : "text-slate-400"
+          )}>
+            The Premier Institute Directory
+          </span>
+        </div>
       </Link>
       
       <nav className="flex gap-4 items-center shrink-0">

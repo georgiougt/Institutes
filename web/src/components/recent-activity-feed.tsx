@@ -91,7 +91,7 @@ export function RecentActivityFeed({ initialData }: RecentActivityFeedProps) {
               {/* Institute Image */}
               <div className="h-48 w-full bg-slate-50 overflow-hidden relative border-b border-gray-100">
                 <img 
-                  src={inst.images?.[0]?.url || inst.logoUrl || "https://images.unsplash.com/photo-1523050338392-06ba54401b71?q=80&w=800&auto=format&fit=crop"} 
+                  src={inst.images?.[0]?.url || inst.logoUrl || "/images/placeholder-institute.webp"} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                   alt={inst.name} 
                 />

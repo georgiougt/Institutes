@@ -33,8 +33,17 @@ export function Footer() {
       </div>
       
       <div className="container px-4 md:px-6 mx-auto text-center flex flex-col justify-center items-center">
-        <div className="w-[120px] mb-2 opacity-30 grayscale filter invert hidden md:block" />
-        <p className="font-medium text-[12px]">Copyright © 2026 ToFrontistirio. ToFrontistirio, and related marks are registered trademarks of ToFrontistirio.</p>
+        <Link className="flex items-center gap-2 group mb-6" href="/">
+          <div className="h-8 w-8 flex items-center justify-center bg-red-600 rounded-lg shadow-lg shadow-red-900/10 group-hover:scale-105 transition-transform">
+            <span className="text-white font-black text-lg">Φ</span>
+          </div>
+          <div className="flex items-center">
+            <span className="font-black text-xl tracking-tighter text-slate-900">
+              To<span className="text-red-600">Frontistirio</span>
+            </span>
+          </div>
+        </Link>
+        <p className="font-medium text-[12px] opacity-60">Copyright © 2026 ToFrontistirio. ToFrontistirio, and related marks are registered trademarks of ToFrontistirio.</p>
       </div>
     </footer>
   );

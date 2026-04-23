@@ -190,7 +190,7 @@ function OwnerDashboardContent() {
                       <div className="p-6 flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <div className="h-24 w-40 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
                           <img 
-                            src={inst.images?.[0]?.url || "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=600&auto=format&fit=crop"} 
+                            src={inst.images?.[0]?.url || "/images/placeholder-institute.webp"} 
                             className="w-full h-full object-cover"
                             alt={inst.name}
                           />

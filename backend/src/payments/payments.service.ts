@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 
 @Injectable()
 export class PaymentsService {
-  private stripe: Stripe;
+  private stripe: any;
   private readonly logger = new Logger(PaymentsService.name);
 
   constructor(
@@ -13,57 +13,53 @@ export class PaymentsService {
     private prisma: PrismaService,
   ) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
-    this.stripe = new Stripe(secretKey || 'sk_test_placeholder', {
-      apiVersion: '2025-01-27' as any,
-    });
+    this.stripe = new Stripe(secretKey || 'sk_test_placeholder');
   }
 
   async createCheckoutSession(instituteId: string, planId: string, billingCycle: 'monthly' | 'yearly') {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
-    
-    let priceId = '';
-    // These should ideally come from environment variables or a database of plans
-    if (planId === 'verified') {
-      priceId = billingCycle === 'monthly' ? 'price_verified_monthly' : 'price_verified_yearly';
-    } else if (planId === 'featured') {
-      priceId = billingCycle === 'monthly' ? 'price_featured_monthly' : 'price_featured_yearly';
-    }
 
-    const session = await this.stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'eur',
-            product_data: {
-              name: planId === 'verified' ? 'Verified Badge' : 'Featured Placement',
-              description: planId === 'verified' ? 'Επίσημο σήμα επαλήθευσης για το φροντιστήριό σας' : 'Προώθηση στην κορυφή των αποτελεσμάτων αναζήτησης',
+    try {
+      this.logger.log(`Creating Stripe Checkout session for institute ${instituteId}, plan ${planId}`);
+
+      const session = await this.stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: planId === 'verified' ? 'Verified Badge' : 'Featured Placement',
+                description: planId === 'verified' ? 'Επίσημο σήμα επαλήθευσης για το φροντιστήριό σας' : 'Προώθηση στην κορυφή των αποτελεσμάτων αναζήτησης',
+              },
+              unit_amount: planId === 'verified' 
+                ? (billingCycle === 'monthly' ? 199 : 2000) 
+                : (billingCycle === 'monthly' ? 999 : 9900),
+              recurring: {
+                interval: billingCycle === 'monthly' ? 'month' : 'year',
+              },
             },
-            unit_amount: planId === 'verified' 
-              ? (billingCycle === 'monthly' ? 199 : 2000) 
-              : (billingCycle === 'monthly' ? 999 : 9900),
-            recurring: {
-              interval: billingCycle === 'monthly' ? 'month' : 'year',
-            },
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        mode: 'subscription',
+        success_url: `${frontendUrl}/owner/${instituteId}/premium?success=true`,
+        cancel_url: `${frontendUrl}/owner/${instituteId}/premium?canceled=true`,
+        metadata: {
+          instituteId,
+          planId,
         },
-      ],
-      mode: 'subscription',
-      success_url: `${frontendUrl}/owner/${instituteId}/premium?success=true`,
-      cancel_url: `${frontendUrl}/owner/${instituteId}/premium?canceled=true`,
-      metadata: {
-        instituteId,
-        planId,
-      },
-    });
+      });
 
-    return { url: session.url };
+      return { url: session.url };
+    } catch (error: any) {
+      this.logger.error(`Stripe Session Creation Failed: ${error.message}`);
+      throw error;
+    }
   }
 
   async handleWebhook(signature: string, payload: Buffer) {
     const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
-    let event: Stripe.Event;
+    let event: any;
 
     try {
       event = this.stripe.webhooks.constructEvent(payload, signature, webhookSecret || 'whsec_placeholder');
@@ -73,14 +69,14 @@ export class PaymentsService {
     }
 
     if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
+      const session = event.data.object as any;
       await this.handleSuccessfulSubscription(session);
     }
 
     return { received: true };
   }
 
-  private async handleSuccessfulSubscription(session: Stripe.Checkout.Session) {
+  private async handleSuccessfulSubscription(session: any) {
     const { instituteId, planId } = session.metadata || {};
     
     if (!instituteId || !planId) {

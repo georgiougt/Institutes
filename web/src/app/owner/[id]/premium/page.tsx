@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, use, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Sparkles, Check, ArrowRight, Zap, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,8 +9,61 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-export default function PremiumPage({ params }: { params: { id: string } }) {
+export default function PremiumPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const searchParams = useSearchParams();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [institute, setInstitute] = useState<any>(null);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+  const fetchStatus = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+      const response = await fetch(`${apiUrl}/institutes/${id}`);
+      if (response.ok) {
+        const data = await response.json();
+        setInstitute(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch status:', error);
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, [id]);
+
+  useEffect(() => {
+    if (searchParams.get('success')) {
+      toast.success('Η ενεργοποίηση ολοκληρώθηκε!', {
+        description: 'Η υπηρεσία σας είναι πλέον ενεργή. Οι αλλαγές θα εμφανιστούν άμεσα στα αποτελέσματα αναζήτησης.'
+      });
+      fetchStatus(); // Refresh status after success
+    }
+  }, [searchParams]);
+
+  const getServiceStatus = (planId: string) => {
+    if (!institute) return { isActive: false };
+
+    if (planId === 'verified') {
+      const isActive = institute.isVerified;
+      const expiryDate = institute.verifiedUntil ? new Date(institute.verifiedUntil) : null;
+      return { isActive, expiryDate };
+    }
+
+    if (planId === 'featured') {
+      const isActive = institute.isFeatured;
+      const latestListing = institute.featuredListings?.[0];
+      const expiryDate = latestListing ? new Date(latestListing.endsAt) : null;
+      
+      // If we have a listing record, use its expiration. If not but isFeatured is true, it's indefinite/handled elsewhere
+      return { isActive, expiryDate };
+    }
+
+    return { isActive: false };
+  };
 
   const plans = [
     {
@@ -18,7 +72,8 @@ export default function PremiumPage({ params }: { params: { id: string } }) {
       description: 'Ενισχύστε την αξιοπιστία σας με το επίσημο σήμα επαλήθευσης.',
       monthlyPrice: '1.99',
       yearlyPrice: '20',
-      icon: ShieldCheck,
+      icon: null,
+      imageIcon: '/images/verified.gif',
       iconColor: 'text-blue-500',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-100',
@@ -35,7 +90,8 @@ export default function PremiumPage({ params }: { params: { id: string } }) {
       description: 'Εμφανιστείτε στην κορυφή των αποτελεσμάτων αναζήτησης.',
       monthlyPrice: '9.99',
       yearlyPrice: '99',
-      icon: Sparkles,
+      icon: null,
+      imageIcon: '/images/crown.gif',
       iconColor: 'text-amber-500',
       bgColor: 'bg-amber-50',
       borderColor: 'border-amber-100',
@@ -60,7 +116,7 @@ export default function PremiumPage({ params }: { params: { id: string } }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          instituteId: params.id,
+          instituteId: id,
           planId,
           billingCycle,
         }),
@@ -154,8 +210,26 @@ export default function PremiumPage({ params }: { params: { id: string } }) {
               )}
               
               <CardHeader className="p-8 space-y-4">
-                <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center border shadow-sm", plan.bgColor, plan.borderColor)}>
-                  <plan.icon className={cn("h-8 w-8", plan.iconColor)} />
+                <div className="flex justify-between items-start">
+                  <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center border shadow-sm", plan.bgColor, plan.borderColor)}>
+                    {plan.imageIcon ? (
+                      <img src={plan.imageIcon} className="h-10 w-10 object-contain mix-blend-multiply" alt={plan.title} />
+                    ) : (
+                      plan.icon && <plan.icon className={cn("h-8 w-8", plan.iconColor)} />
+                    )}
+                  </div>
+                  {getServiceStatus(plan.id).isActive && (
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+                        Ενεργό
+                      </span>
+                      {getServiceStatus(plan.id).expiryDate && (
+                        <span className="text-[10px] font-bold text-slate-400">
+                          Λήγει: {getServiceStatus(plan.id).expiryDate?.toLocaleDateString('el-GR')}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-1">
                   <CardTitle className="text-2xl font-black text-slate-900 uppercase tracking-tight">{plan.title}</CardTitle>
@@ -187,16 +261,19 @@ export default function PremiumPage({ params }: { params: { id: string } }) {
               <CardFooter className="p-8 pt-0">
                 <Button 
                   onClick={() => handleCheckout(plan.id)}
-                  disabled={isLoading !== null}
+                  disabled={isLoading !== null || getServiceStatus(plan.id).isActive}
                   className={cn(
                     "w-full h-14 rounded-xl font-black text-lg gap-2 shadow-lg transition-all",
-                    plan.featured 
-                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100" 
-                      : "bg-slate-900 hover:bg-slate-800 text-white"
+                    getServiceStatus(plan.id).isActive
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                      : plan.featured 
+                        ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-100" 
+                        : "bg-slate-900 hover:bg-slate-800 text-white"
                   )}
                 >
-                  {isLoading === plan.id ? 'Περιμένετε...' : 'Ενεργοποίηση Τώρα'}
-                  {!isLoading && <ArrowRight className="h-5 w-5" />}
+                  {isLoading === plan.id ? 'Περιμένετε...' : getServiceStatus(plan.id).isActive ? 'Πλάνο σε Ισχύ' : 'Ενεργοποίηση Τώρα'}
+                  {!isLoading && !getServiceStatus(plan.id).isActive && <ArrowRight className="h-5 w-5" />}
+                  {getServiceStatus(plan.id).isActive && <Check className="h-5 w-5" />}
                 </Button>
               </CardFooter>
             </Card>

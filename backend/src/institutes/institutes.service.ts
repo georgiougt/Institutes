@@ -109,7 +109,7 @@ export class InstitutesService {
           cos(radians(b.longitude) - radians(${lng})) + 
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
-        ORDER BY i."isFeatured" DESC, "distanceKm" ASC
+        ORDER BY "distanceKm" ASC
         LIMIT 50;
       `;
 
@@ -155,8 +155,6 @@ export class InstitutesService {
         };
       }).filter(inst => !minRating || inst.avgRating >= minRating)
         .sort((a, b) => {
-          if (a.isFeatured && !b.isFeatured) return -1;
-          if (!a.isFeatured && b.isFeatured) return 1;
           return (a.distanceKm || 0) - (b.distanceKm || 0);
         });
     }
@@ -183,6 +181,8 @@ export class InstitutesService {
         reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
       },
       take: 50,
+    });
+
     // Flatten for consistent frontend consumption and add stats
     return institutes.map(inst => {
       const reviewCount = inst.reviews.length;
@@ -208,9 +208,7 @@ export class InstitutesService {
       };
     }).filter(inst => !minRating || inst.avgRating >= minRating)
       .sort((a, b) => {
-        if (a.isFeatured && !b.isFeatured) return -1;
-        if (!a.isFeatured && b.isFeatured) return 1;
-        return 0; // Maintain createdAt order from Prisma if both same featured status
+        return 0; // Maintain createdAt order from Prisma
       });
   }
 
@@ -221,6 +219,10 @@ export class InstitutesService {
         branches: { include: { schedules: true, city: true, area: true } },
         services: { include: { service: true } },
         images: true,
+        featuredListings: {
+          orderBy: { endsAt: 'desc' },
+          take: 1
+        }
       }
     });
   }

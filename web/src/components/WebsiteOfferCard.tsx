@@ -41,10 +41,10 @@ export function WebsiteOfferCard({ className, instituteName, defaultValues }: We
             <Sparkles className="h-3.5 w-3.5 text-yellow-300 fill-yellow-300" />
           </div>
           <h3 className="text-xl font-black tracking-tight leading-tight uppercase">
-            Δωρεάν* Επαγγελματική Ιστοσελίδα
+            Αποκτήστε το Επαγγελματικό Website του Φροντιστηρίου σας με €0 Κόστος Κατασκευής
           </h3>
           <p className="text-indigo-100 text-sm font-medium leading-relaxed max-w-md">
-            Αναβαθμίστε την ψηφιακή σας παρουσία με <span className="text-white font-bold underline decoration-indigo-400">Πλήρως Εξατομικευμένο Σχεδιασμό (Full Custom)</span> χωρίς κόστος κατασκευής. 
+            Γλιτώστε πάνω από €1000 σε έξοδα ανάπτυξης. Αποκτήστε <span className="text-white font-bold underline decoration-indigo-400">Πλήρως Εξατομικευμένο Σχεδιασμό (Full Custom)</span> αποκλειστικά για τα μέλη μας. 
             <span className="block mt-1 text-[10px] opacity-80 italic">*Ισχύουν όροι και προϋποθέσεις. Η προσφορά αφορά το κόστος ανάπτυξης.</span>
           </p>
         </div>

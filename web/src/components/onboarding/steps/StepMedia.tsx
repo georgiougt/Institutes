@@ -22,7 +22,7 @@ export function StepMedia() {
     // In a real app, this would be an actual file upload to S3/Cloudinary
     const mockUrls = {
       logo: 'https://api.dicebear.com/7.x/initials/svg?seed=' + (data.name || 'Edu'),
-      cover: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1200'
+      cover: '/images/placeholder-institute.webp'
     };
     
     if (type === 'logo') updateData({ logoUrl: mockUrls.logo });

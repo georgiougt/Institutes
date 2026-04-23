@@ -12,13 +12,23 @@ import { RecentActivityFeed } from '@/components/recent-activity-feed';
 
 async function getRecentInstitutes() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/recent`, {
+    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api/v1'}/institutes/recent`;
+    console.log(`[Next.js] Fetching recent institutes from: ${url}`);
+    
+    const res = await fetch(url, {
       next: { revalidate: 60 } // Revalidate every minute
     });
-    if (!res.ok) return [];
-    return await res.json();
+    
+    if (!res.ok) {
+      console.warn(`[Next.js] Fetch failed with status: ${res.status}`);
+      return [];
+    }
+    
+    const data = await res.json();
+    console.log(`[Next.js] Successfully fetched ${data.length} institutes`);
+    return data;
   } catch (error) {
-    console.error('Failed to fetch recent institutes:', error);
+    console.error('[Next.js] Failed to fetch recent institutes:', error);
     return [];
   }
 }
