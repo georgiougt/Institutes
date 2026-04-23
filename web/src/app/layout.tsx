@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     template: '%s | ToFrontistirio',
   },
   description: 'Η πιο ολοκληρωμένη πλατφόρμα αναζήτησης φροντιστηρίων στην Κύπρο. Βρες αξιολογήσεις, τιμές και τοποθεσίες.',
+  verification: {
+    google: 'zQORUW66Gro9qy0P_5efcy36UJEKm3nSw9xd5K8dBJ8',
+  },
 };
 
 import { Toaster } from 'sonner';
