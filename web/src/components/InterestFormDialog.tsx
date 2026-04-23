@@ -82,49 +82,49 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
           </Button>
         )}
       />
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-none shadow-2xl">
-        <DialogHeader className="p-8 bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 text-white relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
+      <DialogContent className="max-w-[95vw] sm:max-w-[550px] p-0 overflow-y-auto max-h-[90vh] border-none shadow-2xl rounded-2xl">
+        <DialogHeader className="p-5 sm:p-8 bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-700 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12 hidden sm:block">
             <Globe className="h-48 w-48" />
           </div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-                <Sparkles className="h-6 w-6 text-yellow-300" />
+            <div className="flex items-center gap-3 mb-3 sm:mb-4">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-300" />
               </div>
-              <DialogTitle className="text-2xl font-black italic tracking-tight leading-tight">
-                Αποκτήστε το Επαγγελματικό Website του Φροντιστηρίου σας με €0 Κόστος Κατασκευής
+              <DialogTitle className="text-lg sm:text-2xl font-black italic tracking-tight leading-tight">
+                Αποκτήστε το Επαγγελματικό Website σας με €0 Κόστος Κατασκευής
               </DialogTitle>
             </div>
-            <DialogDescription className="text-indigo-100 font-medium text-sm leading-relaxed mb-6">
-              Γλιτώστε πάνω από €1000 σε έξοδα ανάπτυξης. Επιλέξτε το πακέτο που σας ταιριάζει και αποκτήστε <span className="text-white font-bold">Πλήρως Εξατομικευμένο Σχεδιασμό</span>.
+            <DialogDescription className="text-indigo-100 font-medium text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6">
+              Γλιτώστε πάνω από €1000 σε έξοδα ανάπτυξης. Επιλέξτε το πακέτο που σας ταιριάζει.
             </DialogDescription>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {/* Landing Page Package */}
               <button 
                 type="button"
                 onClick={() => setSelectedPackage('landing')}
                 className={cn(
-                  "relative flex flex-col text-left p-4 rounded-2xl border-2 transition-all duration-300 group",
+                  "relative flex flex-col text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 group",
                   selectedPackage === 'landing' 
-                    ? "bg-white text-indigo-900 border-yellow-400 shadow-xl scale-[1.02]" 
+                    ? "bg-white text-indigo-900 border-yellow-400 shadow-xl scale-[1.01]" 
                     : "bg-white/10 text-white border-white/20 hover:bg-white/20"
                 )}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <span className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full", selectedPackage === 'landing' ? "bg-indigo-100 text-indigo-700" : "bg-white/20 text-white")}>
+                <div className="flex justify-between items-start mb-1 sm:mb-2">
+                  <span className={cn("text-[8px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full", selectedPackage === 'landing' ? "bg-indigo-100 text-indigo-700" : "bg-white/20 text-white")}>
                     Landing Page
                   </span>
                 </div>
-                <p className="text-2xl font-black mb-1">€400<span className="text-xs font-normal opacity-70">/έτος</span></p>
-                <div className="space-y-1 mt-2">
-                  {['One Page Design', 'Mobile Friendly', 'Hosting & SSL', 'Support'].map(f => (
-                    <div key={f} className="flex items-center gap-1.5 text-[10px] font-bold">
-                      <div className={cn("h-3 w-3 rounded-full flex items-center justify-center", selectedPackage === 'landing' ? "bg-green-100 text-green-600" : "bg-white/20 text-white")}>
+                <p className="text-xl sm:text-2xl font-black mb-1">€400<span className="text-[10px] sm:text-xs font-normal opacity-70">/έτος</span></p>
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-2 gap-y-1 mt-1">
+                  {['One Page', 'Mobile Ready', 'Hosting', 'SSL'].map(f => (
+                    <div key={f} className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold">
+                      <div className={cn("h-3 w-3 rounded-full flex items-center justify-center shrink-0", selectedPackage === 'landing' ? "bg-green-100 text-green-600" : "bg-white/20 text-white")}>
                         <Check className="h-2 w-2" />
                       </div>
-                      {f}
+                      <span className="truncate">{f}</span>
                     </div>
                   ))}
                 </div>
@@ -135,42 +135,42 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
                 type="button"
                 onClick={() => setSelectedPackage('website')}
                 className={cn(
-                  "relative flex flex-col text-left p-4 rounded-2xl border-2 transition-all duration-300 group",
+                  "relative flex flex-col text-left p-3 sm:p-4 rounded-xl sm:rounded-2xl border-2 transition-all duration-300 group",
                   selectedPackage === 'website' 
-                    ? "bg-white text-indigo-900 border-yellow-400 shadow-xl scale-[1.02]" 
+                    ? "bg-white text-indigo-900 border-yellow-400 shadow-xl scale-[1.01]" 
                     : "bg-white/10 text-white border-white/20 hover:bg-white/20"
                 )}
               >
-                <div className="absolute -top-3 right-4 bg-yellow-400 text-indigo-900 text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-20">
+                <div className="absolute -top-2.5 right-4 bg-yellow-400 text-indigo-900 text-[8px] sm:text-[10px] font-black px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shadow-lg z-20">
                   BEST VALUE
                 </div>
-                <div className="flex justify-between items-start mb-2">
-                  <span className={cn("text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full", selectedPackage === 'website' ? "bg-indigo-100 text-indigo-700" : "bg-white/20 text-white")}>
+                <div className="flex justify-between items-start mb-1 sm:mb-2">
+                  <span className={cn("text-[8px] sm:text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full", selectedPackage === 'website' ? "bg-indigo-100 text-indigo-700" : "bg-white/20 text-white")}>
                     5-Page Website
                   </span>
                 </div>
-                <p className="text-2xl font-black mb-1">€600<span className="text-xs font-normal opacity-70">/έτος</span></p>
-                <div className="space-y-1 mt-2">
-                  {['Full Website', 'Advanced SEO', 'Premium Hosting', 'Priority Support'].map(f => (
-                    <div key={f} className="flex items-center gap-1.5 text-[10px] font-bold">
-                      <div className={cn("h-3 w-3 rounded-full flex items-center justify-center", selectedPackage === 'website' ? "bg-green-100 text-green-600" : "bg-white/20 text-white")}>
+                <p className="text-xl sm:text-2xl font-black mb-1">€600<span className="text-[10px] sm:text-xs font-normal opacity-70">/έτος</span></p>
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-2 gap-y-1 mt-1">
+                  {['Full Site', 'Adv. SEO', 'Premium Host', 'Priority'].map(f => (
+                    <div key={f} className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold">
+                      <div className={cn("h-3 w-3 rounded-full flex items-center justify-center shrink-0", selectedPackage === 'website' ? "bg-green-100 text-green-600" : "bg-white/20 text-white")}>
                         <Check className="h-2 w-2" />
                       </div>
-                      {f}
+                      <span className="truncate">{f}</span>
                     </div>
                   ))}
                 </div>
               </button>
             </div>
             
-            <div className="mt-6 flex flex-col gap-1 text-[10px] font-medium text-center leading-tight">
-              <p className="text-yellow-300">Πλήρης μεταβίβαση κυριότητας μετά από 2 έτη συνεχούς υποστήριξης</p>
-              <p className="opacity-70 italic text-white">*Αποκλειστική προσφορά για τα μέλη του ToFrontistirio.com</p>
+            <div className="mt-4 sm:mt-6 flex flex-col gap-0.5 text-[8px] sm:text-[10px] font-medium text-center leading-tight">
+              <p className="text-yellow-300">Πλήρης μεταβίβαση κυριότητας μετά από 2 έτη</p>
+              <p className="opacity-70 italic text-white">*Αποκλειστική προσφορά για τα μέλη μας</p>
             </div>
           </div>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6 bg-white">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-5 sm:p-8 space-y-4 sm:space-y-6 bg-white">
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="guestName" className="font-bold text-slate-700 flex items-center gap-2">
@@ -221,11 +221,11 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
             </div>
           </div>
 
-          <DialogFooter className="pt-2">
+          <DialogFooter className="pt-0">
             <Button 
               type="submit" 
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black h-14 rounded-xl shadow-xl shadow-indigo-100 gap-2 text-lg transition-all group"
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black h-12 sm:h-14 rounded-xl shadow-xl shadow-indigo-100 gap-2 text-base sm:text-lg transition-all group"
             >
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />}
               {loading ? 'Αποστολή...' : 'Θέλω το δικό μου Website'}
