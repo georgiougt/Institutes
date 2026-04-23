@@ -280,7 +280,6 @@ export default function OnboardPage() {
                         </div>
                       ))}
                     </div>
-                  </div>
                   <Button 
                     onClick={handleNext} 
                     className="w-full h-12 mt-4" 
