@@ -12,15 +12,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrismaService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const adapter_pg_1 = require("@prisma/adapter-pg");
+const pg_1 = require("pg");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
+    pool;
     constructor() {
-        super({
-            datasources: {
-                db: {
-                    url: process.env.DATABASE_URL,
-                },
-            },
-        });
+        const connectionString = process.env.DATABASE_URL;
+        console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
+        const pool = new pg_1.Pool({ connectionString });
+        const adapter = new adapter_pg_1.PrismaPg(pool);
+        super({ adapter });
+        this.pool = pool;
     }
     async onModuleInit() {
         try {
@@ -34,6 +36,7 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
     }
     async onModuleDestroy() {
         await this.$disconnect();
+        await this.pool.end();
         console.log('[Prisma] Disconnected from database.');
     }
 };
