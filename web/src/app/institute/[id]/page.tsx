@@ -135,6 +135,22 @@ export default async function InstituteProfilePage({
                 </div>
                 
                 <div className="flex items-center gap-2 text-white/80 text-sm font-bold">
+                  {institute.isVerified && (
+                    <div className="flex items-center gap-1 group/badge" title="Επαληθευμένο Φροντιστήριο">
+                      <div className="bg-white rounded-full p-0.5 shadow-lg border border-blue-100 flex items-center justify-center">
+                        <img src="/images/verified.gif" className="h-6 w-6 object-contain mix-blend-multiply" alt="Verified" />
+                      </div>
+                      <span className="text-blue-400 text-[10px] uppercase font-black tracking-wider ml-1">Verified</span>
+                    </div>
+                  )}
+                  {institute.isFeatured && (
+                    <div className="flex items-center gap-1 group/badge" title="Προτεινόμενο Φροντιστήριο">
+                      <div className="bg-white rounded-full p-0.5 shadow-lg border border-amber-100 flex items-center justify-center">
+                        <img src="/images/crown.gif" className="h-6 w-6 object-contain mix-blend-multiply" alt="Featured" />
+                      </div>
+                      <span className="text-amber-400 text-[10px] uppercase font-black tracking-wider ml-1">Featured</span>
+                    </div>
+                  )}
                   <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {mainBranch?.city?.name || 'Ελλάδα'}</span>
                 </div>
               </div>

@@ -109,7 +109,7 @@ export class InstitutesService {
           cos(radians(b.longitude) - radians(${lng})) + 
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
-        ORDER BY "distanceKm" ASC
+        ORDER BY i."isFeatured" DESC, "distanceKm" ASC
         LIMIT 50;
       `;
 
@@ -155,6 +155,8 @@ export class InstitutesService {
         };
       }).filter(inst => !minRating || inst.avgRating >= minRating)
         .sort((a, b) => {
+          if (a.isFeatured && !b.isFeatured) return -1;
+          if (!a.isFeatured && b.isFeatured) return 1;
           return (a.distanceKm || 0) - (b.distanceKm || 0);
         });
     }
@@ -208,7 +210,9 @@ export class InstitutesService {
       };
     }).filter(inst => !minRating || inst.avgRating >= minRating)
       .sort((a, b) => {
-        return 0; // Maintain createdAt order from Prisma
+        if (a.isFeatured && !b.isFeatured) return -1;
+        if (!a.isFeatured && b.isFeatured) return 1;
+        return 0; // Maintain createdAt order from Prisma if both same featured status
       });
   }
 
