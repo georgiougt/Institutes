@@ -5,6 +5,7 @@ const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 async function bootstrap() {
+    console.log('🚀 SERVER ATTEMPTING TO START...');
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
         origin: true,
