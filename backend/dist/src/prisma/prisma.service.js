@@ -14,15 +14,17 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const adapter_pg_1 = require("@prisma/adapter-pg");
 const pg_1 = require("pg");
+function cleanDbUrl(url) {
+    let cleaned = url.replace(/[?&]sslmode=[^&]*/g, '');
+    cleaned = cleaned.replace(/[?&]pgbouncer=[^&]*/g, '');
+    cleaned = cleaned.replace(/\?&/, '?').replace(/\?$/, '');
+    return cleaned;
+}
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     pool;
     constructor() {
-        let connectionString = process.env.DATABASE_URL || '';
-        connectionString = connectionString.replace(/[?&]sslmode=[^&]*/g, '');
-        connectionString = connectionString.replace(/[?&]pgbouncer=[^&]*/g, '');
-        connectionString = connectionString.replace(/\?&/, '?').replace(/\?$/, '');
+        const connectionString = cleanDbUrl(process.env.DATABASE_URL || '');
         console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
-        console.log('[Prisma] Cleaned URL prefix:', connectionString.substring(0, 50) + '...');
         const pool = new pg_1.Pool({
             connectionString,
             ssl: { rejectUnauthorized: false },
@@ -33,12 +35,12 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
     }
     async onModuleInit() {
         try {
-            console.log('[Prisma] Connecting to database...');
-            await this.$connect();
-            console.log('[Prisma] Successfully connected to database.');
+            console.log('[Prisma] Testing database connection...');
+            const result = await this.$queryRawUnsafe('SELECT 1 as connected');
+            console.log('[Prisma] ✅ Database connected successfully!', result);
         }
         catch (error) {
-            console.error('[Prisma] Connection failed:', error);
+            console.error('[Prisma] ❌ Connection test failed:', error);
         }
     }
     async onModuleDestroy() {

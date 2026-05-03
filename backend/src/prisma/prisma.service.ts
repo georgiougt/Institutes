@@ -3,20 +3,20 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
+function cleanDbUrl(url: string): string {
+  let cleaned = url.replace(/[?&]sslmode=[^&]*/g, '');
+  cleaned = cleaned.replace(/[?&]pgbouncer=[^&]*/g, '');
+  cleaned = cleaned.replace(/\?&/, '?').replace(/\?$/, '');
+  return cleaned;
+}
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private pool: Pool;
 
   constructor() {
-    // Strip sslmode from URL (newer pg lib treats it as verify-full which rejects Supabase certs)
-    let connectionString = process.env.DATABASE_URL || '';
-    connectionString = connectionString.replace(/[?&]sslmode=[^&]*/g, '');
-    connectionString = connectionString.replace(/[?&]pgbouncer=[^&]*/g, '');
-    // Clean up dangling ? or &
-    connectionString = connectionString.replace(/\?&/, '?').replace(/\?$/, '');
-
+    const connectionString = cleanDbUrl(process.env.DATABASE_URL || '');
     console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
-    console.log('[Prisma] Cleaned URL prefix:', connectionString.substring(0, 50) + '...');
 
     const pool = new Pool({
       connectionString,
@@ -29,11 +29,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleInit() {
     try {
-      console.log('[Prisma] Connecting to database...');
-      await this.$connect();
-      console.log('[Prisma] Successfully connected to database.');
+      console.log('[Prisma] Testing database connection...');
+      // Don't use $connect() - it hangs with the pg adapter.
+      // Instead, run a test query to verify connectivity.
+      const result = await this.$queryRawUnsafe('SELECT 1 as connected');
+      console.log('[Prisma] ✅ Database connected successfully!', result);
     } catch (error) {
-      console.error('[Prisma] Connection failed:', error);
+      console.error('[Prisma] ❌ Connection test failed:', error);
     }
   }
 
