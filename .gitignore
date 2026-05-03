@@ -4,7 +4,9 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-# dist/ removed to allow local builds for Hostinger deployment
+dist/
+# build_prod allowed for Hostinger deployment
+!build_prod/
 build/
 .next/
 coverage/
