@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from 'react';
 
 interface NavbarProps {
   className?: string;
@@ -9,18 +10,36 @@ interface NavbarProps {
 }
 
 export function Navbar({ className, transparent = false }: NavbarProps) {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check on mount
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isTransparent = transparent && !isScrolled;
+
   return (
     <header 
       translate="no"
       className={cn(
         "fixed top-0 z-50 px-4 sm:px-8 py-4 flex items-center justify-between w-full transition-all duration-300",
-      transparent ? "bg-transparent" : "bg-white border-b border-slate-200",
+      isTransparent ? "bg-transparent" : "bg-white border-b border-slate-200 shadow-sm",
       className
     )}>
       {/* Logo Yelp-Style */}
       <Link className="flex items-center shrink-0" href="/">
         <img 
-          src={transparent ? "/images/logo-white.svg" : "/images/logo.svg"} 
+          src={isTransparent ? "/images/logo-white.svg" : "/images/logo.svg"} 
           className="h-12 sm:h-16 w-auto object-contain" 
           alt="ToFrontistirio Logo" 
         />
@@ -30,7 +49,7 @@ export function Navbar({ className, transparent = false }: NavbarProps) {
         <Link 
           className={cn(
             "hidden lg:flex items-center text-sm font-bold hover:underline underline-offset-4 px-3 h-10 transition-colors",
-            transparent ? "text-white" : "text-slate-600 hover:text-red-600"
+            isTransparent ? "text-white" : "text-slate-600 hover:text-red-600"
           )} 
           href="/search"
         >
@@ -40,7 +59,7 @@ export function Navbar({ className, transparent = false }: NavbarProps) {
           href="/login"
           className={cn(
             "text-sm font-bold px-4 py-2 rounded-xl transition-all",
-            transparent 
+            isTransparent 
               ? "bg-white/10 hover:bg-white/20 text-white backdrop-blur-md" 
               : "bg-slate-100 hover:bg-slate-200 text-slate-700"
           )}
