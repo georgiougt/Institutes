@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Post, Body, UnauthorizedException, InternalServerErrorException, ConflictException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body, UnauthorizedException, InternalServerErrorException, ConflictException, BadRequestException, NotFoundException, Delete } from '@nestjs/common';
 import { InstitutesService } from './institutes.service';
 import { SearchInstitutesDto } from './dto/search-institutes.dto';
 import { OnboardInstituteDto } from './dto/onboard-institute.dto';
@@ -39,6 +39,12 @@ export class InstitutesController {
     const institute = await this.institutesService.findOne(id);
     if (!institute) throw new NotFoundException('Institute not found');
     return institute;
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete an institute' })
+  async deleteInstitute(@Param('id') id: string) {
+    return this.institutesService.delete(id);
   }
 
   @Post('onboard')
