@@ -146,6 +146,16 @@ export class OwnerInstitutesController {
     return this.mgmtService.deleteImage(imageId);
   }
 
+  @Patch(':id/media/:imageId/cover')
+  @RequirePermissions({ instituteRoles: [InstituteRole.OWNER, InstituteRole.MANAGER] })
+  @ApiOperation({ summary: 'Set an image as the cover image' })
+  async setCoverImage(
+    @Param('id') id: string,
+    @Param('imageId') imageId: string
+  ) {
+    return this.mgmtService.setCoverImage(id, imageId);
+  }
+
   @Patch(':id/logo')
   @RequirePermissions({ instituteRoles: [InstituteRole.OWNER, InstituteRole.MANAGER] })
   @ApiOperation({ summary: 'Set institute logo' })

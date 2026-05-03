@@ -193,6 +193,21 @@ export class InstituteMgmtService {
     });
   }
 
+  async setCoverImage(instituteId: string, imageId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      // Reset all images order for this institute
+      await tx.image.updateMany({
+        where: { instituteId },
+        data: { order: 0 }
+      });
+      // Set selected image as cover (order = -1)
+      return tx.image.update({
+        where: { id: imageId },
+        data: { order: -1 }
+      });
+    });
+  }
+
   async setLogo(instituteId: string, url: string) {
     return this.prisma.institute.update({
       where: { id: instituteId },
