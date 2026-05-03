@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { 
   Star, MapPin, Phone, Globe, Clock, ChevronRight, 
   CheckCircle2, Info, MessageSquare, Share2, Heart,
-  Building2, GraduationCap, Users, Calendar, ShieldCheck, Sparkles
+  Building2, GraduationCap, Users, Calendar, ShieldCheck, Sparkles, ImageIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/footer';
@@ -222,6 +222,27 @@ export default async function InstituteProfilePage({
                 ))}
               </div>
             </section>
+
+            {/* Gallery Section */}
+            {institute.images && institute.images.length > 0 && (
+              <section>
+                <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
+                  <ImageIcon className="h-6 w-6 text-red-600" />
+                  Φωτογραφίες
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {institute.images.map((image: any, index: number) => (
+                    <div key={image.id || index} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm group">
+                      <img 
+                        src={image.url} 
+                        alt={`Φωτογραφία ${index + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Branches Section */}
             <section>

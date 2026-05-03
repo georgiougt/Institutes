@@ -37,7 +37,7 @@ export class InstitutesService {
         ? { id: { in: ids } } 
         : { status: 'APPROVED' },
       include: {
-        images: { orderBy: { createdAt: 'desc' }, take: 1 },
+        images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
         owner: { select: { firstName: true } },
         branches: { include: { city: true }, take: 1 },
         reviews: {
@@ -122,7 +122,7 @@ export class InstitutesService {
         include: {
           branches: { include: { city: true, area: true } },
           services: { include: { service: true } },
-          images: { orderBy: { createdAt: 'desc' }, take: 1 },
+          images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
           reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
         }
       });
@@ -179,7 +179,7 @@ export class InstitutesService {
         services: {
           include: { service: true }
         },
-        images: { orderBy: { createdAt: 'desc' }, take: 1 },
+        images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
         reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
       },
       take: 50,
@@ -222,7 +222,7 @@ export class InstitutesService {
       include: {
         branches: { include: { schedules: true, city: true, area: true } },
         services: { include: { service: true } },
-        images: true,
+        images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }] },
         featuredListings: {
           orderBy: { endsAt: 'desc' },
           take: 1

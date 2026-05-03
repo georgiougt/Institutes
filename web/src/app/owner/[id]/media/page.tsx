@@ -26,6 +26,7 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
   const [images, setImages] = useState<any[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [coverImageId, setCoverImageId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -42,7 +43,12 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
         ]);
         if (imgsRes.ok) {
           const imgs = await imgsRes.json();
-          setImages(Array.isArray(imgs) ? imgs : []);
+          const imgArray = Array.isArray(imgs) ? imgs : [];
+          setImages(imgArray);
+          
+          // The cover image is the one with order === -1, or the first one if none exist
+          const cover = imgArray.find(img => img.order === -1) || imgArray[0];
+          if (cover) setCoverImageId(cover.id);
         }
         if (instRes.ok) {
           const inst = await instRes.json();
@@ -72,7 +78,11 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
       });
       if (res.ok) {
         const added = await res.json();
-        setImages(prev => [added, ...prev]);
+        setImages(prev => {
+          const newImages = [added, ...prev];
+          if (newImages.length === 1) setCoverImageId(added.id);
+          return newImages;
+        });
         setNewImageUrl('');
       }
     } catch (err) {
@@ -100,7 +110,11 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
 
       if (res.ok) {
         const added = await res.json();
-        setImages(prev => [added, ...prev]);
+        setImages(prev => {
+          const newImages = [added, ...prev];
+          if (newImages.length === 1) setCoverImageId(added.id);
+          return newImages;
+        });
         if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
         const err = await res.json();
@@ -158,6 +172,31 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
       });
       if (res.ok) {
         setImages(prev => prev.filter(img => img.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const setAsCover = async (imageId: string) => {
+    try {
+      const userId = JSON.parse(localStorage.getItem('user') || '{}').id;
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/institutes/${instituteId}/media/${imageId}/cover`, {
+        method: 'PATCH',
+        headers: { 
+          'X-User-Id': userId
+        }
+      });
+      if (res.ok) {
+        setCoverImageId(imageId);
+        setImages(prev => {
+          const updated = prev.map(img => ({
+            ...img,
+            order: img.id === imageId ? -1 : 0
+          }));
+          return updated.sort((a, b) => a.order - b.order);
+        });
       }
     } catch (err) {
       console.error(err);
@@ -281,24 +320,40 @@ export default function MediaGalleryPage({ params }: { params: Promise<{ id: str
          <div className="lg:col-span-3">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                {images.map((img) => (
-                 <div key={img.id} className="relative group aspect-square rounded-3xl bg-white border border-slate-100 shadow-sm overflow-hidden animate-in zoom-in-95 duration-300">
+                 <div key={img.id} className={`relative group aspect-square rounded-3xl bg-white border ${coverImageId === img.id ? 'border-red-500 ring-2 ring-red-500/20' : 'border-slate-100'} shadow-sm overflow-hidden animate-in zoom-in-95 duration-300`}>
                     <img src={img.url} alt="Gallery" className="h-full w-full object-cover transition-transform group-hover:scale-105 duration-700" />
                     
+                    {/* Cover Badge */}
+                    {coverImageId === img.id && (
+                      <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-black tracking-wider uppercase px-2 py-1 rounded-md shadow-md flex items-center gap-1">
+                        <Star className="h-3 w-3 fill-white" /> Cover
+                      </div>
+                    )}
+
                     {/* Overlay Actions */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 gap-3">
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4 gap-2">
                        <div className="flex gap-2">
                           <Button 
-                             onClick={() => setAsLogo(img.url)}
-                             className={`flex-1 rounded-xl h-10 font-bold text-xs ${logoUrl === img.url ? 'bg-emerald-500' : 'bg-white text-slate-900 hover:bg-red-50 transition-colors'}`}
+                             onClick={() => setAsCover(img.id)}
+                             className={`flex-1 rounded-xl h-9 font-bold text-xs ${coverImageId === img.id ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-white text-slate-900 hover:bg-red-50'}`}
                           >
-                             {logoUrl === img.url ? <Check className="h-4 w-4 mr-2" /> : <Star className="h-4 w-4 mr-2 text-red-500" />}
-                             {logoUrl === img.url ? 'Main Logo' : 'Set as Logo'}
+                             {coverImageId === img.id ? <Check className="h-3 w-3 mr-1" /> : <ImageIcon className="h-3 w-3 mr-1 text-red-500" />}
+                             {coverImageId === img.id ? 'Cover Image' : 'Set Cover'}
                           </Button>
+                          <Button 
+                             onClick={() => setAsLogo(img.url)}
+                             className={`flex-1 rounded-xl h-9 font-bold text-xs ${logoUrl === img.url ? 'bg-emerald-500 text-white' : 'bg-white text-slate-900 hover:bg-emerald-50'}`}
+                          >
+                             {logoUrl === img.url ? <Check className="h-3 w-3 mr-1" /> : <Star className="h-3 w-3 mr-1 text-emerald-500" />}
+                             {logoUrl === img.url ? 'Main Logo' : 'Set Logo'}
+                          </Button>
+                       </div>
+                       <div className="flex justify-end">
                           <Button 
                              variant="destructive" 
                              size="icon" 
                              onClick={() => deleteImage(img.id)}
-                             className="h-10 w-10 rounded-xl bg-red-600/20 backdrop-blur-md hover:bg-red-600 border border-white/20"
+                             className="h-9 w-9 rounded-xl bg-red-600/20 backdrop-blur-md hover:bg-red-600 border border-white/20 ml-auto"
                           >
                              <Trash2 className="h-4 w-4" />
                           </Button>
