@@ -2,14 +2,35 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Pool } from 'pg';
+
+async function testRawConnection() {
+  console.log('[RAW PG TEST] Attempting direct pg connection...');
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 10000,
+  });
+  try {
+    const result = await pool.query('SELECT 1 as test');
+    console.log('[RAW PG TEST] ✅ SUCCESS! Result:', result.rows[0]);
+    await pool.end();
+    return true;
+  } catch (error) {
+    console.error('[RAW PG TEST] ❌ FAILED:', error.message);
+    await pool.end();
+    return false;
+  }
+}
 
 async function bootstrap() {
   console.log('🚀 SERVER ATTEMPTING TO START...');
   console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
-  console.log('DATABASE_URL prefix:', process.env.DATABASE_URL?.substring(0, 30) + '...');
-  console.log('DIRECT_URL set:', !!process.env.DIRECT_URL);
-  console.log('SUPABASE_URL set:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+  console.log('DATABASE_URL value:', process.env.DATABASE_URL?.substring(0, 60) + '...');
   console.log('PORT:', process.env.PORT);
+
+  // Test raw pg connection first
+  await testRawConnection();
   
   try {
     const app = await NestFactory.create(AppModule);
