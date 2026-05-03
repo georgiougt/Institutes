@@ -10,7 +10,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     const connectionString = process.env.DATABASE_URL;
     console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
-    const pool = new Pool({ connectionString });
+    const pool = new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+    });
     const adapter = new PrismaPg(pool);
     super({ adapter } as any);
     this.pool = pool;

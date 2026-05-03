@@ -19,7 +19,10 @@ let PrismaService = class PrismaService extends client_1.PrismaClient {
     constructor() {
         const connectionString = process.env.DATABASE_URL;
         console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
-        const pool = new pg_1.Pool({ connectionString });
+        const pool = new pg_1.Pool({
+            connectionString,
+            ssl: { rejectUnauthorized: false },
+        });
         const adapter = new adapter_pg_1.PrismaPg(pool);
         super({ adapter });
         this.pool = pool;
