@@ -17,8 +17,12 @@ const pg_1 = require("pg");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     pool;
     constructor() {
-        const connectionString = process.env.DATABASE_URL;
+        let connectionString = process.env.DATABASE_URL || '';
+        connectionString = connectionString.replace(/[?&]sslmode=[^&]*/g, '');
+        connectionString = connectionString.replace(/[?&]pgbouncer=[^&]*/g, '');
+        connectionString = connectionString.replace(/\?&/, '?').replace(/\?$/, '');
         console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
+        console.log('[Prisma] Cleaned URL prefix:', connectionString.substring(0, 50) + '...');
         const pool = new pg_1.Pool({
             connectionString,
             ssl: { rejectUnauthorized: false },

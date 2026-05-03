@@ -5,10 +5,16 @@ const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const pg_1 = require("pg");
+function cleanDbUrl(url) {
+    let cleaned = url.replace(/[?&]sslmode=[^&]*/g, '');
+    cleaned = cleaned.replace(/[?&]pgbouncer=[^&]*/g, '');
+    cleaned = cleaned.replace(/\?&/, '?').replace(/\?$/, '');
+    return cleaned;
+}
 async function testRawConnection() {
     console.log('[RAW PG TEST] Attempting direct pg connection...');
     const pool = new pg_1.Pool({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: cleanDbUrl(process.env.DATABASE_URL || ''),
         ssl: { rejectUnauthorized: false },
         connectionTimeoutMillis: 10000,
     });
@@ -27,7 +33,6 @@ async function testRawConnection() {
 async function bootstrap() {
     console.log('🚀 SERVER ATTEMPTING TO START...');
     console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
-    console.log('DATABASE_URL value:', process.env.DATABASE_URL?.substring(0, 60) + '...');
     console.log('PORT:', process.env.PORT);
     await testRawConnection();
     try {

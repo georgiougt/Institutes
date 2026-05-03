@@ -8,8 +8,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   private pool: Pool;
 
   constructor() {
-    const connectionString = process.env.DATABASE_URL;
+    // Strip sslmode from URL (newer pg lib treats it as verify-full which rejects Supabase certs)
+    let connectionString = process.env.DATABASE_URL || '';
+    connectionString = connectionString.replace(/[?&]sslmode=[^&]*/g, '');
+    connectionString = connectionString.replace(/[?&]pgbouncer=[^&]*/g, '');
+    // Clean up dangling ? or &
+    connectionString = connectionString.replace(/\?&/, '?').replace(/\?$/, '');
+
     console.log('[Prisma] Using pg driver adapter (bypassing native engine)');
+    console.log('[Prisma] Cleaned URL prefix:', connectionString.substring(0, 50) + '...');
+
     const pool = new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },
