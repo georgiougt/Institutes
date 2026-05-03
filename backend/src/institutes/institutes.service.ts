@@ -231,6 +231,12 @@ export class InstitutesService {
     });
   }
 
+  async delete(id: string) {
+    return this.prisma.institute.delete({
+      where: { id }
+    });
+  }
+
   async getMetadata() {
     const [cities, services] = await Promise.all([
       this.prisma.city.findMany({ orderBy: { name: 'asc' } }),

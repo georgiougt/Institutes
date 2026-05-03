@@ -17,7 +17,8 @@ import {
   LogOut,
   ChevronRight,
   TrendingUp,
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -59,6 +60,25 @@ function OwnerDashboardContent() {
     router.push('/login');
   };
 
+  const handleDeleteInstitute = async (id: string) => {
+    if (!confirm('Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το φροντιστήριο; Αυτή η ενέργεια είναι μη αναστρέψιμη.')) {
+      return;
+    }
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/institutes/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-User-Id': user?.id || ownerId || ''
+        }
+      });
+      if (!res.ok) throw new Error('Failed to delete');
+      setInstitutes(prev => prev.filter(inst => inst.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert('Σφάλμα κατά τη διαγραφή. Παρακαλώ δοκιμάστε ξανά.');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
@@ -91,20 +111,19 @@ function OwnerDashboardContent() {
               Πίνακας Ελέγχου
             </Button>
           </Link>
-          <Link href={`/owner?id=${ownerId}`} className="w-full">
-            <Button variant="ghost" className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl">
-              <Building2 className="h-5 w-5" />
-              Τα Φροντιστήρια μου
-            </Button>
-          </Link>
-          <Button variant="ghost" className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl" onClick={() => alert('Η συνολική διαχείριση εγγραφών θα είναι σύντομα διαθέσιμη.')}>
-            <Users className="h-5 w-5" />
-            Εγγραφές Μαθητών
+          {/* "Τα Φροντιστήρια μου" is hidden for now as per request */}
+          
+          <Button variant="ghost" className="w-full justify-between gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl" disabled>
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5" />
+              Εγγραφές Μαθητών
+            </div>
+            <Badge variant="secondary" className="text-[10px] bg-slate-100 text-slate-500">Coming Soon</Badge>
           </Button>
         </nav>
         
         <div className="p-4 border-t border-slate-100 space-y-1">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl">
+          <Button variant="ghost" className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl" onClick={() => alert('Οι ρυθμίσεις λογαριασμού θα είναι σύντομα διαθέσιμες.')}>
             <Settings className="h-5 w-5" />
             Ρυθμίσεις
           </Button>
@@ -223,6 +242,14 @@ function OwnerDashboardContent() {
                               Επεξεργασία
                             </Button>
                           </Link>
+                          <Button 
+                            variant="ghost" 
+                            className="p-2 h-10 w-10 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDeleteInstitute(inst.id)}
+                            title="Διαγραφή Φροντιστηρίου"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </Button>
                           <Link href={`/institute/${inst.id}`}>
                             <Button variant="ghost" className="p-2 h-10 w-10 text-slate-400 hover:text-slate-900">
                               <ChevronRight className="h-6 w-6" />
