@@ -39,13 +39,6 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
       href: `/owner/${instituteId}`,
       active: pathname === `/owner/${instituteId}`,
     },
-    {
-      label: 'Premium Services',
-      icon: Sparkles,
-      href: `/owner/${instituteId}/premium`,
-      active: pathname === `/owner/${instituteId}/premium`,
-      badge: 'PRO'
-    },
 
     {
       label: 'Public Profile',
