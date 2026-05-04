@@ -14,7 +14,8 @@ import {
   MapPin, 
   BookOpen, 
   Loader2,
-  ShieldCheck
+  ShieldCheck,
+  Navigation
 } from 'lucide-react';
 import {
   Select,
@@ -25,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from '@/components/ui/badge';
 import { WebsiteOfferCard } from '@/components/WebsiteOfferCard';
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
+import { LocationPicker } from '@/components/ui/location-picker';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -52,6 +55,8 @@ export default function OnboardPage() {
     cityId: '',
     serviceIds: [] as string[],
     ownerId: '',
+    latitude: undefined as number | undefined,
+    longitude: undefined as number | undefined,
   });
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -398,13 +403,29 @@ export default function OnboardPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-700">Διεύθυνση</label>
-                    <Input 
-                      placeholder="π.χ. Λεωφόρος Αμαθούντος 123"
-                      value={formData.address}
-                      onChange={e => setFormData({...formData, address: e.target.value})}
+                    <label className="text-sm font-semibold text-slate-700">Διεύθυνση / Αναζήτηση Χάρτη</label>
+                    <AddressAutocomplete 
+                      defaultValue={formData.address}
+                      onAddressSelect={(address, lat, lng) => setFormData(prev => ({ ...prev, address, latitude: lat, longitude: lng }))}
                     />
                   </div>
+                  
+                  {formData.latitude !== undefined && formData.longitude !== undefined && (
+                    <div className="space-y-3 pt-2">
+                      <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                        <Navigation className="h-4 w-4 text-primary" />
+                        Ακριβής Τοποθεσία
+                      </label>
+                      <LocationPicker 
+                        lat={formData.latitude} 
+                        lng={formData.longitude}
+                        onChange={(lat, lng) => setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))}
+                      />
+                      <p className="text-[10px] text-slate-400 font-medium italic">
+                        Μπορείτε να σύρετε την πινέζα για να διορθώσετε την ακριβή τοποθεσία.
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-slate-700">Τηλέφωνο Επικοινωνίας</label>
                     <Input 
