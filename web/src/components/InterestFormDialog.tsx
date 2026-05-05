@@ -117,7 +117,7 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
                     Landing Page
                   </span>
                 </div>
-                <p className="text-xl sm:text-2xl font-black mb-1">€400<span className="text-[10px] sm:text-xs font-normal opacity-70">/έτος</span></p>
+                <p className="text-xl sm:text-2xl font-black mb-1">€33<span className="text-[10px] sm:text-xs font-normal opacity-70">/μήνα</span></p>
                 <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-2 gap-y-1 mt-1">
                   {['One Page', 'Mobile Ready', 'Hosting', 'SSL'].map(f => (
                     <div key={f} className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold">
@@ -149,7 +149,7 @@ export function InterestFormDialog({ instituteName, trigger, defaultValues }: In
                     5-Page Website
                   </span>
                 </div>
-                <p className="text-xl sm:text-2xl font-black mb-1">€600<span className="text-[10px] sm:text-xs font-normal opacity-70">/έτος</span></p>
+                <p className="text-xl sm:text-2xl font-black mb-1">€50<span className="text-[10px] sm:text-xs font-normal opacity-70">/μήνα</span></p>
                 <div className="grid grid-cols-2 sm:grid-cols-1 gap-x-2 gap-y-1 mt-1">
                   {['Full Site', 'Adv. SEO', 'Premium Host', 'Priority'].map(f => (
                     <div key={f} className="flex items-center gap-1 text-[8px] sm:text-[10px] font-bold">
