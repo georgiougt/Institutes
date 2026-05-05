@@ -14,10 +14,15 @@ async function getRecentInstitutes() {
   try {
     const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api/v1'}/institutes/recent`;
     console.log(`[Next.js] Fetching recent institutes from: ${url}`);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout for build
     
     const res = await fetch(url, {
-      next: { revalidate: 60 } // Revalidate every minute
+      next: { revalidate: 60 }, // Revalidate every minute
+      signal: controller.signal
     });
+    
+    clearTimeout(timeoutId);
     
     if (!res.ok) {
       console.warn(`[Next.js] Fetch failed with status: ${res.status}`);
