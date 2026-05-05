@@ -32,8 +32,16 @@ async function performSearch(params: {
       if (value) searchParams.append(key, value);
     });
     
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
-    const res = await fetch(`${apiUrl}/institutes?${searchParams.toString()}`, { cache: 'no-store' });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(`${apiUrl}/institutes?${searchParams.toString()}`, { 
+      cache: 'no-store',
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
     if (!res.ok) return [];
     return await res.json();
   } catch (error) {
