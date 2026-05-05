@@ -1,4 +1,11 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'ToFrontistirio — Βρες το ιδανικό Φροντιστήριο στην Κύπρο',
+  description: 'Η μεγαλύτερη πλατφόρμα αναζήτησης φροντιστηρίων στην Κύπρο. Ανακάλυψε κορυφαία φροντιστήρια για Μαθηματικά, Αγγλικά και όλα τα μαθήματα σε Λεμεσό, Λευκωσία, Λάρνακα και Πάφο.',
+};
+
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { ChevronDown, Star } from 'lucide-react';

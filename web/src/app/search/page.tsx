@@ -1,4 +1,11 @@
+import { Metadata } from 'next';
 import { Suspense } from 'react';
+
+export const metadata: Metadata = {
+  title: 'Αναζήτηση Φροντιστηρίων | ToFrontistirio',
+  description: 'Βρες φροντιστήρια στην περιοχή σου με βάση το μάθημα, την πόλη ή την απόσταση. Δες αξιολογήσεις και στοιχεία επικοινωνίας.',
+};
+
 import Link from 'next/link';
 import { Star, MapPin, Globe, Phone, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -9,7 +9,35 @@ import { Button } from '@/components/ui/button';
 import { Footer } from '@/components/footer';
 import { ContactButton, SendMessageButton, ShareButton } from '@/components/contact-buttons';
 import { ReviewSection } from '@/components/reviews/ReviewSection';
-import { Metadata } from 'next';
+import { Metadata, ResolvingMetadata } from 'next';
+
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const id = (await params).id;
+  const institute = await getInstitute(id);
+
+  if (!institute) {
+    return {
+      title: 'Φροντιστήριο Μη Διαθέσιμο',
+    };
+  }
+
+  return {
+    title: `${institute.name} | ToFrontistirio`,
+    description: institute.description || `Δείτε πληροφορίες, τοποθεσία και αξιολογήσεις για το φροντιστήριο ${institute.name} στην Κύπρο.`,
+    openGraph: {
+      images: institute.logoUrl ? [institute.logoUrl] : [],
+    },
+  };
+}
+
 
 async function getInstitute(id: string) {
   try {

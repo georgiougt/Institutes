@@ -73,7 +73,7 @@ export default function ContactPage() {
 
                 <div className="space-y-6">
                   {[
-                    { icon: Phone, title: 'Τηλέφωνο', text: '+357 22 000000', color: 'bg-emerald-50 text-emerald-600' },
+                    { icon: Phone, title: 'Τηλέφωνο', text: '+357 99717717', color: 'bg-emerald-50 text-emerald-600' },
                     { icon: Mail, title: 'Email', text: 'info@tofrontistirio.com', color: 'bg-blue-50 text-blue-600' },
                     { icon: MapPin, title: 'Έδρα', text: 'Λευκωσία, Κύπρος', color: 'bg-amber-50 text-amber-600' },
                   ].map((item, i) => (
