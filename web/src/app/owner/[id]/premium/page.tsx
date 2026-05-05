@@ -297,12 +297,9 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
         <div className="flex-1 space-y-1 text-center md:text-left">
           <h4 className="font-bold text-slate-900 uppercase text-sm tracking-wide">Χρειάζεστε βοήθεια στην επιλογή;</h4>
           <p className="text-slate-500 text-sm font-medium">
-            Η ομάδα μας είναι εδώ για να σας βοηθήσει να βρείτε το κατάλληλο πλάνο για τις ανάγκες σας. Επικοινωνήστε μαζί μας στο <span className="text-indigo-600 cursor-pointer hover:underline">support@tofrontistirio.cy</span>
+            Η ομάδα μας είναι εδώ για να σας βοηθήσει να βρείτε το κατάλληλο πλάνο για τις ανάγκες σας. Επικοινωνήστε μαζί μας στο <span className="text-indigo-600 cursor-pointer hover:underline">info@tofrontistirio.com</span>
           </p>
         </div>
-        <Button variant="outline" className="rounded-xl font-bold border-slate-200">
-          Σχετικές Ερωτήσεις (FAQ)
-        </Button>
       </motion.div>
     </div>
   );
