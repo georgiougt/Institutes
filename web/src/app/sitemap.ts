@@ -70,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     cities.forEach((city: any) => {
       services.forEach((service: any) => {
         comboRoutes.push({
-          url: `${baseUrl}/search?cityId=${city.id}&serviceId=${service.id}`,
+          url: `${baseUrl}/search?cityId=${city.id}&amp;serviceId=${service.id}`,
           lastModified: new Date(),
           changeFrequency: 'daily',
           priority: 0.6,
