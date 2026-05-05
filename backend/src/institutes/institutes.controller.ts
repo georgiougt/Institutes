@@ -31,6 +31,12 @@ export class InstitutesController {
     return this.institutesService.getMetadata();
   }
 
+  @Get('sitemap')
+  @ApiOperation({ summary: 'Get lightweight institute data for sitemap generation' })
+  sitemap() {
+    return this.institutesService.getSitemapData();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get details of a specific institute' })
   @ApiResponse({ status: 200, description: 'Return a single institute with all its branches and services.' })
