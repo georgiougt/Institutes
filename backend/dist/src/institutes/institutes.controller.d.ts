@@ -167,6 +167,10 @@ export declare class InstitutesController {
             iconUrl: string | null;
         }[];
     }>;
+    sitemap(): Promise<{
+        id: string;
+        updatedAt: Date;
+    }[]>;
     findOne(id: string): Promise<{
         branches: ({
             city: {

@@ -295,6 +295,10 @@ export declare class InstitutesService {
             iconUrl: string | null;
         }[];
     }>;
+    getSitemapData(): Promise<{
+        id: string;
+        updatedAt: Date;
+    }[]>;
     onboard(dto: OnboardInstituteDto): Promise<{
         message: string;
         instituteId: string;

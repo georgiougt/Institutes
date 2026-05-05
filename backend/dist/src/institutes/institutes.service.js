@@ -265,6 +265,12 @@ let InstitutesService = class InstitutesService {
         ]);
         return { cities, services };
     }
+    async getSitemapData() {
+        return this.prisma.institute.findMany({
+            where: { status: 'APPROVED' },
+            select: { id: true, updatedAt: true }
+        });
+    }
     async onboard(dto) {
         return this.prisma.$transaction(async (tx) => {
             let userId = dto.ownerId;

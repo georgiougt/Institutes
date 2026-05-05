@@ -34,6 +34,9 @@ let InstitutesController = class InstitutesController {
     metadata() {
         return this.institutesService.getMetadata();
     }
+    sitemap() {
+        return this.institutesService.getSitemapData();
+    }
     async findOne(id) {
         const institute = await this.institutesService.findOne(id);
         if (!institute)
@@ -106,6 +109,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], InstitutesController.prototype, "metadata", null);
+__decorate([
+    (0, common_1.Get)('sitemap'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get lightweight institute data for sitemap generation' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], InstitutesController.prototype, "sitemap", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get details of a specific institute' }),
