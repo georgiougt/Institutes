@@ -140,7 +140,7 @@ export default function ContactPage() {
                         <Input 
                           id="guestPhone" 
                           {...register('guestPhone', { required: true })} 
-                          placeholder="99XXXXXX"
+                          placeholder="+357 99XXXXXX"
                           className="rounded-2xl border-slate-200 h-14 bg-slate-50 focus:bg-white transition-all px-6"
                         />
                         {errors.guestPhone && <p className="text-xs text-red-500 font-bold ml-1">Απαιτείται τηλέφωνο</p>}
