@@ -18,15 +18,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     // 2. Fetch metadata (cities and services)
-    const metaRes = await fetch(`${apiUrl}/institutes/metadata/lists`, { next: { revalidate: 3600 } });
+    const metaRes = await fetch(`${apiUrl}/institutes/metadata/lists`, { 
+      next: { revalidate: 3600 },
+      signal: controller.signal 
+    });
     if (!metaRes.ok) throw new Error('Failed to fetch metadata');
     const metaData = await metaRes.json();
     const cities: any[] = metaData.cities || [];
     const services: any[] = metaData.services || [];
 
     // 3. Fetch all active institutes
-    const instRes = await fetch(`${apiUrl}/institutes/sitemap`, { next: { revalidate: 3600 } });
+    const instRes = await fetch(`${apiUrl}/institutes/sitemap`, { 
+      next: { revalidate: 3600 },
+      signal: controller.signal 
+    });
+    
+    clearTimeout(timeoutId);
+    
     if (!instRes.ok) throw new Error('Failed to fetch institutes');
     const institutes: any[] = await instRes.json();
 
