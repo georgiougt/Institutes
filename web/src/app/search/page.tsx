@@ -38,6 +38,9 @@ async function performSearch(params: {
     Object.entries(params).forEach(([key, value]) => {
       if (value) searchParams.append(key, value);
     });
+    // Always send pagination params for initial load
+    if (!searchParams.has('page')) searchParams.set('page', '1');
+    if (!searchParams.has('limit')) searchParams.set('limit', '20');
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);

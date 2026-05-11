@@ -38,8 +38,9 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [institutes, setInstitutes] = useState(initialResults?.data || []);
   const [page, setPage] = useState(initialResults?.page || 1);
+  const [total, setTotal] = useState(initialResults?.total || 0);
   const [loading, setLoading] = useState(false);
-  const total = initialResults?.total || 0;
+  const limit = initialResults?.limit || 20;
   const hasMore = institutes.length < total;
 
   const handleLoadMore = async () => {
@@ -60,8 +61,19 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
       
       if (res.ok) {
         const json = await res.json();
-        setInstitutes(prev => [...prev, ...json.data]);
-        setPage(nextPage);
+        // Handle both array and paginated object formats
+        const newItems = Array.isArray(json) ? json : (json.data || []);
+        if (newItems.length > 0) {
+          setInstitutes(prev => [...prev, ...newItems]);
+          setPage(nextPage);
+          // Update total if the response includes it
+          if (!Array.isArray(json) && json.total !== undefined) {
+            setTotal(json.total);
+          }
+        } else {
+          // No more results, set total to current length to hide the button
+          setTotal(institutes.length);
+        }
       }
     } catch (error) {
       console.error('Load more failed:', error);

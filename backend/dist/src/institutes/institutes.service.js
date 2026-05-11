@@ -105,7 +105,8 @@ let InstitutesService = class InstitutesService {
         });
     }
     async search(dto) {
-        let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating } = dto;
+        let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20 } = dto;
+        const skip = (page - 1) * limit;
         if (!cityId && location) {
             const city = await this.prisma.city.findFirst({
                 where: { name: { equals: location, mode: 'insensitive' } }
@@ -141,11 +142,32 @@ let InstitutesService = class InstitutesService {
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
         ORDER BY i."isFeatured" DESC, "distanceKm" ASC
-        LIMIT 50;
+        LIMIT ${limit} OFFSET ${skip};
       `;
+            const totalCountRes = await this.prisma.$queryRaw `
+        SELECT COUNT(*)::int as count FROM (
+          SELECT i.id
+          FROM "Institute" i
+          INNER JOIN "Branch" b ON b."instituteId" = i.id
+          LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
+          LEFT JOIN "Service" s ON s.id = "is"."serviceId"
+          WHERE i.status = 'APPROVED'
+          AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+          ${query ? client_1.Prisma.sql `AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : client_1.Prisma.empty}
+          ${cityId ? client_1.Prisma.sql `AND b."cityId" = ${cityId}` : client_1.Prisma.empty}
+          ${serviceId ? client_1.Prisma.sql `AND "is"."serviceId" = ${serviceId}` : client_1.Prisma.empty}
+          GROUP BY i.id
+          HAVING MIN(6371 * acos(
+            cos(radians(${lat})) * cos(radians(b.latitude)) * 
+            cos(radians(b.longitude) - radians(${lng})) + 
+            sin(radians(${lat})) * sin(radians(b.latitude))
+          )) <= ${radius}
+        ) as subquery;
+      `;
+            const total = totalCountRes[0]?.count || 0;
             const ids = nearby.map(n => n.id);
             if (ids.length === 0)
-                return [];
+                return { data: [], total: 0, page, limit };
             const results = await this.prisma.institute.findMany({
                 where: { id: { in: ids } },
                 include: {
@@ -155,7 +177,7 @@ let InstitutesService = class InstitutesService {
                     reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
                 }
             });
-            return results.map(inst => {
+            const sortedResults = results.map(inst => {
                 const reviewCount = inst.reviews.length;
                 const avgRating = reviewCount > 0
                     ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount
@@ -186,30 +208,50 @@ let InstitutesService = class InstitutesService {
                     return 1;
                 return (a.distanceKm || 0) - (b.distanceKm || 0);
             });
+            return {
+                data: sortedResults,
+                total,
+                page,
+                limit
+            };
         }
-        const institutes = await this.prisma.institute.findMany({
-            where: {
-                status: 'APPROVED',
-                OR: query ? [
-                    { name: { contains: query, mode: 'insensitive' } },
-                    { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
-                ] : undefined,
-                branches: cityId ? { some: { cityId } } : undefined,
-                services: serviceId ? { some: { serviceId } } : undefined,
-            },
-            include: {
-                branches: {
-                    include: { city: true, area: true },
+        const [institutes, total] = await Promise.all([
+            this.prisma.institute.findMany({
+                where: {
+                    status: 'APPROVED',
+                    OR: query ? [
+                        { name: { contains: query, mode: 'insensitive' } },
+                        { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
+                    ] : undefined,
+                    branches: cityId ? { some: { cityId } } : undefined,
+                    services: serviceId ? { some: { serviceId } } : undefined,
                 },
-                services: {
-                    include: { service: true }
+                include: {
+                    branches: {
+                        include: { city: true, area: true },
+                    },
+                    services: {
+                        include: { service: true }
+                    },
+                    images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
+                    reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
                 },
-                images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
-                reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
-            },
-            take: 50,
-        });
-        return institutes.map(inst => {
+                take: limit,
+                skip: skip,
+            }),
+            this.prisma.institute.count({
+                where: {
+                    status: 'APPROVED',
+                    OR: query ? [
+                        { name: { contains: query, mode: 'insensitive' } },
+                        { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
+                    ] : undefined,
+                    branches: cityId ? { some: { cityId } } : undefined,
+                    services: serviceId ? { some: { serviceId } } : undefined,
+                },
+            }),
+        ]);
+        const data = institutes.map(inst => {
             const reviewCount = inst.reviews.length;
             const avgRating = reviewCount > 0
                 ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount
@@ -238,6 +280,12 @@ let InstitutesService = class InstitutesService {
                 return 1;
             return 0;
         });
+        return {
+            data,
+            total,
+            page,
+            limit
+        };
     }
     async findOne(id) {
         return this.prisma.institute.findUnique({

@@ -7,81 +7,167 @@ export declare class InstitutesController {
     private readonly institutesService;
     constructor(institutesService: InstitutesService);
     search(searchDto: SearchInstitutesDto): Promise<{
-        id: string;
-        name: string;
-        description: string | null;
-        logoUrl: string | null;
-        website: string | null;
-        isVerified: boolean;
-        isFeatured: boolean;
-        images: {
-            id: string;
-            createdAt: Date;
-            instituteId: string;
-            url: string;
-            caption: string | null;
-            order: number;
-            isApproved: boolean;
-        }[];
-        branches: ({
-            city: {
-                id: string;
-                name: string;
-                slug: string | null;
-                createdAt: Date;
-                nameEn: string | null;
-                displayOrder: number;
-            };
-            area: {
-                id: string;
-                name: string;
-                slug: string | null;
-                nameEn: string | null;
-                cityId: string;
-            } | null;
-        } & {
+        data: {
             id: string;
             name: string;
-            status: import("@prisma/client").$Enums.ListingStatus;
-            createdAt: Date;
-            updatedAt: Date;
-            deletedAt: Date | null;
-            instituteId: string;
-            email: string | null;
-            phone: string;
-            address: string;
-            latitude: number | null;
-            longitude: number | null;
-            isMain: boolean;
-            cityId: string;
-            areaId: string | null;
-        })[];
-        services: ({
-            service: {
+            description: string | null;
+            logoUrl: string | null;
+            website: string | null;
+            isVerified: boolean;
+            isFeatured: boolean;
+            images: {
+                id: string;
+                createdAt: Date;
+                instituteId: string;
+                url: string;
+                caption: string | null;
+                order: number;
+                isApproved: boolean;
+            }[];
+            branches: ({
+                city: {
+                    id: string;
+                    name: string;
+                    slug: string | null;
+                    createdAt: Date;
+                    nameEn: string | null;
+                    displayOrder: number;
+                };
+                area: {
+                    id: string;
+                    name: string;
+                    slug: string | null;
+                    nameEn: string | null;
+                    cityId: string;
+                } | null;
+            } & {
                 id: string;
                 name: string;
-                slug: string | null;
-                description: string | null;
+                status: import("@prisma/client").$Enums.ListingStatus;
                 createdAt: Date;
                 updatedAt: Date;
-                isActive: boolean;
-                displayOrder: number;
-                category: string | null;
-                iconUrl: string | null;
-            };
-        } & {
+                deletedAt: Date | null;
+                instituteId: string;
+                email: string | null;
+                phone: string;
+                address: string;
+                latitude: number | null;
+                longitude: number | null;
+                isMain: boolean;
+                cityId: string;
+                areaId: string | null;
+            })[];
+            services: ({
+                service: {
+                    id: string;
+                    name: string;
+                    slug: string | null;
+                    description: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    isActive: boolean;
+                    displayOrder: number;
+                    category: string | null;
+                    iconUrl: string | null;
+                };
+            } & {
+                id: string;
+                instituteId: string;
+                priceInfo: string | null;
+                isOnline: boolean;
+                isInPerson: boolean;
+                serviceId: string;
+            })[];
+            avgRating: number;
+            reviewCount: number;
+            distanceKm: any;
+            cityName: string;
+            areaName: string | undefined;
+        }[];
+        total: any;
+        page: number;
+        limit: number;
+    } | {
+        data: {
             id: string;
-            instituteId: string;
-            priceInfo: string | null;
-            isOnline: boolean;
-            isInPerson: boolean;
-            serviceId: string;
-        })[];
-        avgRating: number;
-        reviewCount: number;
-        cityName: string;
-        areaName: string | undefined;
-    }[]>;
+            name: string;
+            description: string | null;
+            logoUrl: string | null;
+            website: string | null;
+            isVerified: boolean;
+            isFeatured: boolean;
+            images: {
+                id: string;
+                createdAt: Date;
+                instituteId: string;
+                url: string;
+                caption: string | null;
+                order: number;
+                isApproved: boolean;
+            }[];
+            branches: ({
+                city: {
+                    id: string;
+                    name: string;
+                    slug: string | null;
+                    createdAt: Date;
+                    nameEn: string | null;
+                    displayOrder: number;
+                };
+                area: {
+                    id: string;
+                    name: string;
+                    slug: string | null;
+                    nameEn: string | null;
+                    cityId: string;
+                } | null;
+            } & {
+                id: string;
+                name: string;
+                status: import("@prisma/client").$Enums.ListingStatus;
+                createdAt: Date;
+                updatedAt: Date;
+                deletedAt: Date | null;
+                instituteId: string;
+                email: string | null;
+                phone: string;
+                address: string;
+                latitude: number | null;
+                longitude: number | null;
+                isMain: boolean;
+                cityId: string;
+                areaId: string | null;
+            })[];
+            services: ({
+                service: {
+                    id: string;
+                    name: string;
+                    slug: string | null;
+                    description: string | null;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    isActive: boolean;
+                    displayOrder: number;
+                    category: string | null;
+                    iconUrl: string | null;
+                };
+            } & {
+                id: string;
+                instituteId: string;
+                priceInfo: string | null;
+                isOnline: boolean;
+                isInPerson: boolean;
+                serviceId: string;
+            })[];
+            avgRating: number;
+            reviewCount: number;
+            cityName: string;
+            areaName: string | undefined;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
     getRecent(lat?: number, lng?: number): Promise<{
         reviewCount: number;
         avgRating: number;

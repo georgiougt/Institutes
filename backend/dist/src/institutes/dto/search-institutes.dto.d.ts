@@ -8,4 +8,6 @@ export declare class SearchInstitutesDto {
     sort?: 'distance' | 'newest';
     location?: string;
     minRating?: number;
+    page?: number;
+    limit?: number;
 }

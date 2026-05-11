@@ -23,6 +23,8 @@ class SearchInstitutesDto {
     sort;
     location;
     minRating;
+    page;
+    limit;
 }
 exports.SearchInstitutesDto = SearchInstitutesDto;
 __decorate([
@@ -91,4 +93,21 @@ __decorate([
     (0, class_validator_1.Max)(5),
     __metadata("design:type", Number)
 ], SearchInstitutesDto.prototype, "minRating", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Page number', default: 1 }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], SearchInstitutesDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Items per page', default: 20 }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(100),
+    __metadata("design:type", Number)
+], SearchInstitutesDto.prototype, "limit", void 0);
 //# sourceMappingURL=search-institutes.dto.js.map
