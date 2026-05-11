@@ -70,7 +70,8 @@ export class InstitutesService {
   }
 
   async search(dto: SearchInstitutesDto) {
-    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating } = dto;
+    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20 } = dto;
+    const skip = (page - 1) * limit;
 
     if (!cityId && location) {
       const city = await this.prisma.city.findFirst({
@@ -110,8 +111,28 @@ export class InstitutesService {
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
         ORDER BY i."isFeatured" DESC, "distanceKm" ASC
-        LIMIT 50;
+        LIMIT ${limit} OFFSET ${skip};
       `;
+
+      // Get total count for pagination
+      const totalCountRes: any[] = await this.prisma.$queryRaw`
+        SELECT COUNT(DISTINCT i.id)::int as count
+        FROM "Institute" i
+        INNER JOIN "Branch" b ON b."instituteId" = i.id
+        LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
+        LEFT JOIN "Service" s ON s.id = "is"."serviceId"
+        WHERE i.status = 'APPROVED'
+        AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+        ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
+        ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
+        ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
+        HAVING MIN(6371 * acos(
+          cos(radians(${lat})) * cos(radians(b.latitude)) * 
+          cos(radians(b.longitude) - radians(${lng})) + 
+          sin(radians(${lat})) * sin(radians(b.latitude))
+        )) <= ${radius};
+      `;
+      const total = totalCountRes[0]?.count || 0;
 
       const ids = nearby.map(n => n.id);
       if (ids.length === 0) return [];
@@ -128,7 +149,7 @@ export class InstitutesService {
       });
 
       // Map statistics and merge distance from SQL query
-      return results.map(inst => {
+      const sortedResults = results.map(inst => {
         const reviewCount = inst.reviews.length;
         const avgRating = reviewCount > 0 
           ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount 
@@ -159,34 +180,54 @@ export class InstitutesService {
           if (!a.isFeatured && b.isFeatured) return 1;
           return (a.distanceKm || 0) - (b.distanceKm || 0);
         });
+
+      return {
+        data: sortedResults,
+        total,
+        page,
+        limit
+      };
     }
 
     // Fallback simple Prisma lookup if no coordinates provided
-    const institutes = await this.prisma.institute.findMany({
-      where: {
-        status: 'APPROVED',
-        OR: query ? [
-          { name: { contains: query, mode: 'insensitive' } },
-          { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
-        ] : undefined,
-        branches: cityId ? { some: { cityId } } : undefined,
-        services: serviceId ? { some: { serviceId } } : undefined,
-      },
-      include: {
-        branches: {
-          include: { city: true, area: true },
+    const [institutes, total] = await Promise.all([
+      this.prisma.institute.findMany({
+        where: {
+          status: 'APPROVED',
+          OR: query ? [
+            { name: { contains: query, mode: 'insensitive' } },
+            { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
+          ] : undefined,
+          branches: cityId ? { some: { cityId } } : undefined,
+          services: serviceId ? { some: { serviceId } } : undefined,
         },
-        services: {
-          include: { service: true }
+        include: {
+          branches: {
+            include: { city: true, area: true },
+          },
+          services: {
+            include: { service: true }
+          },
+          images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
+          reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
         },
-        images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
-        reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
-      },
-      take: 50,
-    });
+        take: limit,
+        skip: skip,
+      }),
+      this.prisma.institute.count({
+        where: {
+          status: 'APPROVED',
+          OR: query ? [
+            { name: { contains: query, mode: 'insensitive' } },
+            { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
+          ] : undefined,
+          branches: cityId ? { some: { cityId } } : undefined,
+          services: serviceId ? { some: { serviceId } } : undefined,
+        },
+      }),
+    ]);
 
-    // Flatten for consistent frontend consumption and add stats
-    return institutes.map(inst => {
+    const data = institutes.map(inst => {
       const reviewCount = inst.reviews.length;
       const avgRating = reviewCount > 0 
         ? inst.reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount 
@@ -214,6 +255,13 @@ export class InstitutesService {
         if (!a.isFeatured && b.isFeatured) return 1;
         return 0; // Maintain createdAt order from Prisma if both same featured status
       });
+
+    return {
+      data,
+      total,
+      page,
+      limit
+    };
   }
 
   async findOne(id: string) {

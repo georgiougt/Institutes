@@ -17,7 +17,12 @@ import {
 } from '@/components/ui/sheet';
 
 interface SearchPageContentProps {
-  results: any[];
+  initialResults: {
+    data: any[];
+    total: number;
+    page: number;
+    limit: number;
+  };
   resolvedParams: {
     query?: string;
     cityId?: string;
@@ -29,8 +34,41 @@ interface SearchPageContentProps {
   };
 }
 
-export function SearchPageContent({ results, resolvedParams }: SearchPageContentProps) {
+export function SearchPageContent({ initialResults, resolvedParams }: SearchPageContentProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [institutes, setInstitutes] = useState(initialResults?.data || []);
+  const [page, setPage] = useState(initialResults?.page || 1);
+  const [loading, setLoading] = useState(false);
+  const total = initialResults?.total || 0;
+  const hasMore = institutes.length < total;
+
+  const handleLoadMore = async () => {
+    if (loading || !hasMore) return;
+    
+    setLoading(true);
+    try {
+      const nextPage = page + 1;
+      const searchParams = new URLSearchParams();
+      Object.entries(resolvedParams).forEach(([key, value]) => {
+        if (value) searchParams.append(key, value as string);
+      });
+      searchParams.append('page', nextPage.toString());
+      searchParams.append('limit', '20');
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+      const res = await fetch(`${apiUrl}/institutes?${searchParams.toString()}`);
+      
+      if (res.ok) {
+        const json = await res.json();
+        setInstitutes(prev => [...prev, ...json.data]);
+        setPage(nextPage);
+      }
+    } catch (error) {
+      console.error('Load more failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const userLocation = resolvedParams.lat && resolvedParams.lng ? {
     lat: parseFloat(resolvedParams.lat),
@@ -75,8 +113,8 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
         )}>
           <div className="pb-6 mb-8 border-b border-gray-100 flex items-center justify-between">
             <h1 className="text-xl font-black text-slate-900">
-              {results.length > 0 
-                ? `${results.length} Φροντιστήρια` 
+              {total > 0 
+                ? `${total} Φροντιστήρια` 
                 : (
                   <div className="space-y-2">
                     <span className="block text-red-600">Δεν βρέθηκαν αποτελέσματα</span>
@@ -143,7 +181,7 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
           </div>
 
           <div className="space-y-12">
-            {results.map((inst: any, index: number) => (
+            {institutes.map((inst: any, index: number) => (
               <div 
                 key={inst.id} 
                 className={cn(
@@ -282,6 +320,19 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
               </div>
             ))}
           </div>
+
+          {hasMore && (
+            <div className="mt-12 flex justify-center pb-20">
+              <Button 
+                onClick={handleLoadMore} 
+                disabled={loading}
+                variant="outline"
+                className="h-14 px-10 rounded-2xl border-2 border-slate-900 text-slate-900 font-black text-sm uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all disabled:opacity-50"
+              >
+                {loading ? 'Φόρτωση...' : 'Φόρτωση Περισσότερων'}
+              </Button>
+            </div>
+          )}
         </main>
 
         {/* Map Area */}
@@ -292,7 +343,7 @@ export function SearchPageContent({ results, resolvedParams }: SearchPageContent
           <div className="sticky top-[73px] h-[calc(100vh-73px)] w-full">
             <ClientMap 
               key={viewMode}
-              institutes={results} 
+              institutes={institutes} 
               userLocation={userLocation}
             />
           </div>

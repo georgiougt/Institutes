@@ -50,11 +50,11 @@ async function performSearch(params: {
     
     clearTimeout(timeoutId);
     
-    if (!res.ok) return [];
+    if (!res.ok) return { data: [], total: 0, page: 1, limit: 20 };
     return await res.json();
   } catch (error) {
     console.error('Search fetch failed:', error);
-    return [];
+    return { data: [], total: 0, page: 1, limit: 20 };
   }
 }
 
@@ -86,7 +86,7 @@ export default async function SearchResultsPage({
          </Link>
       </header>
 
-      <SearchPageContent results={results} resolvedParams={resolvedParams} />
+      <SearchPageContent initialResults={results} resolvedParams={resolvedParams} />
       
       <Footer />
     </div>

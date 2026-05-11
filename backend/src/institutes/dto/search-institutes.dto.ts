@@ -59,4 +59,19 @@ export class SearchInstitutesDto {
   @Min(0)
   @Max(5)
   minRating?: number;
+
+  @ApiPropertyOptional({ description: 'Page number', default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional({ description: 'Items per page', default: 20 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  limit?: number;
 }
