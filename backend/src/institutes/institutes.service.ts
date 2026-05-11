@@ -114,23 +114,26 @@ export class InstitutesService {
         LIMIT ${limit} OFFSET ${skip};
       `;
 
-      // Get total count for pagination
+      // Get total count for pagination using a subquery to handle the HAVING clause
       const totalCountRes: any[] = await this.prisma.$queryRaw`
-        SELECT COUNT(DISTINCT i.id)::int as count
-        FROM "Institute" i
-        INNER JOIN "Branch" b ON b."instituteId" = i.id
-        LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
-        LEFT JOIN "Service" s ON s.id = "is"."serviceId"
-        WHERE i.status = 'APPROVED'
-        AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
-        ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
-        ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
-        ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
-        HAVING MIN(6371 * acos(
-          cos(radians(${lat})) * cos(radians(b.latitude)) * 
-          cos(radians(b.longitude) - radians(${lng})) + 
-          sin(radians(${lat})) * sin(radians(b.latitude))
-        )) <= ${radius};
+        SELECT COUNT(*)::int as count FROM (
+          SELECT i.id
+          FROM "Institute" i
+          INNER JOIN "Branch" b ON b."instituteId" = i.id
+          LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
+          LEFT JOIN "Service" s ON s.id = "is"."serviceId"
+          WHERE i.status = 'APPROVED'
+          AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+          ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
+          ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
+          ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
+          GROUP BY i.id
+          HAVING MIN(6371 * acos(
+            cos(radians(${lat})) * cos(radians(b.latitude)) * 
+            cos(radians(b.longitude) - radians(${lng})) + 
+            sin(radians(${lat})) * sin(radians(b.latitude))
+          )) <= ${radius}
+        ) as subquery;
       `;
       const total = totalCountRes[0]?.count || 0;
 
