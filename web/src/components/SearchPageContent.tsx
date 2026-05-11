@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import { Star, MapPin, Globe, Phone, Navigation, List, Map as MapIcon, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,12 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
   const [loading, setLoading] = useState(false);
   const limit = initialResults?.limit || 20;
   const hasMore = institutes.length < total;
+
+  useEffect(() => {
+    setInstitutes(initialResults?.data || []);
+    setPage(initialResults?.page || 1);
+    setTotal(initialResults?.total || 0);
+  }, [resolvedParams, initialResults]);
 
   const handleLoadMore = async () => {
     if (loading || !hasMore) return;
