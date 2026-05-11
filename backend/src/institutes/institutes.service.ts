@@ -214,6 +214,10 @@ export class InstitutesService {
           images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
           reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
         },
+        orderBy: [
+          { isFeatured: 'desc' },
+          { createdAt: 'desc' }
+        ],
         take: limit,
         skip: skip,
       }),
