@@ -51,7 +51,12 @@ async function performSearch(params: {
     clearTimeout(timeoutId);
     
     if (!res.ok) return { data: [], total: 0, page: 1, limit: 20 };
-    return await res.json();
+    const json = await res.json();
+    // Handle both old array format and new paginated object format
+    if (Array.isArray(json)) {
+      return { data: json, total: json.length, page: 1, limit: json.length };
+    }
+    return json;
   } catch (error) {
     console.error('Search fetch failed:', error);
     return { data: [], total: 0, page: 1, limit: 20 };
