@@ -138,7 +138,7 @@ export class InstitutesService {
       const total = totalCountRes[0]?.count || 0;
 
       const ids = nearby.map(n => n.id);
-      if (ids.length === 0) return [];
+      if (ids.length === 0) return { data: [], total: 0, page, limit };
 
       // Fetch full records for these IDs
       const results = await this.prisma.institute.findMany({
