@@ -88,6 +88,18 @@ export class InstitutesController {
     }
   }
 
+  @Post('auth/forgot-password')
+  @ApiOperation({ summary: 'Request password reset email' })
+  async forgotPassword(@Body('email') email: string) {
+    return this.institutesService.requestPasswordReset(email);
+  }
+
+  @Post('auth/reset-password')
+  @ApiOperation({ summary: 'Reset password using token' })
+  async resetPassword(@Body() dto: any) {
+    return this.institutesService.resetPassword(dto.token, dto.password);
+  }
+
   @Get('owner/:id')
   @ApiOperation({ summary: 'Get institutes for a specific owner' })
   async findByOwner(@Param('id') ownerId: string) {

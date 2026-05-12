@@ -90,7 +90,14 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label htmlFor="password" className="text-sm font-medium text-slate-700">Κωδικός Πρόσβασης</label>
+                <label htmlFor="password" translate="no" className="text-sm font-medium text-slate-700">Κωδικός Πρόσβασης</label>
+                <Link 
+                  href="/forgot-password" 
+                  className="text-xs font-bold text-red-600 hover:underline underline-offset-4"
+                  translate="no"
+                >
+                  Ξεχάσατε τον κωδικό σας;
+                </Link>
               </div>
               <Input
                 id="password"

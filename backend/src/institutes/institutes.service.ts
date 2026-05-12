@@ -4,10 +4,18 @@ import { SearchInstitutesDto } from './dto/search-institutes.dto';
 import { Prisma } from '@prisma/client';
 import { OnboardInstituteDto } from './dto/onboard-institute.dto';
 import * as bcrypt from 'bcryptjs';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class InstitutesService {
-  constructor(private prisma: PrismaService) {}
+  private supabase: SupabaseClient;
+
+  constructor(private prisma: PrismaService) {
+    this.supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY!
+    );
+  }
 
   async getRecent(lat?: number, lng?: number) {
     let ids: string[] = [];
@@ -392,21 +400,78 @@ export class InstitutesService {
   }
 
   async login(email: string, passwordPlain: string) {
+    // 1. Try to authenticate with Supabase first
+    const { data: authData, error: authError } = await this.supabase.auth.signInWithPassword({
+      email,
+      password: passwordPlain,
+    });
+
+    if (authError) {
+      // 2. Fallback to local DB check for legacy/admin accounts if Supabase fails
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!user || !user.passwordHash) {
+        throw new Error('Invalid credentials');
+      }
+
+      const isPasswordValid = await (bcrypt as any).compare(passwordPlain, user.passwordHash);
+      if (!isPasswordValid) {
+        throw new Error('Invalid credentials');
+      }
+
+      return user;
+    }
+
+    // 3. If Supabase succeeded, return the user from our DB
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
-      throw new Error('User not found');
-    }
-
-    const isPasswordValid = await (bcrypt as any).compare(passwordPlain, user.passwordHash);
-    
-    if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      throw new Error('User record missing in database');
     }
 
     return user;
+  }
+
+  async requestPasswordReset(email: string) {
+    const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password`,
+    });
+
+    if (error) throw error;
+    return { message: 'Password reset email sent' };
+  }
+
+  async resetPassword(token: string, passwordPlain: string) {
+    // If token is provided, we use it to set the session
+    if (token) {
+      const { error: sessionError } = await this.supabase.auth.setSession({
+        access_token: token,
+        refresh_token: token, // Dummy for setSession if only access_token is used
+      });
+      if (sessionError) throw sessionError;
+    }
+
+    const { error } = await this.supabase.auth.updateUser({
+      password: passwordPlain,
+    });
+
+    if (error) throw error;
+
+    // Sync with local DB passwordHash if it exists (optional but good for fallback)
+    const { data: { user } } = await this.supabase.auth.getUser();
+    if (user?.email) {
+      const hashedPassword = await bcrypt.hash(passwordPlain, 10);
+      await this.prisma.user.update({
+        where: { email: user.email },
+        data: { passwordHash: hashedPassword }
+      });
+    }
+
+    return { message: 'Password updated successfully' };
   }
 
   async findByOwner(ownerId: string) {
