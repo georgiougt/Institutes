@@ -4,8 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Loader2, AlertCircle, CheckCircle2, ArrowLeft, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -110,16 +111,16 @@ export default function ForgotPasswordPage() {
               <p className="text-slate-500 text-sm mb-8">
                 Ελέγξτε τα εισερχόμενά σας (και τα ανεπιθύμητα) για τον σύνδεσμο επαναφοράς κωδικού.
               </p>
-              <Button 
-                variant="outline"
-                className="w-full h-12 rounded-xl border-slate-200 text-slate-600 font-bold"
-                asChild
+              <Link 
+                href="/login" 
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "w-full h-12 rounded-xl border-slate-200 text-slate-600 font-bold flex gap-2 justify-center items-center"
+                )}
               >
-                <Link href="/login" className="flex gap-2">
-                  <ArrowLeft className="h-5 w-5" />
-                  Επιστροφή στη Σύνδεση
-                </Link>
-              </Button>
+                <ArrowLeft className="h-5 w-5" />
+                Επιστροφή στη Σύνδεση
+              </Link>
             </div>
           )}
 
