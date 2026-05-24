@@ -253,7 +253,7 @@ let InstituteMgmtService = class InstituteMgmtService {
             email: newEmail,
         });
         if (error) {
-            throw new common_1.BadRequestException(`Supabase Error: ${error.message}. (Make sure SUPABASE_SERVICE_ROLE_KEY is set in your backend env vars)`);
+            console.warn(`Supabase update failed for user ${userId} (${error.message}). Proceeding to update local DB only.`);
         }
         return this.prisma.user.update({
             where: { id: userId },
