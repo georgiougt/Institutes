@@ -42,4 +42,22 @@ export declare class OwnerAccountController {
         emailVerifiedAt: Date | null;
         onboardingStep: number | null;
     }>;
+    updatePassword(userId: string, newPassword: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        email: string;
+        passwordHash: string | null;
+        firstName: string | null;
+        lastName: string | null;
+        phone: string | null;
+        role: import("@prisma/client").$Enums.Role;
+        adminRole: import("@prisma/client").$Enums.AdminRole | null;
+        isSuspended: boolean;
+        suspendedAt: Date | null;
+        suspendReason: string | null;
+        lastLoginAt: Date | null;
+        emailVerifiedAt: Date | null;
+        onboardingStep: number | null;
+    }>;
 }

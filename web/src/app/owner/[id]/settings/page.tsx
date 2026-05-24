@@ -31,6 +31,9 @@ export default function AccountSettingsPage({ params }: { params: Promise<{ id: 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const { register, handleSubmit, reset } = useForm<AccountFormValues>();
 
@@ -115,6 +118,42 @@ export default function AccountSettingsPage({ params }: { params: Promise<{ id: 
       });
     } catch (err) {
       toast.error('Σφάλμα κατά την αλλαγή email');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const onUpdatePassword = async () => {
+    if (newPassword.length < 6) {
+      toast.error('Ο κωδικός πρέπει να έχει τουλάχιστον 6 χαρακτήρες');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('Οι κωδικοί δεν ταιριάζουν');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/owner/account/password`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        },
+        body: JSON.stringify({ newPassword }),
+      });
+
+      if (!res.ok) throw new Error('Failed to change password');
+
+      toast.success('Επιτυχής αλλαγή', {
+        description: 'Ο κωδικός πρόσβασης ενημερώθηκε.'
+      });
+      setShowPasswordForm(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      toast.error('Σφάλμα κατά την αλλαγή κωδικού');
     } finally {
       setSaving(false);
     }
@@ -212,19 +251,57 @@ export default function AccountSettingsPage({ params }: { params: Promise<{ id: 
                 </p>
               </div>
             </div>
-            <Button 
-              variant="default"
-              className="bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-xl font-bold px-8 h-12 shadow-sm"
-              onClick={async () => {
-                const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-                  redirectTo: `${window.location.origin}/reset-password`,
-                });
-                if (error) toast.error('Σφάλμα κατά την αποστολή');
-                else toast.success('Email εστάλη!', { description: 'Ελέγξτε τα εισερχόμενά σας.' });
-              }}
-            >
-              Αλλαγή Κωδικού
-            </Button>
+            <div className="flex-1 w-full max-w-sm">
+              {!showPasswordForm ? (
+                <div className="flex justify-end">
+                  <Button 
+                    variant="default"
+                    className="bg-white hover:bg-slate-50 text-slate-900 border border-slate-200 rounded-xl font-bold px-8 h-12 shadow-sm"
+                    onClick={() => setShowPasswordForm(true)}
+                  >
+                    Αλλαγή Κωδικού
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 animate-in fade-in zoom-in-95 duration-200">
+                  <Input 
+                    type="password" 
+                    placeholder="Νέος κωδικός" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="h-12 rounded-xl bg-white"
+                  />
+                  <Input 
+                    type="password" 
+                    placeholder="Επιβεβαίωση νέου κωδικού" 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="h-12 rounded-xl bg-white"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button 
+                      variant="ghost"
+                      className="h-12 rounded-xl"
+                      onClick={() => {
+                        setShowPasswordForm(false);
+                        setNewPassword('');
+                        setConfirmPassword('');
+                      }}
+                      disabled={saving}
+                    >
+                      Ακύρωση
+                    </Button>
+                    <Button 
+                      onClick={onUpdatePassword}
+                      className="h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm px-8"
+                      disabled={saving}
+                    >
+                      {saving ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Αποθήκευση'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>

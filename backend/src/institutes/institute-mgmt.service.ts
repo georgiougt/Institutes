@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateInstituteProfileDto } from './dto/owner-dashboard.dto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class InstituteMgmtService {
@@ -304,6 +305,27 @@ export class InstituteMgmtService {
     return this.prisma.user.update({
       where: { id: userId },
       data: dto
+    });
+  }
+
+  async updateOwnerPassword(userId: string, newPasswordPlain: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const passwordHash = await bcrypt.hash(newPasswordPlain, 10);
+
+    // Try updating Supabase first (if the user exists there)
+    const { error } = await this.supabase.auth.admin.updateUserById(userId, {
+      password: newPasswordPlain,
+    });
+
+    if (error) {
+      console.warn(`Supabase password update failed for user ${userId} (${error.message}). Proceeding to update local DB only.`);
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash }
     });
   }
 }

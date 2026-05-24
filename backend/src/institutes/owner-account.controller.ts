@@ -35,4 +35,15 @@ export class OwnerAccountController {
     if (!userId) throw new UnauthorizedException();
     return this.mgmtService.updateOwnerProfile(userId, dto);
   }
+
+  @Patch('password')
+  @ApiOperation({ summary: 'Update owner password' })
+  async updatePassword(
+    @Headers('X-User-Id') userId: string,
+    @Body('newPassword') newPassword: string
+  ) {
+    if (!userId) throw new UnauthorizedException();
+    if (!newPassword || newPassword.length < 6) throw new BadRequestException('Password must be at least 6 characters');
+    return this.mgmtService.updateOwnerPassword(userId, newPassword);
+  }
 }

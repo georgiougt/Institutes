@@ -33,6 +33,13 @@ let OwnerAccountController = class OwnerAccountController {
             throw new common_1.UnauthorizedException();
         return this.mgmtService.updateOwnerProfile(userId, dto);
     }
+    async updatePassword(userId, newPassword) {
+        if (!userId)
+            throw new common_1.UnauthorizedException();
+        if (!newPassword || newPassword.length < 6)
+            throw new common_1.BadRequestException('Password must be at least 6 characters');
+        return this.mgmtService.updateOwnerPassword(userId, newPassword);
+    }
 };
 exports.OwnerAccountController = OwnerAccountController;
 __decorate([
@@ -53,6 +60,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], OwnerAccountController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Patch)('password'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update owner password' }),
+    __param(0, (0, common_1.Headers)('X-User-Id')),
+    __param(1, (0, common_1.Body)('newPassword')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], OwnerAccountController.prototype, "updatePassword", null);
 exports.OwnerAccountController = OwnerAccountController = __decorate([
     (0, swagger_1.ApiTags)('Owner Account'),
     (0, common_1.Controller)('owner/account'),
