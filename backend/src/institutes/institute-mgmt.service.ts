@@ -1,10 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateInstituteProfileDto } from './dto/owner-dashboard.dto';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class InstituteMgmtService {
-  constructor(private prisma: PrismaService) {}
+  private supabase: SupabaseClient;
+
+  constructor(private prisma: PrismaService) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder_key';
+    this.supabase = createClient(supabaseUrl, supabaseKey);
+  }
 
   async getDashboardMetrics(instituteId: string) {
     const institute = await this.prisma.institute.findUnique({
@@ -265,6 +272,35 @@ export class InstituteMgmtService {
     }
     return this.prisma.branch.update({
       where: { id: branchId },
+      data: dto
+    });
+  }
+
+  // ─── OWNER ACCOUNT ──────────────────────────────────────────────────────
+
+  async updateOwnerEmail(userId: string, newEmail: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    // Update in Supabase - this will trigger a verification email
+    const { error } = await this.supabase.auth.admin.updateUserById(userId, {
+      email: newEmail,
+      // If we want to skip confirmation, we can use email_confirm: true
+      // But for security, we should let Supabase handle the confirmation flow
+    });
+
+    if (error) throw error;
+
+    // Update locally too (we sync email for login fallbacks and metadata)
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { email: newEmail }
+    });
+  }
+
+  async updateOwnerProfile(userId: string, dto: { firstName?: string; lastName?: string; phone?: string }) {
+    return this.prisma.user.update({
+      where: { id: userId },
       data: dto
     });
   }

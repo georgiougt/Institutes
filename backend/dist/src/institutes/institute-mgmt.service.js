@@ -18,7 +18,9 @@ let InstituteMgmtService = class InstituteMgmtService {
     supabase;
     constructor(prisma) {
         this.prisma = prisma;
-        this.supabase = (0, supabase_js_1.createClient)(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY);
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder_key';
+        this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
     }
     async getDashboardMetrics(instituteId) {
         const institute = await this.prisma.institute.findUnique({
