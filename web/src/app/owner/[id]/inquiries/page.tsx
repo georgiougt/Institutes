@@ -225,9 +225,37 @@ export default function InquiriesCRMPage({ params }: { params: Promise<{ id: str
                 </div>
              </CardContent>
              <div className="p-6 bg-slate-50/30 border-t border-slate-100 flex gap-2">
-                <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold h-12 shadow-sm">
-                   Reply to Lead
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold h-12 shadow-sm">
+                       Reply to Lead
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-64 rounded-xl p-2">
+                    <DropdownMenuItem 
+                      disabled={!selectedInquiry.guestPhone}
+                      onClick={() => selectedInquiry.guestPhone && (window.location.href = `tel:${selectedInquiry.guestPhone}`)}
+                      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer"
+                    >
+                      <Phone className="h-4 w-4 text-slate-400" />
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-700">Call Lead</span>
+                        <span className="text-xs text-slate-400">{selectedInquiry.guestPhone || 'No phone number'}</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      disabled={!selectedInquiry.guestEmail}
+                      onClick={() => selectedInquiry.guestEmail && (window.location.href = `mailto:${selectedInquiry.guestEmail}`)}
+                      className="flex items-center gap-3 p-3 rounded-lg cursor-pointer"
+                    >
+                      <Mail className="h-4 w-4 text-slate-400" />
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-700">Email Lead</span>
+                        <span className="text-xs text-slate-400">{selectedInquiry.guestEmail || 'No email address'}</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
              </div>
           </Card>
         )}
