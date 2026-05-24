@@ -29,35 +29,67 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         const secretKey = this.configService.get('STRIPE_SECRET_KEY');
         this.stripe = new stripe_1.default(secretKey || 'sk_test_placeholder');
     }
-    async createCheckoutSession(instituteId, planId, billingCycle) {
+    async createCheckoutSession(instituteId, planId, billingCycle, durationDays) {
         const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:3000';
         try {
             this.logger.log(`Creating Stripe Checkout session for institute ${instituteId}, plan ${planId}`);
-            const session = await this.stripe.checkout.sessions.create({
-                line_items: [
+            let lineItems = [];
+            let mode = 'subscription';
+            if (planId === 'verified') {
+                const cycle = billingCycle || 'monthly';
+                const price = cycle === 'monthly' ? 500 : 5000;
+                lineItems = [
                     {
                         price_data: {
                             currency: 'eur',
                             product_data: {
-                                name: planId === 'verified' ? 'Verified Badge' : 'Featured Placement',
-                                description: planId === 'verified' ? 'Επίσημο σήμα επαλήθευσης για το φροντιστήριό σας' : 'Προώθηση στην κορυφή των αποτελεσμάτων αναζήτησης',
+                                name: 'Verified Badge',
+                                description: 'Επίσημο σήμα επαλήθευσης για το φροντιστήριό σας',
                             },
-                            unit_amount: planId === 'verified'
-                                ? (billingCycle === 'monthly' ? 199 : 2000)
-                                : (billingCycle === 'monthly' ? 999 : 9900),
+                            unit_amount: price,
                             recurring: {
-                                interval: billingCycle === 'monthly' ? 'month' : 'year',
+                                interval: cycle === 'monthly' ? 'month' : 'year',
                             },
                         },
                         quantity: 1,
                     },
-                ],
-                mode: 'subscription',
+                ];
+                mode = 'subscription';
+            }
+            else if (planId === 'featured') {
+                const days = durationDays || 30;
+                let price = 2500;
+                if (days === 5)
+                    price = 600;
+                else if (days === 10)
+                    price = 1000;
+                else if (days === 30)
+                    price = 2500;
+                lineItems = [
+                    {
+                        price_data: {
+                            currency: 'eur',
+                            product_data: {
+                                name: `Featured Placement - ${days} Days`,
+                                description: `Προώθηση στην κορυφή των αποτελεσμάτων αναζήτησης για ${days} ημέρες`,
+                            },
+                            unit_amount: price,
+                        },
+                        quantity: 1,
+                    },
+                ];
+                mode = 'payment';
+            }
+            const session = await this.stripe.checkout.sessions.create({
+                line_items: lineItems,
+                mode,
                 success_url: `${frontendUrl}/owner/${instituteId}/premium?success=true`,
                 cancel_url: `${frontendUrl}/owner/${instituteId}/premium?canceled=true`,
                 metadata: {
                     instituteId,
                     planId,
+                    billingCycle: billingCycle || 'monthly',
+                    durationDays: durationDays ? String(durationDays) : '30',
                 },
             });
             return { url: session.url };
@@ -84,23 +116,29 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
         return { received: true };
     }
     async handleSuccessfulSubscription(session) {
-        const { instituteId, planId } = session.metadata || {};
+        const { instituteId, planId, billingCycle, durationDays } = session.metadata || {};
         if (!instituteId || !planId) {
             this.logger.error('Missing metadata in Stripe session');
             return;
         }
         if (planId === 'verified') {
+            const cycle = billingCycle || 'monthly';
+            const durationMs = cycle === 'monthly'
+                ? 30 * 24 * 60 * 60 * 1000
+                : 365 * 24 * 60 * 60 * 1000;
             await this.prisma.institute.update({
                 where: { id: instituteId },
                 data: {
                     isVerified: true,
                     verifiedAt: new Date(),
-                    verifiedUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+                    verifiedUntil: new Date(Date.now() + durationMs),
                 },
             });
-            this.logger.log(`Institute ${instituteId} successfully verified.`);
+            this.logger.log(`Institute ${instituteId} successfully verified until ${new Date(Date.now() + durationMs).toISOString()}.`);
         }
         else if (planId === 'featured') {
+            const days = parseInt(durationDays || '30', 10);
+            const durationMs = days * 24 * 60 * 60 * 1000;
             await this.prisma.institute.update({
                 where: { id: instituteId },
                 data: {
@@ -112,12 +150,12 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
                     instituteId,
                     placementType: 'SEARCH_TOP',
                     startsAt: new Date(),
-                    endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+                    endsAt: new Date(Date.now() + durationMs),
                     isActive: true,
                     createdBy: 'STRIPE_WEBHOOK',
                 }
             });
-            this.logger.log(`Institute ${instituteId} successfully featured.`);
+            this.logger.log(`Institute ${instituteId} successfully featured until ${new Date(Date.now() + durationMs).toISOString()}.`);
         }
     }
 };

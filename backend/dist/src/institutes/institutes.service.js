@@ -47,12 +47,18 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcryptjs"));
+const supabase_js_1 = require("@supabase/supabase-js");
 let InstitutesService = class InstitutesService {
     prisma;
+    supabase;
     constructor(prisma) {
         this.prisma = prisma;
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder_key';
+        this.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseKey);
     }
     async getRecent(lat, lng) {
+        await this.checkAndExpireStatus();
         let ids = [];
         if (lat && lng) {
             const nearby = await this.prisma.$queryRaw `
@@ -105,6 +111,7 @@ let InstitutesService = class InstitutesService {
         });
     }
     async search(dto) {
+        await this.checkAndExpireStatus();
         let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20 } = dto;
         const skip = (page - 1) * limit;
         if (!cityId && location) {
@@ -292,6 +299,7 @@ let InstitutesService = class InstitutesService {
         };
     }
     async findOne(id) {
+        await this.checkAndExpireStatus();
         return this.prisma.institute.findUnique({
             where: { id },
             include: {
@@ -394,19 +402,65 @@ let InstitutesService = class InstitutesService {
         });
     }
     async login(email, passwordPlain) {
+        const { data: authData, error: authError } = await this.supabase.auth.signInWithPassword({
+            email,
+            password: passwordPlain,
+        });
+        if (authError) {
+            const user = await this.prisma.user.findUnique({
+                where: { email },
+            });
+            if (!user || !user.passwordHash) {
+                throw new Error('Invalid credentials');
+            }
+            const isPasswordValid = await bcrypt.compare(passwordPlain, user.passwordHash);
+            if (!isPasswordValid) {
+                throw new Error('Invalid credentials');
+            }
+            return user;
+        }
         const user = await this.prisma.user.findUnique({
             where: { email },
         });
         if (!user) {
-            throw new Error('User not found');
-        }
-        const isPasswordValid = await bcrypt.compare(passwordPlain, user.passwordHash);
-        if (!isPasswordValid) {
-            throw new Error('Invalid credentials');
+            throw new Error('User record missing in database');
         }
         return user;
     }
+    async requestPasswordReset(email) {
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password`,
+        });
+        if (error)
+            throw error;
+        return { message: 'Password reset email sent' };
+    }
+    async resetPassword(token, passwordPlain) {
+        if (token) {
+            const { error: sessionError } = await this.supabase.auth.setSession({
+                access_token: token,
+                refresh_token: token,
+            });
+            if (sessionError)
+                throw sessionError;
+        }
+        const { error } = await this.supabase.auth.updateUser({
+            password: passwordPlain,
+        });
+        if (error)
+            throw error;
+        const { data: { user } } = await this.supabase.auth.getUser();
+        if (user?.email) {
+            const hashedPassword = await bcrypt.hash(passwordPlain, 10);
+            await this.prisma.user.update({
+                where: { email: user.email },
+                data: { passwordHash: hashedPassword }
+            });
+        }
+        return { message: 'Password updated successfully' };
+    }
     async findByOwner(ownerId) {
+        await this.checkAndExpireStatus();
         return this.prisma.institute.findMany({
             where: { ownerId },
             include: {
@@ -428,6 +482,58 @@ let InstitutesService = class InstitutesService {
                 userId: dto.userId,
             }
         });
+    }
+    async checkAndExpireStatus() {
+        const now = new Date();
+        try {
+            await this.prisma.institute.updateMany({
+                where: {
+                    isVerified: true,
+                    verifiedUntil: {
+                        lt: now
+                    }
+                },
+                data: {
+                    isVerified: false
+                }
+            });
+            await this.prisma.featuredListing.updateMany({
+                where: {
+                    isActive: true,
+                    endsAt: {
+                        lt: now
+                    }
+                },
+                data: {
+                    isActive: false
+                }
+            });
+            const featuredInstitutes = await this.prisma.institute.findMany({
+                where: { isFeatured: true },
+                select: { id: true }
+            });
+            for (const inst of featuredInstitutes) {
+                const activeListingCount = await this.prisma.featuredListing.count({
+                    where: {
+                        instituteId: inst.id,
+                        isActive: true,
+                        OR: [
+                            { endsAt: null },
+                            { endsAt: { gt: now } }
+                        ]
+                    }
+                });
+                if (activeListingCount === 0) {
+                    await this.prisma.institute.update({
+                        where: { id: inst.id },
+                        data: { isFeatured: false }
+                    });
+                }
+            }
+        }
+        catch (error) {
+            console.error('Failed to check and expire premium status:', error);
+        }
     }
 };
 exports.InstitutesService = InstitutesService;

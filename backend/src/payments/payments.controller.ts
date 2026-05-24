@@ -10,7 +10,12 @@ export class PaymentsController {
   @Post('create-checkout-session')
   @ApiOperation({ summary: 'Create a Stripe Checkout session' })
   async createSession(
-    @Body() body: { instituteId: string; planId: string; billingCycle: 'monthly' | 'yearly' }
+    @Body() body: { 
+      instituteId: string; 
+      planId: string; 
+      billingCycle?: 'monthly' | 'yearly';
+      durationDays?: number;
+    }
   ) {
     if (!body.instituteId || !body.planId) {
       throw new BadRequestException('Missing instituteId or planId');
@@ -18,7 +23,8 @@ export class PaymentsController {
     return this.paymentsService.createCheckoutSession(
       body.instituteId, 
       body.planId, 
-      body.billingCycle || 'monthly'
+      body.billingCycle || 'monthly',
+      body.durationDays
     );
   }
 

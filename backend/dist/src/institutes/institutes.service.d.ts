@@ -3,6 +3,7 @@ import { SearchInstitutesDto } from './dto/search-institutes.dto';
 import { OnboardInstituteDto } from './dto/onboard-institute.dto';
 export declare class InstitutesService {
     private prisma;
+    private supabase;
     constructor(prisma: PrismaService);
     getRecent(lat?: number, lng?: number): Promise<{
         reviewCount: number;
@@ -407,6 +408,12 @@ export declare class InstitutesService {
         emailVerifiedAt: Date | null;
         onboardingStep: number | null;
     }>;
+    requestPasswordReset(email: string): Promise<{
+        message: string;
+    }>;
+    resetPassword(token: string, passwordPlain: string): Promise<{
+        message: string;
+    }>;
     findByOwner(ownerId: string): Promise<({
         branches: ({
             city: {
@@ -481,4 +488,5 @@ export declare class InstitutesService {
         subject: string | null;
         isSpam: boolean;
     }>;
+    checkAndExpireStatus(): Promise<void>;
 }

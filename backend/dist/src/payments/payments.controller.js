@@ -25,7 +25,7 @@ let PaymentsController = class PaymentsController {
         if (!body.instituteId || !body.planId) {
             throw new common_1.BadRequestException('Missing instituteId or planId');
         }
-        return this.paymentsService.createCheckoutSession(body.instituteId, body.planId, body.billingCycle || 'monthly');
+        return this.paymentsService.createCheckoutSession(body.instituteId, body.planId, body.billingCycle || 'monthly', body.durationDays);
     }
     async handleWebhook(signature, req) {
         if (!signature) {

@@ -409,6 +409,12 @@ export declare class InstitutesController {
         emailVerifiedAt: Date | null;
         onboardingStep: number | null;
     }>;
+    forgotPassword(email: string): Promise<{
+        message: string;
+    }>;
+    resetPassword(dto: any): Promise<{
+        message: string;
+    }>;
     findByOwner(ownerId: string): Promise<({
         branches: ({
             city: {

@@ -5,7 +5,8 @@ export declare class PaymentsController {
     createSession(body: {
         instituteId: string;
         planId: string;
-        billingCycle: 'monthly' | 'yearly';
+        billingCycle?: 'monthly' | 'yearly';
+        durationDays?: number;
     }): Promise<{
         url: any;
     }>;

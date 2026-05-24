@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InstituteMgmtService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const supabase_js_1 = require("@supabase/supabase-js");
 let InstituteMgmtService = class InstituteMgmtService {
     prisma;
+    supabase;
     constructor(prisma) {
         this.prisma = prisma;
+        this.supabase = (0, supabase_js_1.createClient)(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY);
     }
     async getDashboardMetrics(instituteId) {
         const institute = await this.prisma.institute.findUnique({
@@ -237,6 +240,26 @@ let InstituteMgmtService = class InstituteMgmtService {
         }
         return this.prisma.branch.update({
             where: { id: branchId },
+            data: dto
+        });
+    }
+    async updateOwnerEmail(userId, newEmail) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user)
+            throw new common_1.NotFoundException('User not found');
+        const { error } = await this.supabase.auth.admin.updateUserById(userId, {
+            email: newEmail,
+        });
+        if (error)
+            throw error;
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { email: newEmail }
+        });
+    }
+    async updateOwnerProfile(userId, dto) {
+        return this.prisma.user.update({
+            where: { id: userId },
             data: dto
         });
     }

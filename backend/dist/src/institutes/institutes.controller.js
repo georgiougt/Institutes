@@ -72,6 +72,12 @@ let InstitutesController = class InstitutesController {
             throw new common_1.InternalServerErrorException(error.message);
         }
     }
+    async forgotPassword(email) {
+        return this.institutesService.requestPasswordReset(email);
+    }
+    async resetPassword(dto) {
+        return this.institutesService.resetPassword(dto.token, dto.password);
+    }
     async findByOwner(ownerId) {
         return this.institutesService.findByOwner(ownerId);
     }
@@ -151,6 +157,22 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], InstitutesController.prototype, "login", null);
+__decorate([
+    (0, common_1.Post)('auth/forgot-password'),
+    (0, swagger_1.ApiOperation)({ summary: 'Request password reset email' }),
+    __param(0, (0, common_1.Body)('email')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], InstitutesController.prototype, "forgotPassword", null);
+__decorate([
+    (0, common_1.Post)('auth/reset-password'),
+    (0, swagger_1.ApiOperation)({ summary: 'Reset password using token' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], InstitutesController.prototype, "resetPassword", null);
 __decorate([
     (0, common_1.Get)('owner/:id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get institutes for a specific owner' }),

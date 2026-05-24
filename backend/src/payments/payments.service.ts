@@ -16,37 +16,74 @@ export class PaymentsService {
     this.stripe = new Stripe(secretKey || 'sk_test_placeholder');
   }
 
-  async createCheckoutSession(instituteId: string, planId: string, billingCycle: 'monthly' | 'yearly') {
+  async createCheckoutSession(
+    instituteId: string, 
+    planId: string, 
+    billingCycle?: 'monthly' | 'yearly',
+    durationDays?: number
+  ) {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
     try {
       this.logger.log(`Creating Stripe Checkout session for institute ${instituteId}, plan ${planId}`);
 
-      const session = await this.stripe.checkout.sessions.create({
-        line_items: [
+      let lineItems: any[] = [];
+      let mode: 'subscription' | 'payment' = 'subscription';
+
+      if (planId === 'verified') {
+        const cycle = billingCycle || 'monthly';
+        const price = cycle === 'monthly' ? 500 : 5000; // €5 or €50
+        
+        lineItems = [
           {
             price_data: {
               currency: 'eur',
               product_data: {
-                name: planId === 'verified' ? 'Verified Badge' : 'Featured Placement',
-                description: planId === 'verified' ? 'Επίσημο σήμα επαλήθευσης για το φροντιστήριό σας' : 'Προώθηση στην κορυφή των αποτελεσμάτων αναζήτησης',
+                name: 'Verified Badge',
+                description: 'Επίσημο σήμα επαλήθευσης για το φροντιστήριό σας',
               },
-              unit_amount: planId === 'verified' 
-                ? (billingCycle === 'monthly' ? 199 : 2000) 
-                : (billingCycle === 'monthly' ? 999 : 9900),
+              unit_amount: price,
               recurring: {
-                interval: billingCycle === 'monthly' ? 'month' : 'year',
+                interval: cycle === 'monthly' ? 'month' : 'year',
               },
             },
             quantity: 1,
           },
-        ],
-        mode: 'subscription',
+        ];
+        mode = 'subscription';
+      } else if (planId === 'featured') {
+        const days = durationDays || 30;
+        let price = 2500; // default 30 days is €25
+        if (days === 5) price = 600;      // €6
+        else if (days === 10) price = 1000; // €10
+        else if (days === 30) price = 2500; // €25
+
+        lineItems = [
+          {
+            price_data: {
+              currency: 'eur',
+              product_data: {
+                name: `Featured Placement - ${days} Days`,
+                description: `Προώθηση στην κορυφή των αποτελεσμάτων αναζήτησης για ${days} ημέρες`,
+              },
+              unit_amount: price,
+            },
+            quantity: 1,
+          },
+        ];
+        mode = 'payment'; // Fixed duration: one-time payment
+      }
+
+      const session = await this.stripe.checkout.sessions.create({
+        line_items: lineItems,
+        mode,
         success_url: `${frontendUrl}/owner/${instituteId}/premium?success=true`,
         cancel_url: `${frontendUrl}/owner/${instituteId}/premium?canceled=true`,
         metadata: {
           instituteId,
           planId,
+          billingCycle: billingCycle || 'monthly',
+          durationDays: durationDays ? String(durationDays) : '30',
         },
       });
 
@@ -77,7 +114,7 @@ export class PaymentsService {
   }
 
   private async handleSuccessfulSubscription(session: any) {
-    const { instituteId, planId } = session.metadata || {};
+    const { instituteId, planId, billingCycle, durationDays } = session.metadata || {};
     
     if (!instituteId || !planId) {
       this.logger.error('Missing metadata in Stripe session');
@@ -85,17 +122,24 @@ export class PaymentsService {
     }
 
     if (planId === 'verified') {
+      const cycle = billingCycle || 'monthly';
+      const durationMs = cycle === 'monthly' 
+        ? 30 * 24 * 60 * 60 * 1000  // 30 days
+        : 365 * 24 * 60 * 60 * 1000; // 365 days
+
       await this.prisma.institute.update({
         where: { id: instituteId },
         data: {
           isVerified: true,
           verifiedAt: new Date(),
-          // Default to 1 month or 1 year based on session info if needed
-          verifiedUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // Default 1 year for now
+          verifiedUntil: new Date(Date.now() + durationMs),
         },
       });
-      this.logger.log(`Institute ${instituteId} successfully verified.`);
+      this.logger.log(`Institute ${instituteId} successfully verified until ${new Date(Date.now() + durationMs).toISOString()}.`);
     } else if (planId === 'featured') {
+      const days = parseInt(durationDays || '30', 10);
+      const durationMs = days * 24 * 60 * 60 * 1000;
+
       await this.prisma.institute.update({
         where: { id: instituteId },
         data: {
@@ -109,12 +153,12 @@ export class PaymentsService {
           instituteId,
           placementType: 'SEARCH_TOP',
           startsAt: new Date(),
-          endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default 30 days
+          endsAt: new Date(Date.now() + durationMs),
           isActive: true,
           createdBy: 'STRIPE_WEBHOOK',
         }
       });
-      this.logger.log(`Institute ${instituteId} successfully featured.`);
+      this.logger.log(`Institute ${instituteId} successfully featured until ${new Date(Date.now() + durationMs).toISOString()}.`);
     }
   }
 }

@@ -11,13 +11,13 @@ export class InstitutesService {
   private supabase: SupabaseClient;
 
   constructor(private prisma: PrismaService) {
-    this.supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY!
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder_key';
+    this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
   async getRecent(lat?: number, lng?: number) {
+    await this.checkAndExpireStatus();
     let ids: string[] = [];
 
     if (lat && lng) {
@@ -78,6 +78,7 @@ export class InstitutesService {
   }
 
   async search(dto: SearchInstitutesDto) {
+    await this.checkAndExpireStatus();
     let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20 } = dto;
     const skip = (page - 1) * limit;
 
@@ -280,6 +281,7 @@ export class InstitutesService {
   }
 
   async findOne(id: string) {
+    await this.checkAndExpireStatus();
     return this.prisma.institute.findUnique({
       where: { id },
       include: {
@@ -475,6 +477,7 @@ export class InstitutesService {
   }
 
   async findByOwner(ownerId: string) {
+    await this.checkAndExpireStatus();
     return this.prisma.institute.findMany({
       where: { ownerId },
       include: {
@@ -497,5 +500,64 @@ export class InstitutesService {
         userId: dto.userId,
       }
     });
+  }
+
+  async checkAndExpireStatus() {
+    const now = new Date();
+    try {
+      // 1. Expire verified status
+      await this.prisma.institute.updateMany({
+        where: {
+          isVerified: true,
+          verifiedUntil: {
+            lt: now
+          }
+        },
+        data: {
+          isVerified: false
+        }
+      });
+
+      // 2. Deactivate expired featured listings
+      await this.prisma.featuredListing.updateMany({
+        where: {
+          isActive: true,
+          endsAt: {
+            lt: now
+          }
+        },
+        data: {
+          isActive: false
+        }
+      });
+
+      // 3. Find featured institutes and sync their status
+      const featuredInstitutes = await this.prisma.institute.findMany({
+        where: { isFeatured: true },
+        select: { id: true }
+      });
+
+      for (const inst of featuredInstitutes) {
+        const activeListingCount = await this.prisma.featuredListing.count({
+          where: {
+            instituteId: inst.id,
+            isActive: true,
+            OR: [
+              { endsAt: null },
+              { endsAt: { gt: now } }
+            ]
+          }
+        });
+
+        if (activeListingCount === 0) {
+          await this.prisma.institute.update({
+            where: { id: inst.id },
+            data: { isFeatured: false }
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check and expire premium status:', error);
+    }
   }
 }

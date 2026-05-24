@@ -6,7 +6,7 @@ export declare class PaymentsService {
     private stripe;
     private readonly logger;
     constructor(configService: ConfigService, prisma: PrismaService);
-    createCheckoutSession(instituteId: string, planId: string, billingCycle: 'monthly' | 'yearly'): Promise<{
+    createCheckoutSession(instituteId: string, planId: string, billingCycle?: 'monthly' | 'yearly', durationDays?: number): Promise<{
         url: any;
     }>;
     handleWebhook(signature: string, payload: Buffer): Promise<{

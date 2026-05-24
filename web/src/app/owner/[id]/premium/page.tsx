@@ -13,6 +13,7 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
   const { id } = use(params);
   const searchParams = useSearchParams();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const [featuredDuration, setFeaturedDuration] = useState<5 | 10 | 30>(30);
   const [institute, setInstitute] = useState<any>(null);
   const [isPageLoading, setIsPageLoading] = useState(true);
 
@@ -48,21 +49,44 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
     if (!institute) return { isActive: false };
 
     if (planId === 'verified') {
-      const isActive = institute.isVerified;
       const expiryDate = institute.verifiedUntil ? new Date(institute.verifiedUntil) : null;
+      const isExpired = expiryDate ? new Date() > expiryDate : false;
+      const isActive = institute.isVerified && !isExpired;
       return { isActive, expiryDate };
     }
 
     if (planId === 'featured') {
-      const isActive = institute.isFeatured;
       const latestListing = institute.featuredListings?.[0];
       const expiryDate = latestListing ? new Date(latestListing.endsAt) : null;
+      const isExpired = expiryDate ? new Date() > expiryDate : false;
+      const isActive = institute.isFeatured && !isExpired;
       
-      // If we have a listing record, use its expiration. If not but isFeatured is true, it's indefinite/handled elsewhere
       return { isActive, expiryDate };
     }
 
     return { isActive: false };
+  };
+
+  const getPlanPrice = (planId: string) => {
+    if (planId === 'verified') {
+      return billingCycle === 'monthly' ? '5.00' : '50';
+    }
+    if (planId === 'featured') {
+      if (featuredDuration === 5) return '6.00';
+      if (featuredDuration === 10) return '10.00';
+      return '25.00';
+    }
+    return '0.00';
+  };
+
+  const getPlanPriceSuffix = (planId: string) => {
+    if (planId === 'verified') {
+      return billingCycle === 'monthly' ? '/μήνα' : '/έτος';
+    }
+    if (planId === 'featured') {
+      return `/${featuredDuration} ημέρες (εφάπαξ)`;
+    }
+    return '';
   };
 
   const plans = [
@@ -70,8 +94,8 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
       id: 'verified',
       title: 'Verified Badge',
       description: 'Ενισχύστε την αξιοπιστία σας με το επίσημο σήμα επαλήθευσης.',
-      monthlyPrice: '1.99',
-      yearlyPrice: '20',
+      monthlyPrice: '5.00',
+      yearlyPrice: '50',
       icon: null,
       imageIcon: '/images/verified.gif',
       iconColor: 'text-blue-500',
@@ -88,8 +112,8 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
       id: 'featured',
       title: 'Featured Placement',
       description: 'Εμφανιστείτε στην κορυφή των αποτελεσμάτων αναζήτησης.',
-      monthlyPrice: '9.99',
-      yearlyPrice: '99',
+      monthlyPrice: '25.00',
+      yearlyPrice: '25',
       icon: null,
       imageIcon: '/images/crown.gif',
       iconColor: 'text-amber-500',
@@ -110,16 +134,23 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
   const handleCheckout = async (planId: string) => {
     setIsLoading(planId);
     try {
+      const bodyPayload: any = {
+        instituteId: id,
+        planId,
+      };
+
+      if (planId === 'verified') {
+        bodyPayload.billingCycle = billingCycle;
+      } else if (planId === 'featured') {
+        bodyPayload.durationDays = featuredDuration;
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/payments/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          instituteId: id,
-          planId,
-          billingCycle,
-        }),
+        body: JSON.stringify(bodyPayload),
       });
 
       const data = await response.json();
@@ -244,9 +275,34 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
 
               <CardContent className="p-8 pt-0 space-y-8">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-black text-slate-900">€{billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}</span>
-                  <span className="text-slate-400 font-bold">/{billingCycle === 'monthly' ? 'μήνα' : 'έτος'}</span>
+                  <span className="text-4xl font-black text-slate-900">€{getPlanPrice(plan.id)}</span>
+                  <span className="text-slate-400 font-bold">{getPlanPriceSuffix(plan.id)}</span>
                 </div>
+
+                {plan.id === 'featured' && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase text-slate-400 tracking-wider">Διάρκεια Προβολής:</p>
+                    <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-xl">
+                      {([5, 10, 30] as const).map((days) => (
+                        <button
+                          key={days}
+                          onClick={() => setFeaturedDuration(days)}
+                          disabled={getServiceStatus('featured').isActive}
+                          className={cn(
+                            "py-2 px-3 text-xs font-bold rounded-lg transition-all text-center",
+                            getServiceStatus('featured').isActive
+                              ? "text-slate-400 cursor-not-allowed"
+                              : featuredDuration === days
+                                ? "bg-white text-indigo-600 shadow-sm"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                          )}
+                        >
+                          {days} Ημέρες
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <p className="text-xs font-black uppercase text-slate-400 tracking-wider">Τι περιλαμβάνεται:</p>

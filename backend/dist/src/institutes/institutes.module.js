@@ -15,12 +15,13 @@ const institute_mgmt_service_1 = require("./institute-mgmt.service");
 const onboarding_controller_1 = require("./onboarding/onboarding.controller");
 const onboarding_service_1 = require("./onboarding/onboarding.service");
 const storage_service_1 = require("../common/storage/storage.service");
+const owner_account_controller_1 = require("./owner-account.controller");
 let InstitutesModule = class InstitutesModule {
 };
 exports.InstitutesModule = InstitutesModule;
 exports.InstitutesModule = InstitutesModule = __decorate([
     (0, common_1.Module)({
-        controllers: [institutes_controller_1.InstitutesController, owner_institutes_controller_1.OwnerInstitutesController, onboarding_controller_1.OnboardingController],
+        controllers: [institutes_controller_1.InstitutesController, owner_institutes_controller_1.OwnerInstitutesController, onboarding_controller_1.OnboardingController, owner_account_controller_1.OwnerAccountController],
         providers: [institutes_service_1.InstitutesService, institute_mgmt_service_1.InstituteMgmtService, onboarding_service_1.OnboardingService, storage_service_1.StorageService],
         exports: [institutes_service_1.InstitutesService, institute_mgmt_service_1.InstituteMgmtService, onboarding_service_1.OnboardingService, storage_service_1.StorageService]
     })
