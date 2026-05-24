@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateInstituteProfileDto } from './dto/owner-dashboard.dto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
@@ -289,7 +289,9 @@ export class InstituteMgmtService {
       // But for security, we should let Supabase handle the confirmation flow
     });
 
-    if (error) throw error;
+    if (error) {
+      throw new BadRequestException(`Supabase Error: ${error.message}. (Make sure SUPABASE_SERVICE_ROLE_KEY is set in your backend env vars)`);
+    }
 
     // Update locally too (we sync email for login fallbacks and metadata)
     return this.prisma.user.update({

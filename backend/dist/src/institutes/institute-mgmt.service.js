@@ -252,8 +252,9 @@ let InstituteMgmtService = class InstituteMgmtService {
         const { error } = await this.supabase.auth.admin.updateUserById(userId, {
             email: newEmail,
         });
-        if (error)
-            throw error;
+        if (error) {
+            throw new common_1.BadRequestException(`Supabase Error: ${error.message}. (Make sure SUPABASE_SERVICE_ROLE_KEY is set in your backend env vars)`);
+        }
         return this.prisma.user.update({
             where: { id: userId },
             data: { email: newEmail }
