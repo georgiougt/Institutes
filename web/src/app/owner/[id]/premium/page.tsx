@@ -13,7 +13,7 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
   const { id } = use(params);
   const searchParams = useSearchParams();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const [featuredDuration, setFeaturedDuration] = useState<5 | 10 | 30>(30);
+  const [featuredDuration, setFeaturedDuration] = useState<3 | 5 | 10 | 30>(30);
   const [institute, setInstitute] = useState<any>(null);
   const [isPageLoading, setIsPageLoading] = useState(true);
 
@@ -69,12 +69,13 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
 
   const getPlanPrice = (planId: string) => {
     if (planId === 'verified') {
-      return billingCycle === 'monthly' ? '5.00' : '50';
+      return billingCycle === 'monthly' ? '4.99' : '49.99';
     }
     if (planId === 'featured') {
-      if (featuredDuration === 5) return '6.00';
-      if (featuredDuration === 10) return '10.00';
-      return '25.00';
+      if (featuredDuration === 3) return '2.99';
+      if (featuredDuration === 5) return '4.99';
+      if (featuredDuration === 10) return '8.99';
+      return '24.99';
     }
     return '0.00';
   };
@@ -94,8 +95,8 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
       id: 'verified',
       title: 'Verified Badge',
       description: 'Ενισχύστε την αξιοπιστία σας με το επίσημο σήμα επαλήθευσης.',
-      monthlyPrice: '5.00',
-      yearlyPrice: '50',
+      monthlyPrice: '4.99',
+      yearlyPrice: '49.99',
       icon: null,
       imageIcon: '/images/verified.gif',
       iconColor: 'text-blue-500',
@@ -112,8 +113,8 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
       id: 'featured',
       title: 'Featured Placement',
       description: 'Εμφανιστείτε στην κορυφή των αποτελεσμάτων αναζήτησης.',
-      monthlyPrice: '25.00',
-      yearlyPrice: '25',
+      monthlyPrice: '24.99',
+      yearlyPrice: '24.99',
       icon: null,
       imageIcon: '/images/crown.gif',
       iconColor: 'text-amber-500',
@@ -282,8 +283,8 @@ export default function PremiumPage({ params }: { params: Promise<{ id: string }
                 {plan.id === 'featured' && (
                   <div className="space-y-2">
                     <p className="text-xs font-black uppercase text-slate-400 tracking-wider">Διάρκεια Προβολής:</p>
-                    <div className="grid grid-cols-3 gap-2 bg-slate-100 p-1 rounded-xl">
-                      {([5, 10, 30] as const).map((days) => (
+                    <div className="grid grid-cols-4 gap-2 bg-slate-100 p-1 rounded-xl">
+                      {([3, 5, 10, 30] as const).map((days) => (
                         <button
                           key={days}
                           onClick={() => setFeaturedDuration(days)}

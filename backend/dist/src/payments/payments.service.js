@@ -37,7 +37,7 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             let mode = 'subscription';
             if (planId === 'verified') {
                 const cycle = billingCycle || 'monthly';
-                const price = cycle === 'monthly' ? 500 : 5000;
+                const price = cycle === 'monthly' ? 499 : 4999;
                 lineItems = [
                     {
                         price_data: {
@@ -58,13 +58,15 @@ let PaymentsService = PaymentsService_1 = class PaymentsService {
             }
             else if (planId === 'featured') {
                 const days = durationDays || 30;
-                let price = 2500;
-                if (days === 5)
-                    price = 600;
+                let price = 2499;
+                if (days === 3)
+                    price = 299;
+                else if (days === 5)
+                    price = 499;
                 else if (days === 10)
-                    price = 1000;
+                    price = 899;
                 else if (days === 30)
-                    price = 2500;
+                    price = 2499;
                 lineItems = [
                     {
                         price_data: {

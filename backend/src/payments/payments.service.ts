@@ -32,7 +32,7 @@ export class PaymentsService {
 
       if (planId === 'verified') {
         const cycle = billingCycle || 'monthly';
-        const price = cycle === 'monthly' ? 500 : 5000; // €5 or €50
+        const price = cycle === 'monthly' ? 499 : 4999; // €4.99 or €49.99
         
         lineItems = [
           {
@@ -53,10 +53,11 @@ export class PaymentsService {
         mode = 'subscription';
       } else if (planId === 'featured') {
         const days = durationDays || 30;
-        let price = 2500; // default 30 days is €25
-        if (days === 5) price = 600;      // €6
-        else if (days === 10) price = 1000; // €10
-        else if (days === 30) price = 2500; // €25
+        let price = 2499; // default 30 days is €24.99
+        if (days === 3) price = 299;       // €2.99
+        else if (days === 5) price = 499;  // €4.99
+        else if (days === 10) price = 899; // €8.99
+        else if (days === 30) price = 2499; // €24.99
 
         lineItems = [
           {
