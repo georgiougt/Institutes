@@ -6,9 +6,10 @@ import { InstituteMgmtService } from './institute-mgmt.service';
 import { OnboardingController } from './onboarding/onboarding.controller';
 import { OnboardingService } from './onboarding/onboarding.service';
 import { StorageService } from '../common/storage/storage.service';
+import { OwnerAccountController } from './owner-account.controller';
 
 @Module({
-  controllers: [InstitutesController, OwnerInstitutesController, OnboardingController],
+  controllers: [InstitutesController, OwnerInstitutesController, OnboardingController, OwnerAccountController],
   providers: [InstitutesService, InstituteMgmtService, OnboardingService, StorageService],
   exports: [InstitutesService, InstituteMgmtService, OnboardingService, StorageService]
 })

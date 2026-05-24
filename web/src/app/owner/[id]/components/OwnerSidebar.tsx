@@ -90,6 +90,12 @@ export function OwnerSidebar({ instituteId }: OwnerSidebarProps) {
       active: pathname === `/owner/${instituteId}/inquiries`,
       badge: 'New'
     },
+    {
+      label: 'Account Settings',
+      icon: ShieldCheck,
+      href: `/owner/${instituteId}/settings`,
+      active: pathname === `/owner/${instituteId}/settings`,
+    },
   ];
 
   return (
