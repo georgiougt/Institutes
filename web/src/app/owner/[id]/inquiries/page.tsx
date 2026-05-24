@@ -226,10 +226,8 @@ export default function InquiriesCRMPage({ params }: { params: Promise<{ id: str
              </CardContent>
              <div className="p-6 bg-slate-50/30 border-t border-slate-100 flex gap-2">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold h-12 shadow-sm">
+                  <DropdownMenuTrigger className="flex-1 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold h-12 shadow-sm flex items-center justify-center w-full">
                        Reply to Lead
-                    </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="center" className="w-64 rounded-xl p-2">
                     <DropdownMenuItem 
