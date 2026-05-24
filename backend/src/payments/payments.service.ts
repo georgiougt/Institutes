@@ -77,6 +77,8 @@ export class PaymentsService {
       const session = await this.stripe.checkout.sessions.create({
         line_items: lineItems,
         mode,
+        locale: 'el',
+        adaptive_pricing: { enabled: false },
         success_url: `${frontendUrl}/owner/${instituteId}/premium?success=true`,
         cancel_url: `${frontendUrl}/owner/${instituteId}/premium?canceled=true`,
         metadata: {
