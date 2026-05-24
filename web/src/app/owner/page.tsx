@@ -123,7 +123,17 @@ function OwnerDashboardContent() {
         </nav>
         
         <div className="p-4 border-t border-slate-100 space-y-1">
-          <Button variant="ghost" className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl" onClick={() => alert('Οι ρυθμίσεις λογαριασμού θα είναι σύντομα διαθέσιμες.')}>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 font-medium px-3 py-6 rounded-xl" 
+            onClick={() => {
+              if (institutes.length > 0) {
+                router.push(`/owner/${institutes[0].id}/settings`);
+              } else {
+                alert('Παρακαλώ προσθέστε ένα φροντιστήριο πρώτα για να αποκτήσετε πρόσβαση στις ρυθμίσεις.');
+              }
+            }}
+          >
             <Settings className="h-5 w-5" />
             Ρυθμίσεις
           </Button>
