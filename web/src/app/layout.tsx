@@ -37,7 +37,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="el" className={cn("font-sans", geist.variable)} suppressHydrationWarning>
-      <head>
+      <head />
+      <body 
+        className={`${outfit.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}
+        suppressHydrationWarning
+      >
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
@@ -61,11 +65,6 @@ export default function RootLayout({
             alt=""
           />
         </noscript>
-      </head>
-      <body 
-        className={`${outfit.variable} ${inter.variable} font-sans antialiased min-h-screen flex flex-col`}
-        suppressHydrationWarning
-      >
         {/* Anti-Crash Script: Patching Node.prototype to handle Google Translate DOM manipulation */}
         <Script id="google-translate-anticrash" strategy="beforeInteractive">
           {`
