@@ -122,7 +122,7 @@ let InstitutesService = class InstitutesService {
     }
     async search(dto) {
         await this.checkAndExpireStatus();
-        let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country } = dto;
+        let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country, seed } = dto;
         country = 'CY';
         const skip = (page - 1) * limit;
         if (!cityId && location) {
@@ -161,7 +161,7 @@ let InstitutesService = class InstitutesService {
           cos(radians(b.longitude) - radians(${lng})) + 
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
-        ORDER BY i."isFeatured" DESC, "distanceKm" ASC
+        ORDER BY i."isFeatured" DESC, i."isVerified" DESC, "distanceKm" ASC
         LIMIT ${limit} OFFSET ${skip};
       `;
             const totalCountRes = await this.prisma.$queryRaw `
@@ -228,6 +228,10 @@ let InstitutesService = class InstitutesService {
                     return -1;
                 if (!a.isFeatured && b.isFeatured)
                     return 1;
+                if (a.isVerified && !b.isVerified)
+                    return -1;
+                if (!a.isVerified && b.isVerified)
+                    return 1;
                 return (a.distanceKm || 0) - (b.distanceKm || 0);
             });
             return {
@@ -237,56 +241,77 @@ let InstitutesService = class InstitutesService {
                 limit
             };
         }
-        const [institutes, total] = await Promise.all([
-            this.prisma.institute.findMany({
-                where: {
-                    status: 'APPROVED',
-                    OR: query ? [
-                        { name: { contains: query, mode: 'insensitive' } },
-                        { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
-                    ] : undefined,
-                    branches: cityId || country ? {
-                        some: {
-                            cityId: cityId || undefined,
-                            city: country ? { countryCode: country.toUpperCase() } : undefined
-                        }
-                    } : undefined,
-                    services: serviceId ? { some: { serviceId } } : undefined,
+        const allMatches = await this.prisma.institute.findMany({
+            where: {
+                status: 'APPROVED',
+                OR: query ? [
+                    { name: { contains: query, mode: 'insensitive' } },
+                    { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
+                ] : undefined,
+                branches: cityId || country ? {
+                    some: {
+                        cityId: cityId || undefined,
+                        city: country ? { countryCode: country.toUpperCase() } : undefined
+                    }
+                } : undefined,
+                services: serviceId ? { some: { serviceId } } : undefined,
+            },
+            select: {
+                id: true,
+                isFeatured: true,
+                isVerified: true,
+            }
+        });
+        const tenMinSeed = Math.floor(Date.now() / 600000).toString();
+        const seedValue = seed || tenMinSeed;
+        const getSeedRandom = (str) => {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0;
+            }
+            let seedVal = hash;
+            seedVal = (seedVal * 1664525 + 1013904223) % 4294967296;
+            return seedVal / 4294967296;
+        };
+        const sortedMatches = allMatches.sort((a, b) => {
+            if (a.isFeatured && !b.isFeatured)
+                return -1;
+            if (!a.isFeatured && b.isFeatured)
+                return 1;
+            if (a.isVerified && !b.isVerified)
+                return -1;
+            if (!a.isVerified && b.isVerified)
+                return 1;
+            const randA = getSeedRandom(a.id + seedValue);
+            const randB = getSeedRandom(b.id + seedValue);
+            return randA - randB;
+        });
+        const total = sortedMatches.length;
+        const pageIds = sortedMatches.slice(skip, skip + limit).map(m => m.id);
+        if (pageIds.length === 0) {
+            return {
+                data: [],
+                total,
+                page,
+                limit
+            };
+        }
+        const institutes = await this.prisma.institute.findMany({
+            where: {
+                id: { in: pageIds }
+            },
+            include: {
+                branches: {
+                    include: { city: true, area: true },
                 },
-                include: {
-                    branches: {
-                        include: { city: true, area: true },
-                    },
-                    services: {
-                        include: { service: true }
-                    },
-                    images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
-                    reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
+                services: {
+                    include: { service: true }
                 },
-                orderBy: [
-                    { isFeatured: 'desc' },
-                    { createdAt: 'desc' }
-                ],
-                take: limit,
-                skip: skip,
-            }),
-            this.prisma.institute.count({
-                where: {
-                    status: 'APPROVED',
-                    OR: query ? [
-                        { name: { contains: query, mode: 'insensitive' } },
-                        { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
-                    ] : undefined,
-                    branches: cityId || country ? {
-                        some: {
-                            cityId: cityId || undefined,
-                            city: country ? { countryCode: country.toUpperCase() } : undefined
-                        }
-                    } : undefined,
-                    services: serviceId ? { some: { serviceId } } : undefined,
-                },
-            }),
-        ]);
+                images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
+                reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
+            }
+        });
         const data = institutes.map(inst => {
             const reviewCount = inst.reviews.length;
             const avgRating = reviewCount > 0
@@ -308,16 +333,13 @@ let InstitutesService = class InstitutesService {
                 cityName: inst.branches[0]?.city?.name,
                 areaName: inst.branches[0]?.area?.name,
             };
-        }).filter(inst => !minRating || inst.avgRating >= minRating)
-            .sort((a, b) => {
-            if (a.isFeatured && !b.isFeatured)
-                return -1;
-            if (!a.isFeatured && b.isFeatured)
-                return 1;
-            return 0;
         });
+        let filteredData = minRating
+            ? data.filter(inst => inst.avgRating >= minRating)
+            : data;
+        filteredData.sort((a, b) => pageIds.indexOf(a.id) - pageIds.indexOf(b.id));
         return {
-            data,
+            data: filteredData,
             total,
             page,
             limit
