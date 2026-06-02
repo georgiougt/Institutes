@@ -2,6 +2,7 @@
 
 import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Star, MapPin, Globe, Phone, Navigation, List, Map as MapIcon, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ClientMap from '@/components/ClientMap';
@@ -35,6 +36,8 @@ interface SearchPageContentProps {
 }
 
 export function SearchPageContent({ initialResults, resolvedParams }: SearchPageContentProps) {
+  const params = useParams();
+  const country = (params?.country as string) || 'cy';
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [institutes, setInstitutes] = useState(initialResults?.data || []);
   const [page, setPage] = useState(initialResults?.page || 1);
@@ -232,7 +235,7 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
                 <div className="flex-1 py-1">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Link href={`/institute/${inst.id}`} className="text-2xl font-black text-slate-900 hover:text-red-600 transition-colors leading-tight">
+                      <Link href={`/${country}/institute/${inst.id}`} className="text-2xl font-black text-slate-900 hover:text-red-600 transition-colors leading-tight">
                         {index + 1}. {inst.name}
                       </Link>
                       {inst.isVerified && (

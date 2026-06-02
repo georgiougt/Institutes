@@ -213,63 +213,66 @@ function OwnerDashboardContent() {
                   <p className="text-slate-400 font-medium">Δεν έχετε προσθέσει ακόμα κάποιο φροντιστήριο.</p>
                 </Card>
               ) : (
-                institutes.map((inst) => (
-                  <motion.div key={inst.id} whileHover={{ y: -2 }}>
-                    <Card className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden bg-white">
-                      <div className="p-6 flex flex-col md:flex-row gap-6 items-start md:items-center">
-                        <div className="h-24 w-40 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
-                          <img 
-                            src={inst.images?.[0]?.url || "/images/placeholder-institute.webp"} 
-                            className="w-full h-full object-cover"
-                            alt={inst.name}
-                          />
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-3">
-                            <h3 className="text-xl font-bold text-slate-900">{inst.name}</h3>
-                            <Badge className={
-                              inst.status === 'APPROVED' 
-                                ? "bg-green-100 text-green-700 border-none" 
-                                : "bg-amber-100 text-amber-700 border-none"
-                            }>
-                              {inst.status === 'APPROVED' ? 'Ενεργό' : 'Σε αναμονή'}
-                            </Badge>
+                institutes.map((inst) => {
+                  const countryCode = inst.branches?.[0]?.city?.countryCode?.toLowerCase() || 'cy';
+                  return (
+                    <motion.div key={inst.id} whileHover={{ y: -2 }}>
+                      <Card className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden bg-white">
+                        <div className="p-6 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                          <div className="h-24 w-40 bg-slate-100 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                            <img 
+                              src={inst.images?.[0]?.url || "/images/placeholder-institute.webp"} 
+                              className="w-full h-full object-cover"
+                              alt={inst.name}
+                            />
                           </div>
-                          <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-                            <div className="flex items-center gap-1.5">
-                              <MapPin className="h-4 w-4" />
-                              {inst.branches?.[0]?.city?.name || 'Unknown City'}
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-3">
+                              <h3 className="text-xl font-bold text-slate-900">{inst.name}</h3>
+                              <Badge className={
+                                inst.status === 'APPROVED' 
+                                  ? "bg-green-100 text-green-700 border-none" 
+                                  : "bg-amber-100 text-amber-700 border-none"
+                              }>
+                                {inst.status === 'APPROVED' ? 'Ενεργό' : 'Σε αναμονή'}
+                              </Badge>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <Phone className="h-4 w-4" />
-                              {inst.branches?.[0]?.phone || 'No phone'}
+                            <div className="flex flex-wrap gap-4 text-sm text-slate-500">
+                              <div className="flex items-center gap-1.5">
+                                <MapPin className="h-4 w-4" />
+                                {inst.branches?.[0]?.city?.name || 'Unknown City'}
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Phone className="h-4 w-4" />
+                                {inst.branches?.[0]?.phone || 'No phone'}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className="flex gap-2 w-full md:w-auto">
-                          <Link href={`/owner/${inst.id}`}>
-                            <Button variant="outline" className="flex-1 md:flex-none border-slate-200 rounded-xl">
-                              Επεξεργασία
+                          <div className="flex gap-2 w-full md:w-auto">
+                            <Link href={`/owner/${inst.id}`}>
+                              <Button variant="outline" className="flex-1 md:flex-none border-slate-200 rounded-xl">
+                                Επεξεργασία
+                              </Button>
+                            </Link>
+                            <Button 
+                              variant="ghost" 
+                              className="p-2 h-10 w-10 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => handleDeleteInstitute(inst.id)}
+                              title="Διαγραφή Φροντιστηρίου"
+                            >
+                              <Trash2 className="h-5 w-5" />
                             </Button>
-                          </Link>
-                          <Button 
-                            variant="ghost" 
-                            className="p-2 h-10 w-10 text-slate-400 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => handleDeleteInstitute(inst.id)}
-                            title="Διαγραφή Φροντιστηρίου"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
-                          <Link href={`/institute/${inst.id}`}>
-                            <Button variant="ghost" className="p-2 h-10 w-10 text-slate-400 hover:text-slate-900">
-                              <ChevronRight className="h-6 w-6" />
-                            </Button>
-                          </Link>
+                            <Link href={`/${countryCode}/institute/${inst.id}`}>
+                              <Button variant="ghost" className="p-2 h-10 w-10 text-slate-400 hover:text-slate-900">
+                                <ChevronRight className="h-6 w-6" />
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))
+                      </Card>
+                    </motion.div>
+                  );
+                })
               )}
             </div>
           </div>

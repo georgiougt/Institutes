@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { Star, MapPin } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { buttonVariants } from './ui/button-variants'
@@ -12,6 +13,8 @@ interface RecentActivityFeedProps {
 }
 
 export function RecentActivityFeed({ initialData }: RecentActivityFeedProps) {
+  const params = useParams()
+  const country = (params?.country as string) || 'cy'
   const [institutes, setInstitutes] = useState(initialData)
   const [loading, setLoading] = useState(false)
   const [locationError, setLocationError] = useState<string | null>(null)
@@ -107,7 +110,7 @@ export function RecentActivityFeed({ initialData }: RecentActivityFeedProps) {
                    {inst.branches?.[0]?.city?.name || 'Κύπρος'}
                 </div>
                 
-                <Link href={`/institute/${inst.id}`} className="font-black text-xl text-slate-900 hover:text-red-600 transition-colors leading-tight mb-2">
+                <Link href={`/${country}/institute/${inst.id}`} className="font-black text-xl text-slate-900 hover:text-red-600 transition-colors leading-tight mb-2">
                   {inst.name}
                 </Link>
                 
@@ -139,7 +142,7 @@ export function RecentActivityFeed({ initialData }: RecentActivityFeedProps) {
                 </p>
 
                 <Link 
-                  href={`/institute/${inst.id}`} 
+                  href={`/${country}/institute/${inst.id}`} 
                   className={cn(
                     buttonVariants({ variant: "outline" }),
                     "w-full rounded-xl border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 mt-auto shadow-sm transition-all"

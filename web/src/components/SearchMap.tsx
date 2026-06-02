@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 // Fix for default marker icons in Leaflet with Next.js
 const DefaultIcon = L.icon({
@@ -34,6 +35,8 @@ function MapFix({ center }: { center: [number, number] }) {
 }
 
 export default function SearchMap({ institutes, userLocation }: SearchMapProps) {
+  const params = useParams();
+  const country = (params?.country as string) || 'cy';
   // Filter institutes that have branches with coordinates
   const markers = institutes.flatMap(inst => 
     (inst.branches || [])
@@ -93,7 +96,7 @@ export default function SearchMap({ institutes, userLocation }: SearchMapProps) 
                 <h4 className="font-bold text-sm mb-1">{marker.name}</h4>
                 <p className="text-xs text-gray-500 mb-2">{marker.address}</p>
                 <Link 
-                  href={`/institute/${marker.instituteId}`}
+                  href={`/${country}/institute/${marker.instituteId}`}
                   className="text-xs font-bold text-red-600 hover:underline"
                 >
                   Προβολή Προφίλ
