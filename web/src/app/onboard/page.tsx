@@ -32,7 +32,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 interface Metadata {
-  cities: { id: string; name: string }[];
+  cities: { id: string; name: string; countryCode?: string }[];
   services: { id: string; name: string; category?: string }[];
 }
 
@@ -406,6 +406,7 @@ export default function OnboardPage() {
                     <label className="text-sm font-semibold text-slate-700">Διεύθυνση / Αναζήτηση Χάρτη</label>
                     <AddressAutocomplete 
                       defaultValue={formData.address}
+                      countryCode={metadata?.cities.find(c => c.id === formData.cityId)?.countryCode || 'cy'}
                       onAddressSelect={(address, lat, lng) => setFormData(prev => ({ ...prev, address, latitude: lat, longitude: lng }))}
                     />
                   </div>

@@ -206,9 +206,12 @@ model City {
   nameEn       String?
   slug         String?  @unique
   displayOrder Int      @default(0)
+  countryCode  String   @default("CY")
   createdAt    DateTime @default(now())
   areas        Area[]
   branches     Branch[]
+
+  @@index([countryCode])
 }
 
 model Area {

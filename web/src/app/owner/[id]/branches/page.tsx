@@ -277,6 +277,7 @@ export default function BranchesManagerPage({ params }: { params: Promise<{ id: 
                 <Label htmlFor="address" className="font-bold text-slate-700">Διεύθυνση / Αναζήτηση</Label>
                 <AddressAutocomplete 
                   defaultValue={editingBranch.address}
+                  countryCode={cities.find(c => c.id === editingBranch.cityId)?.countryCode || 'cy'}
                   onAddressSelect={handleAddressSelect}
                   className="rounded-xl border-slate-200"
                 />

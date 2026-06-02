@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams, useParams } from "next/navigation"
 import { Star, MapPin, Search, Filter, X, Navigation, LocateFixed } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
@@ -18,6 +18,8 @@ interface SearchSidebarProps {
 export function SearchSidebar({ className }: SearchSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const params = useParams()
+  const country = (params?.country as string) || 'cy'
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
   
   const [metadata, setMetadata] = useState<Metadata | null>(null)
@@ -63,7 +65,7 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
     const fetchMetadata = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
-        const res = await fetch(`${apiUrl}/institutes/metadata/lists`)
+        const res = await fetch(`${apiUrl}/institutes/metadata/lists?country=${country}`)
         if (res.ok) {
           setMetadata(await res.json())
         }
@@ -72,16 +74,16 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
       }
     }
     fetchMetadata()
-  }, [])
+  }, [country])
 
   // Push updates to URL
   const pushFilters = useCallback((newFilters: any) => {
-    const params = new URLSearchParams()
+    const searchParams = new URLSearchParams()
     Object.entries(newFilters).forEach(([key, value]) => {
-      if (value) params.set(key, value as string)
+      if (value) searchParams.set(key, value as string)
     })
-    router.push(`/search?${params.toString()}`)
-  }, [router])
+    router.push(`/${country}/search?${searchParams.toString()}`)
+  }, [router, country])
 
   const handleUpdate = (updates: Partial<typeof filters>, debounce = false) => {
     const next = { ...filters, ...updates }
@@ -127,7 +129,7 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
       lng: "" 
     }
     setFilters(reset)
-    router.push("/search")
+    router.push(`/${country}/search`)
   }
 
   return (

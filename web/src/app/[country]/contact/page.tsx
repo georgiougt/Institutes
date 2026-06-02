@@ -11,6 +11,8 @@ import { Loader2, Send, Mail, Phone, User, MessageCircle, MapPin } from 'lucide-
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 
+import { useParams } from 'next/navigation';
+
 interface ContactFormValues {
   guestName: string;
   guestEmail: string;
@@ -19,6 +21,10 @@ interface ContactFormValues {
 }
 
 export default function ContactPage() {
+  const params = useParams();
+  const country = (params?.country as string) || 'cy';
+  const isGreece = country.toLowerCase() === 'gr';
+
   const [loading, setLoading] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormValues>();
 
@@ -49,6 +55,12 @@ export default function ContactPage() {
     }
   };
 
+  const contactDetails = [
+    { icon: Phone, title: 'Τηλέφωνο', text: isGreece ? '+30 210 1234567' : '+357 99717717', color: 'bg-emerald-50 text-emerald-600' },
+    { icon: Mail, title: 'Email', text: isGreece ? 'info@tofrontistirio.gr' : 'info@tofrontistirio.com', color: 'bg-blue-50 text-blue-600' },
+    { icon: MapPin, title: 'Έδρα', text: isGreece ? 'Αθήνα, Ελλάδα' : 'Λευκωσία, Κύπρος', color: 'bg-amber-50 text-amber-600' },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -72,11 +84,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="space-y-6">
-                  {[
-                    { icon: Phone, title: 'Τηλέφωνο', text: '+357 99717717', color: 'bg-emerald-50 text-emerald-600' },
-                    { icon: Mail, title: 'Email', text: 'info@tofrontistirio.com', color: 'bg-blue-50 text-blue-600' },
-                    { icon: MapPin, title: 'Έδρα', text: 'Λευκωσία, Κύπρος', color: 'bg-amber-50 text-amber-600' },
-                  ].map((item, i) => (
+                  {contactDetails.map((item, i) => (
                     <div key={i} className="flex gap-4 p-4 bg-white rounded-2xl border border-slate-200/60 shadow-sm transition-all hover:shadow-md">
                       <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
                         <item.icon className="h-6 w-6" />
@@ -140,7 +148,7 @@ export default function ContactPage() {
                         <Input 
                           id="guestPhone" 
                           {...register('guestPhone', { required: true })} 
-                          placeholder="+357 99XXXXXX"
+                          placeholder={isGreece ? "+30 69XXXXXXXX" : "+357 99XXXXXX"}
                           className="rounded-2xl border-slate-200 h-14 bg-slate-50 focus:bg-white transition-all px-6"
                         />
                         {errors.guestPhone && <p className="text-xs text-red-500 font-bold ml-1">Απαιτείται τηλέφωνο</p>}

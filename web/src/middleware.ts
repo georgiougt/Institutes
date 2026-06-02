@@ -4,7 +4,19 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Protect admin routes
+  // 1. Root level redirect or /gr redirect (force cy until Greece is launched)
+  if (pathname === '/' || pathname === '/gr' || pathname.startsWith('/gr/')) {
+    let newPath = pathname;
+    if (pathname === '/' || pathname === '/gr') {
+      newPath = '/cy';
+    } else {
+      newPath = pathname.replace(/^\/gr\//i, '/cy/');
+    }
+    const url = new URL(newPath, request.url);
+    return NextResponse.redirect(url);
+  }
+
+  // 2. Protect admin routes
   if (pathname.startsWith('/admin')) {
     const role = request.cookies.get('auth_role')?.value;
 
@@ -18,7 +30,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Ensure middleware runs on admin routes
+// Ensure middleware runs on root, admin, and /gr routes
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/', '/gr', '/gr/:path*', '/admin/:path*'],
 };

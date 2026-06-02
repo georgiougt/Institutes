@@ -12,13 +12,15 @@ interface AddressAutocompleteProps {
   defaultValue?: string;
   placeholder?: string;
   className?: string;
+  countryCode?: string;
 }
 
 export function AddressAutocomplete({ 
   onAddressSelect, 
   defaultValue = "", 
   placeholder = "Αναζητήστε διεύθυνση ή όνομα φροντιστηρίου...",
-  className
+  className,
+  countryCode
 }: AddressAutocompleteProps) {
   const [inputValue, setInputValue] = useState(defaultValue);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -78,7 +80,7 @@ export function AddressAutocomplete({
         onLoad={onLoad}
         onPlaceChanged={onPlaceChanged}
         options={{
-          componentRestrictions: { country: ["cy", "gr"] }, // Allow Cyprus and Greece
+          componentRestrictions: { country: countryCode ? [countryCode.toLowerCase()] : ["cy", "gr"] },
           fields: ["address_components", "geometry", "icon", "name", "formatted_address"],
         }}
       >

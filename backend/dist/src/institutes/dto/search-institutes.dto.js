@@ -25,6 +25,7 @@ class SearchInstitutesDto {
     minRating;
     page;
     limit;
+    country;
 }
 exports.SearchInstitutesDto = SearchInstitutesDto;
 __decorate([
@@ -110,4 +111,10 @@ __decorate([
     (0, class_validator_1.Max)(100),
     __metadata("design:type", Number)
 ], SearchInstitutesDto.prototype, "limit", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by country code (CY or GR)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], SearchInstitutesDto.prototype, "country", void 0);
 //# sourceMappingURL=search-institutes.dto.js.map
