@@ -134,7 +134,7 @@ export class InstitutesService {
           cos(radians(b.longitude) - radians(${lng})) + 
           sin(radians(${lat})) * sin(radians(b.latitude))
         )) <= ${radius}
-        ORDER BY i."isFeatured" DESC, "distanceKm" ASC
+        ORDER BY i."isFeatured" DESC, i."isVerified" DESC, "distanceKm" ASC
         LIMIT ${limit} OFFSET ${skip};
       `;
 
@@ -207,6 +207,8 @@ export class InstitutesService {
         .sort((a, b) => {
           if (a.isFeatured && !b.isFeatured) return -1;
           if (!a.isFeatured && b.isFeatured) return 1;
+          if (a.isVerified && !b.isVerified) return -1;
+          if (!a.isVerified && b.isVerified) return 1;
           return (a.distanceKm || 0) - (b.distanceKm || 0);
         });
 
@@ -219,56 +221,87 @@ export class InstitutesService {
     }
 
     // Fallback simple Prisma lookup if no coordinates provided
-    const [institutes, total] = await Promise.all([
-      this.prisma.institute.findMany({
-        where: {
-          status: 'APPROVED',
-          OR: query ? [
-            { name: { contains: query, mode: 'insensitive' } },
-            { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
-          ] : undefined,
-          branches: cityId || country ? {
-            some: {
-              cityId: cityId || undefined,
-              city: country ? { countryCode: country.toUpperCase() } : undefined
-            }
-          } : undefined,
-          services: serviceId ? { some: { serviceId } } : undefined,
+    // To implement random sorting (featured first, verified second, then stable daily-randomized rest),
+    // we query matched IDs first, shuffle them in memory using a deterministic daily seed, slice them,
+    // and then fetch full details. This prevents duplicates/omissions during infinite scroll pagination.
+    const allMatches = await this.prisma.institute.findMany({
+      where: {
+        status: 'APPROVED',
+        OR: query ? [
+          { name: { contains: query, mode: 'insensitive' } },
+          { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
+        ] : undefined,
+        branches: cityId || country ? {
+          some: {
+            cityId: cityId || undefined,
+            city: country ? { countryCode: country.toUpperCase() } : undefined
+          }
+        } : undefined,
+        services: serviceId ? { some: { serviceId } } : undefined,
+      },
+      select: {
+        id: true,
+        isFeatured: true,
+        isVerified: true,
+      }
+    });
+
+    const dailySeed = new Date().toISOString().split('T')[0]; // Stable daily seed e.g. "2026-06-02"
+
+    // 100% standard LCG stable PRNG
+    const getSeedRandom = (str: string) => {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = (hash << 5) - hash + str.charCodeAt(i);
+        hash |= 0;
+      }
+      let seed = hash;
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+
+    const sortedMatches = allMatches.sort((a, b) => {
+      // 1. Featured ALWAYS first
+      if (a.isFeatured && !b.isFeatured) return -1;
+      if (!a.isFeatured && b.isFeatured) return 1;
+
+      // 2. Verified ALWAYS second
+      if (a.isVerified && !b.isVerified) return -1;
+      if (!a.isVerified && b.isVerified) return 1;
+
+      // 3. Shuffled randomly per day among themselves
+      const randA = getSeedRandom(a.id + dailySeed);
+      const randB = getSeedRandom(b.id + dailySeed);
+      return randA - randB;
+    });
+
+    const total = sortedMatches.length;
+    const pageIds = sortedMatches.slice(skip, skip + limit).map(m => m.id);
+
+    if (pageIds.length === 0) {
+      return {
+        data: [],
+        total,
+        page,
+        limit
+      };
+    }
+
+    const institutes = await this.prisma.institute.findMany({
+      where: {
+        id: { in: pageIds }
+      },
+      include: {
+        branches: {
+          include: { city: true, area: true },
         },
-        include: {
-          branches: {
-            include: { city: true, area: true },
-          },
-          services: {
-            include: { service: true }
-          },
-          images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
-          reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
+        services: {
+          include: { service: true }
         },
-        orderBy: [
-          { isFeatured: 'desc' },
-          { createdAt: 'desc' }
-        ],
-        take: limit,
-        skip: skip,
-      }),
-      this.prisma.institute.count({
-        where: {
-          status: 'APPROVED',
-          OR: query ? [
-            { name: { contains: query, mode: 'insensitive' } },
-            { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
-          ] : undefined,
-          branches: cityId || country ? {
-            some: {
-              cityId: cityId || undefined,
-              city: country ? { countryCode: country.toUpperCase() } : undefined
-            }
-          } : undefined,
-          services: serviceId ? { some: { serviceId } } : undefined,
-        },
-      }),
-    ]);
+        images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
+        reviews: { where: { status: 'APPROVED' }, select: { rating: true } }
+      }
+    });
 
     const data = institutes.map(inst => {
       const reviewCount = inst.reviews.length;
@@ -292,15 +325,18 @@ export class InstitutesService {
         cityName: inst.branches[0]?.city?.name,
         areaName: inst.branches[0]?.area?.name,
       };
-    }).filter(inst => !minRating || inst.avgRating >= minRating)
-      .sort((a, b) => {
-        if (a.isFeatured && !b.isFeatured) return -1;
-        if (!a.isFeatured && b.isFeatured) return 1;
-        return 0; // Maintain createdAt order from Prisma if both same featured status
-      });
+    });
+
+    // Filter by minRating if provided
+    let filteredData = minRating 
+      ? data.filter(inst => inst.avgRating >= minRating) 
+      : data;
+
+    // Sort to match the exact daily seed shuffled array order
+    filteredData.sort((a, b) => pageIds.indexOf(a.id) - pageIds.indexOf(b.id));
 
     return {
-      data,
+      data: filteredData,
       total,
       page,
       limit
