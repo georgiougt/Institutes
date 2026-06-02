@@ -90,7 +90,7 @@ export class InstitutesService {
 
   async search(dto: SearchInstitutesDto) {
     await this.checkAndExpireStatus();
-    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country } = dto;
+    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country, seed } = dto;
     // Restrict to Cyprus until Greece is launched
     country = 'CY';
     const skip = (page - 1) * limit;
@@ -246,7 +246,10 @@ export class InstitutesService {
       }
     });
 
-    const dailySeed = new Date().toISOString().split('T')[0]; // Stable daily seed e.g. "2026-06-02"
+    // Stable seed fallback changing every 10 minutes (600,000 ms) to keep pagination stable,
+    // but ensuring fresh randomization when the user returns/refreshes.
+    const tenMinSeed = Math.floor(Date.now() / 600000).toString();
+    const seedValue = seed || tenMinSeed;
 
     // 100% standard LCG stable PRNG
     const getSeedRandom = (str: string) => {
@@ -255,9 +258,9 @@ export class InstitutesService {
         hash = (hash << 5) - hash + str.charCodeAt(i);
         hash |= 0;
       }
-      let seed = hash;
-      seed = (seed * 1664525 + 1013904223) % 4294967296;
-      return seed / 4294967296;
+      let seedVal = hash;
+      seedVal = (seedVal * 1664525 + 1013904223) % 4294967296;
+      return seedVal / 4294967296;
     };
 
     const sortedMatches = allMatches.sort((a, b) => {
@@ -269,9 +272,9 @@ export class InstitutesService {
       if (a.isVerified && !b.isVerified) return -1;
       if (!a.isVerified && b.isVerified) return 1;
 
-      // 3. Shuffled randomly per day among themselves
-      const randA = getSeedRandom(a.id + dailySeed);
-      const randB = getSeedRandom(b.id + dailySeed);
+      // 3. Shuffled randomly per session/seed among themselves
+      const randA = getSeedRandom(a.id + seedValue);
+      const randB = getSeedRandom(b.id + seedValue);
       return randA - randB;
     });
 

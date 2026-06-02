@@ -79,4 +79,9 @@ export class SearchInstitutesDto {
   @IsOptional()
   @IsString()
   country?: string;
+
+  @ApiPropertyOptional({ description: 'Random seed for stable pagination sorting' })
+  @IsOptional()
+  @IsString()
+  seed?: string;
 }

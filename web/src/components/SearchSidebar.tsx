@@ -82,6 +82,9 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
     Object.entries(newFilters).forEach(([key, value]) => {
       if (value) searchParams.set(key, value as string)
     })
+    // Append a fresh random seed for this search session!
+    searchParams.set('seed', Math.random().toString(36).substring(7))
+    
     router.push(`/${country}/search?${searchParams.toString()}`)
   }, [router, country])
 

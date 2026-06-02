@@ -49,6 +49,8 @@ export function ClientSearchForm() {
     if (query) searchParams.append('query', query);
     if (location && location !== "all") searchParams.append("cityId", location);
     if (serviceId && serviceId !== "all") searchParams.append("serviceId", serviceId);
+    // Append a fresh random seed for this search session!
+    searchParams.append('seed', Math.random().toString(36).substring(7));
     
     router.push(`/${country}/search?${searchParams.toString()}`);
   };
