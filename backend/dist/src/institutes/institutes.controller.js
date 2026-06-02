@@ -28,11 +28,11 @@ let InstitutesController = class InstitutesController {
     search(searchDto) {
         return this.institutesService.search(searchDto);
     }
-    getRecent(lat, lng) {
-        return this.institutesService.getRecent(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined);
+    getRecent(lat, lng, country) {
+        return this.institutesService.getRecent(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined, country);
     }
-    metadata() {
-        return this.institutesService.getMetadata();
+    metadata(country) {
+        return this.institutesService.getMetadata(country);
     }
     sitemap() {
         return this.institutesService.getSitemapData();
@@ -104,15 +104,17 @@ __decorate([
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Return a small list of newly added or nearby institutes.' }),
     __param(0, (0, common_1.Query)('lat')),
     __param(1, (0, common_1.Query)('lng')),
+    __param(2, (0, common_1.Query)('country')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:paramtypes", [Number, Number, String]),
     __metadata("design:returntype", void 0)
 ], InstitutesController.prototype, "getRecent", null);
 __decorate([
     (0, common_1.Get)('metadata/lists'),
     (0, swagger_1.ApiOperation)({ summary: 'Get list of cities and services for dropdowns' }),
+    __param(0, (0, common_1.Query)('country')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], InstitutesController.prototype, "metadata", null);
 __decorate([

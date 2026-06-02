@@ -74,4 +74,9 @@ export class SearchInstitutesDto {
   @Min(1)
   @Max(100)
   limit?: number;
+
+  @ApiPropertyOptional({ description: 'Filter by country code (CY or GR)' })
+  @IsOptional()
+  @IsString()
+  country?: string;
 }

@@ -10,4 +10,5 @@ export declare class SearchInstitutesDto {
     minRating?: number;
     page?: number;
     limit?: number;
+    country?: string;
 }

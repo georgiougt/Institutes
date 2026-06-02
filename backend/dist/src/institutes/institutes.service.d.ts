@@ -5,7 +5,7 @@ export declare class InstitutesService {
     private prisma;
     private supabase;
     constructor(prisma: PrismaService);
-    getRecent(lat?: number, lng?: number): Promise<{
+    getRecent(lat?: number, lng?: number, country?: string): Promise<{
         reviewCount: number;
         avgRating: number;
         branches: ({
@@ -16,6 +16,7 @@ export declare class InstitutesService {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
         } & {
             id: string;
@@ -94,6 +95,7 @@ export declare class InstitutesService {
                     createdAt: Date;
                     nameEn: string | null;
                     displayOrder: number;
+                    countryCode: string;
                 };
                 area: {
                     id: string;
@@ -175,6 +177,7 @@ export declare class InstitutesService {
                     createdAt: Date;
                     nameEn: string | null;
                     displayOrder: number;
+                    countryCode: string;
                 };
                 area: {
                     id: string;
@@ -239,6 +242,7 @@ export declare class InstitutesService {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
             area: {
                 id: string;
@@ -360,7 +364,7 @@ export declare class InstitutesService {
         updatedAt: Date;
         deletedAt: Date | null;
     }>;
-    getMetadata(): Promise<{
+    getMetadata(country?: string): Promise<{
         cities: {
             id: string;
             name: string;
@@ -368,6 +372,7 @@ export declare class InstitutesService {
             createdAt: Date;
             nameEn: string | null;
             displayOrder: number;
+            countryCode: string;
         }[];
         services: {
             id: string;
@@ -423,6 +428,7 @@ export declare class InstitutesService {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
         } & {
             id: string;

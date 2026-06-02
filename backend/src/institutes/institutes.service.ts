@@ -16,9 +16,11 @@ export class InstitutesService {
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
-  async getRecent(lat?: number, lng?: number) {
+  async getRecent(lat?: number, lng?: number, country?: string) {
     await this.checkAndExpireStatus();
     let ids: string[] = [];
+    // Restrict to Cyprus until Greece is launched
+    const countryCode = 'CY';
 
     if (lat && lng) {
       // Find IDs of 3 nearest institutes using Haversine formula (Standard SQL)
@@ -32,8 +34,10 @@ export class InstitutesService {
           ) as distance
         FROM "Institute" i
         INNER JOIN "Branch" b ON b."instituteId" = i.id
+        INNER JOIN "City" c ON c.id = b."cityId"
         WHERE i.status = 'APPROVED'
         AND b.latitude IS NOT NULL AND b.longitude IS NOT NULL
+        ${countryCode ? Prisma.sql`AND c."countryCode" = ${countryCode}` : Prisma.empty}
         ORDER BY distance ASC
         LIMIT 3;
       `;
@@ -43,7 +47,14 @@ export class InstitutesService {
     const institutes = await this.prisma.institute.findMany({
       where: ids.length > 0 
         ? { id: { in: ids } } 
-        : { status: 'APPROVED' },
+        : { 
+            status: 'APPROVED',
+            branches: countryCode ? {
+              some: {
+                city: { countryCode }
+              }
+            } : undefined
+          },
       include: {
         images: { orderBy: [{ order: 'asc' }, { createdAt: 'desc' }], take: 1 },
         owner: { select: { firstName: true } },
@@ -79,7 +90,9 @@ export class InstitutesService {
 
   async search(dto: SearchInstitutesDto) {
     await this.checkAndExpireStatus();
-    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20 } = dto;
+    let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country } = dto;
+    // Restrict to Cyprus until Greece is launched
+    country = 'CY';
     const skip = (page - 1) * limit;
 
     if (!cityId && location) {
@@ -106,6 +119,7 @@ export class InstitutesService {
           )) as "distanceKm"
         FROM "Institute" i
         INNER JOIN "Branch" b ON b."instituteId" = i.id
+        INNER JOIN "City" c ON c.id = b."cityId"
         LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
         LEFT JOIN "Service" s ON s.id = "is"."serviceId"
         WHERE i.status = 'APPROVED'
@@ -113,6 +127,7 @@ export class InstitutesService {
         ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
         ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
         ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
+        ${country ? Prisma.sql`AND c."countryCode" = ${country.toUpperCase()}` : Prisma.empty}
         GROUP BY i.id, i."isFeatured", i."isVerified"
         HAVING MIN(6371 * acos(
           cos(radians(${lat})) * cos(radians(b.latitude)) * 
@@ -129,6 +144,7 @@ export class InstitutesService {
           SELECT i.id
           FROM "Institute" i
           INNER JOIN "Branch" b ON b."instituteId" = i.id
+          INNER JOIN "City" c ON c.id = b."cityId"
           LEFT JOIN "InstituteService" "is" ON "is"."instituteId" = i.id
           LEFT JOIN "Service" s ON s.id = "is"."serviceId"
           WHERE i.status = 'APPROVED'
@@ -136,6 +152,7 @@ export class InstitutesService {
           ${query ? Prisma.sql`AND (i.name ILIKE ${'%' + query + '%'} OR s.name ILIKE ${'%' + query + '%'})` : Prisma.empty}
           ${cityId ? Prisma.sql`AND b."cityId" = ${cityId}` : Prisma.empty}
           ${serviceId ? Prisma.sql`AND "is"."serviceId" = ${serviceId}` : Prisma.empty}
+          ${country ? Prisma.sql`AND c."countryCode" = ${country.toUpperCase()}` : Prisma.empty}
           GROUP BY i.id
           HAVING MIN(6371 * acos(
             cos(radians(${lat})) * cos(radians(b.latitude)) * 
@@ -210,7 +227,12 @@ export class InstitutesService {
             { name: { contains: query, mode: 'insensitive' } },
             { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
           ] : undefined,
-          branches: cityId ? { some: { cityId } } : undefined,
+          branches: cityId || country ? {
+            some: {
+              cityId: cityId || undefined,
+              city: country ? { countryCode: country.toUpperCase() } : undefined
+            }
+          } : undefined,
           services: serviceId ? { some: { serviceId } } : undefined,
         },
         include: {
@@ -237,7 +259,12 @@ export class InstitutesService {
             { name: { contains: query, mode: 'insensitive' } },
             { services: { some: { service: { name: { contains: query, mode: 'insensitive' } } } } }
           ] : undefined,
-          branches: cityId ? { some: { cityId } } : undefined,
+          branches: cityId || country ? {
+            some: {
+              cityId: cityId || undefined,
+              city: country ? { countryCode: country.toUpperCase() } : undefined
+            }
+          } : undefined,
           services: serviceId ? { some: { serviceId } } : undefined,
         },
       }),
@@ -302,9 +329,11 @@ export class InstitutesService {
     });
   }
 
-  async getMetadata() {
+  async getMetadata(country?: string) {
+    // Restrict cities to Cyprus only until Greece is launched
+    const cityWhere = { countryCode: 'CY' };
     const [cities, services] = await Promise.all([
-      this.prisma.city.findMany({ orderBy: { name: 'asc' } }),
+      this.prisma.city.findMany({ where: cityWhere, orderBy: { name: 'asc' } }),
       this.prisma.service.findMany({ orderBy: { name: 'asc' } }),
     ]);
     return { cities, services };
@@ -312,7 +341,14 @@ export class InstitutesService {
 
   async getSitemapData() {
     return this.prisma.institute.findMany({
-      where: { status: 'APPROVED' },
+      where: { 
+        status: 'APPROVED',
+        branches: {
+          some: {
+            city: { countryCode: 'CY' }
+          }
+        }
+      },
       select: { id: true, updatedAt: true }
     });
   }
@@ -439,6 +475,39 @@ export class InstitutesService {
   }
 
   async requestPasswordReset(email: string) {
+    // 1. Check if the user exists in the local database
+    const localUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (localUser) {
+      try {
+        // 2. Try to get the user from Supabase Auth via Admin API to see if they exist
+        const { data: authUser, error: getUserError } = await this.supabase.auth.admin.getUserById(localUser.id);
+        
+        if (getUserError || !authUser?.user) {
+          // User doesn't exist in Supabase Auth, let's create them!
+          console.log(`Auto-migrating user ${email} to Supabase Auth on password reset request`);
+          const randomPassword = Math.random().toString(36).slice(-10) + 'S' + Math.random().toString(36).slice(-3) + '!';
+          
+          const { error: createError } = await this.supabase.auth.admin.createUser({
+            id: localUser.id,
+            email: email,
+            password: randomPassword,
+            email_confirm: true,
+          });
+
+          if (createError) {
+            console.error(`Failed to auto-migrate user ${email} to Supabase Auth:`, createError.message);
+          } else {
+            console.log(`Successfully auto-migrated user ${email} to Supabase Auth`);
+          }
+        }
+      } catch (err: any) {
+        console.error('Error during auto-migration check:', err.message || err);
+      }
+    }
+
     const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/reset-password`,
     });
@@ -446,6 +515,7 @@ export class InstitutesService {
     if (error) throw error;
     return { message: 'Password reset email sent' };
   }
+
 
   async resetPassword(token: string, passwordPlain: string) {
     // If token is provided, we use it to set the session

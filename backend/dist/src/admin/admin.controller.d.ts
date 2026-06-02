@@ -36,6 +36,7 @@ export declare class AdminController {
                     createdAt: Date;
                     nameEn: string | null;
                     displayOrder: number;
+                    countryCode: string;
                 };
             } & {
                 id: string;
@@ -135,6 +136,7 @@ export declare class AdminController {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
             area: {
                 id: string;
@@ -461,6 +463,7 @@ export declare class AdminController {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
         } & {
             id: string;
@@ -537,6 +540,7 @@ export declare class AdminController {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
         } & {
             id: string;
@@ -778,6 +782,7 @@ export declare class AdminController {
         createdAt: Date;
         nameEn: string | null;
         displayOrder: number;
+        countryCode: string;
     })[]>;
     getAreas(cityId?: string): Promise<({
         _count: {

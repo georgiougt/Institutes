@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, BookOpen } from 'lucide-react';
@@ -20,6 +20,9 @@ interface Metadata {
 
 export function ClientSearchForm() {
   const router = useRouter();
+  const params = useParams();
+  const country = (params?.country as string) || 'cy';
+
   const [query, setQuery] = useState('');
   const [serviceId, setServiceId] = useState<string>("all");
   const [location, setLocation] = useState("all");
@@ -29,7 +32,7 @@ export function ClientSearchForm() {
     const fetchMetadata = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
-        const res = await fetch(`${apiUrl}/institutes/metadata/lists`)
+        const res = await fetch(`${apiUrl}/institutes/metadata/lists?country=${country}`)
         if (res.ok) {
           setMetadata(await res.json())
         }
@@ -38,16 +41,16 @@ export function ClientSearchForm() {
       }
     }
     fetchMetadata()
-  }, [])
+  }, [country])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (query) params.append('query', query);
-    if (location && location !== "all") params.append("cityId", location);
-    if (serviceId && serviceId !== "all") params.append("serviceId", serviceId);
+    const searchParams = new URLSearchParams();
+    if (query) searchParams.append('query', query);
+    if (location && location !== "all") searchParams.append("cityId", location);
+    if (serviceId && serviceId !== "all") searchParams.append("serviceId", serviceId);
     
-    router.push(`/search?${params.toString()}`);
+    router.push(`/${country}/search?${searchParams.toString()}`);
   };
 
   return (

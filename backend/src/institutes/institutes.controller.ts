@@ -21,14 +21,14 @@ export class InstitutesController {
   @Get('recent')
   @ApiOperation({ summary: 'Get the 3 most recent approved institutes (optionally near location)' })
   @ApiResponse({ status: 200, description: 'Return a small list of newly added or nearby institutes.' })
-  getRecent(@Query('lat') lat?: number, @Query('lng') lng?: number) {
-    return this.institutesService.getRecent(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined);
+  getRecent(@Query('lat') lat?: number, @Query('lng') lng?: number, @Query('country') country?: string) {
+    return this.institutesService.getRecent(lat ? Number(lat) : undefined, lng ? Number(lng) : undefined, country);
   }
 
   @Get('metadata/lists')
   @ApiOperation({ summary: 'Get list of cities and services for dropdowns' })
-  metadata() {
-    return this.institutesService.getMetadata();
+  metadata(@Query('country') country?: string) {
+    return this.institutesService.getMetadata(country);
   }
 
   @Get('sitemap')

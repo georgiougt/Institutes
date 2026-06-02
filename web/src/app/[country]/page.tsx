@@ -1,10 +1,24 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: 'ToFrontistirio — Βρες το ιδανικό Φροντιστήριο στην Κύπρο',
-  description: 'Η μεγαλύτερη πλατφόρμα αναζήτησης φροντιστηρίων στην Κύπρο. Ανακάλυψε κορυφαία φροντιστήρια για Μαθηματικά, Αγγλικά και όλα τα μαθήματα σε Λεμεσό, Λευκωσία, Λάρνακα και Πάφο.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ country: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const country = resolvedParams.country || 'cy';
+  const isGreece = country.toLowerCase() === 'gr';
+
+  return {
+    title: isGreece 
+      ? 'ToFrontistirio — Βρες το ιδανικό Φροντιστήριο στην Ελλάδα' 
+      : 'ToFrontistirio — Βρες το ιδανικό Φροντιστήριο στην Κύπρο',
+    description: isGreece
+      ? 'Η μεγαλύτερη πλατφόρμα αναζήτησης φροντιστηρίων στην Ελλάδα. Ανακάλυψε κορυφαία φροντιστήρια για Μαθηματικά, Αγγλικά και όλα τα μαθήματα σε Αθήνα, Θεσσαλονίκη, Πάτρα και Ηράκλειο.'
+      : 'Η μεγαλύτερη πλατφόρμα αναζήτησης φροντιστηρίων στην Κύπρο. Ανακάλυψε κορυφαία φροντιστήρια για Μαθηματικά, Αγγλικά και όλα τα μαθήματα σε Λεμεσό, Λευκωσία, Λάρνακα και Πάφο.',
+  };
+}
 
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
@@ -17,9 +31,9 @@ import { SubjectsSection } from '@/components/subjects-section';
 import { Navbar } from '@/components/navbar';
 import { RecentActivityFeed } from '@/components/recent-activity-feed';
 
-async function getRecentInstitutes() {
+async function getRecentInstitutes(country: string) {
   try {
-    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api/v1'}/institutes/recent`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api/v1'}/institutes/recent?country=${country}`;
     console.log(`[Next.js] Fetching recent institutes from: ${url}`);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout for build
@@ -45,8 +59,14 @@ async function getRecentInstitutes() {
   }
 }
 
-export default async function Home() {
-  const recentInstitutes = await getRecentInstitutes();
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ country: string }>
+}) {
+  const resolvedParams = await params;
+  const country = resolvedParams.country || 'cy';
+  const recentInstitutes = await getRecentInstitutes(country);
 
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans text-slate-900">

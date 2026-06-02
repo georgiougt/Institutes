@@ -32,6 +32,7 @@ export declare class InstitutesController {
                     createdAt: Date;
                     nameEn: string | null;
                     displayOrder: number;
+                    countryCode: string;
                 };
                 area: {
                     id: string;
@@ -113,6 +114,7 @@ export declare class InstitutesController {
                     createdAt: Date;
                     nameEn: string | null;
                     displayOrder: number;
+                    countryCode: string;
                 };
                 area: {
                     id: string;
@@ -168,7 +170,7 @@ export declare class InstitutesController {
         page: number;
         limit: number;
     }>;
-    getRecent(lat?: number, lng?: number): Promise<{
+    getRecent(lat?: number, lng?: number, country?: string): Promise<{
         reviewCount: number;
         avgRating: number;
         branches: ({
@@ -179,6 +181,7 @@ export declare class InstitutesController {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
         } & {
             id: string;
@@ -231,7 +234,7 @@ export declare class InstitutesController {
         updatedAt: Date;
         deletedAt: Date | null;
     }[]>;
-    metadata(): Promise<{
+    metadata(country?: string): Promise<{
         cities: {
             id: string;
             name: string;
@@ -239,6 +242,7 @@ export declare class InstitutesController {
             createdAt: Date;
             nameEn: string | null;
             displayOrder: number;
+            countryCode: string;
         }[];
         services: {
             id: string;
@@ -266,6 +270,7 @@ export declare class InstitutesController {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
             area: {
                 id: string;
@@ -424,6 +429,7 @@ export declare class InstitutesController {
                 createdAt: Date;
                 nameEn: string | null;
                 displayOrder: number;
+                countryCode: string;
             };
         } & {
             id: string;

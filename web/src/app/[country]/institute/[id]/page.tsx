@@ -33,12 +33,14 @@ async function getInstitute(id: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ id: string; country: string }> }): Promise<Metadata> {
   const resolvedParams = await params;
+  const country = resolvedParams.country || 'cy';
+  const isGreece = country.toLowerCase() === 'gr';
   const institute = await getInstitute(resolvedParams.id);
   if (!institute) return {};
 
-  const cityName = institute.branches?.find((b: any) => b.isMain)?.city?.name || 'Κύπρος';
+  const cityName = institute.branches?.find((b: any) => b.isMain)?.city?.name || (isGreece ? 'Ελλάδα' : 'Κύπρος');
   
   return {
     title: `${institute.name} - Φροντιστήριο στη ${cityName}`,
@@ -54,9 +56,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function InstituteProfilePage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string; country: string }>
 }) {
   const resolvedParams = await params;
+  const country = resolvedParams.country || 'cy';
+  const isGreece = country.toLowerCase() === 'gr';
   const institute = await getInstitute(resolvedParams.id);
 
   if (!institute) {
@@ -72,13 +76,13 @@ export default async function InstituteProfilePage({
     'description': institute.description,
     'image': institute.images?.[0]?.url,
     'logo': institute.logoUrl,
-    'url': `https://tofrontistirio.com/institute/${resolvedParams.id}`,
+    'url': `https://tofrontistirio.com/${country}/institute/${resolvedParams.id}`,
     'telephone': mainBranch?.phone,
     'address': {
       '@type': 'PostalAddress',
       'streetAddress': mainBranch?.address,
       'addressLocality': mainBranch?.city?.name,
-      'addressCountry': 'CY',
+      'addressCountry': country.toUpperCase(),
     },
     'geo': mainBranch?.latitude && mainBranch?.longitude ? {
       '@type': 'GeoCoordinates',
@@ -100,7 +104,7 @@ export default async function InstituteProfilePage({
       />
       {/* ─── HEADER ─── */}
       <header className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-50">
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href={`/${country}`} className="flex items-center shrink-0">
           <img src="/images/logo.svg" className="h-12 sm:h-16 w-auto object-contain" alt="ToFrontistirio Logo" />
         </Link>
         <div className="flex items-center gap-3">
@@ -162,7 +166,7 @@ export default async function InstituteProfilePage({
                       <span className="text-amber-400 text-[10px] uppercase font-black tracking-wider ml-1">Featured</span>
                     </div>
                   )}
-                  <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {mainBranch?.city?.name || 'Ελλάδα'}</span>
+                  <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {mainBranch?.city?.name || (isGreece ? 'Ελλάδα' : 'Κύπρος')}</span>
                 </div>
               </div>
             </div>

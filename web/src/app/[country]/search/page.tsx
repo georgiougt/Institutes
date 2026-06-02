@@ -1,10 +1,22 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
-export const metadata: Metadata = {
-  title: 'Αναζήτηση Φροντιστηρίων | ToFrontistirio',
-  description: 'Βρες φροντιστήρια στην περιοχή σου με βάση το μάθημα, την πόλη ή την απόσταση. Δες αξιολογήσεις και στοιχεία επικοινωνίας.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ country: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const country = resolvedParams.country || 'cy';
+  const isGreece = country.toLowerCase() === 'gr';
+
+  return {
+    title: isGreece ? 'Αναζήτηση Φροντιστηρίων στην Ελλάδα | ToFrontistirio' : 'Αναζήτηση Φροντιστηρίων στην Κύπρο | ToFrontistirio',
+    description: isGreece
+      ? 'Βρες φροντιστήρια στην Ελλάδα με βάση το μάθημα, την πόλη ή την απόσταση. Δες αξιολογήσεις και στοιχεία επικοινωνίας.'
+      : 'Βρες φροντιστήρια στην Κύπρο με βάση το μάθημα, την πόλη ή την απόσταση. Δες αξιολογήσεις και στοιχεία επικοινωνίας.',
+  };
+}
 
 import Link from 'next/link';
 import { Star, MapPin, Globe, Phone, Navigation } from 'lucide-react';
@@ -32,6 +44,7 @@ async function performSearch(params: {
   radius?: string;
   lat?: string;
   lng?: string;
+  country?: string;
 }) {
   try {
     const searchParams = new URLSearchParams();
@@ -67,8 +80,10 @@ async function performSearch(params: {
 }
 
 export default async function SearchResultsPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ country: string }>;
   searchParams: Promise<{ 
     query?: string; 
     cityId?: string; 
@@ -80,12 +95,13 @@ export default async function SearchResultsPage({
   }>
 }) {
   const resolvedParams = await searchParams;
-  const results = await performSearch(resolvedParams);
+  const { country } = await params;
+  const results = await performSearch({ ...resolvedParams, country });
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-slate-900">
       <header className="px-6 py-4 border-b border-gray-100 shadow-sm flex items-center justify-between sticky top-0 bg-white z-40">
-         <Link href="/" className="flex items-center shrink-0">
+         <Link href={`/${country}`} className="flex items-center shrink-0">
             <img 
               src="/images/logo.svg" 
               className="h-12 sm:h-14 w-auto object-contain" 
