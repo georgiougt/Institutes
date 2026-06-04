@@ -32,7 +32,7 @@ export function middleware(request: NextRequest) {
       newPath = pathname.replace(/^\/gr\//i, '/cy/');
     }
     const url = new URL(newPath + search, request.url);
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(url, 301);
   }
 
   // 2. Protect admin routes
@@ -54,12 +54,12 @@ export function middleware(request: NextRequest) {
     if (segments[2] === 'institute' && segments[3]) {
       const remainingPath = segments.slice(3).join('/');
       const url = new URL(`/cy/institute/${remainingPath}${search}`, request.url);
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(url, 301);
     }
 
     // Otherwise, prepend /cy to the path
     const url = new URL(`/cy${pathname}${search}`, request.url);
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(url, 301);
   }
 
   return NextResponse.next();
