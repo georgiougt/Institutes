@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useParams } from 'next/navigation';
 import { SubjectCard } from './subject-card';
 
 const SUBJECTS = [
@@ -19,6 +20,9 @@ const SUBJECTS = [
 ];
 
 export function SubjectsSection() {
+  const params = useParams();
+  const country = (params?.country as string) || 'cy';
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -49,11 +53,15 @@ export function SubjectsSection() {
           viewport={{ once: true }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"
         >
-          {SUBJECTS.map((subject) => (
-            <motion.div key={subject.name} variants={item}>
-              <SubjectCard {...subject} />
-            </motion.div>
-          ))}
+          {SUBJECTS.map((subject) => {
+            const searchCountry = country || 'cy';
+            const fullHref = `/${searchCountry}${subject.href}`;
+            return (
+              <motion.div key={subject.name} variants={item}>
+                <SubjectCard {...subject} href={fullHref} />
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </div>

@@ -1,7 +1,13 @@
+'use client';
+
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { LanguageSwitcher } from './language-switcher';
 
 export function Footer() {
+  const params = useParams();
+  const country = (params?.country as string) || 'cy';
+
   return (
     <footer className="w-full pt-12 pb-8 bg-white border-t border-gray-300 text-[13px] text-gray-600 mt-auto">
       <div className="container px-4 md:px-6 mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
@@ -9,7 +15,7 @@ export function Footer() {
           <h4 className="text-gray-900 font-bold mb-4 text-[15px]">Σχετικά</h4>
           <ul className="space-y-2 font-medium">
             {/* <li><Link href="#" className="hover:underline text-[#0073bb]">Σχετικά με εμάς</Link></li> */}
-            <li><Link href="/contact" className="hover:underline text-[#0073bb]">Επικοινωνία</Link></li>
+            <li><Link href={`/${country}/contact`} className="hover:underline text-[#0073bb]">Επικοινωνία</Link></li>
           </ul>
         </div>
         <div>
@@ -33,7 +39,7 @@ export function Footer() {
       </div>
       
       <div className="container px-4 md:px-6 mx-auto text-center flex flex-col justify-center items-center">
-        <Link className="flex items-center gap-2 group mb-6" href="/">
+        <Link className="flex items-center gap-2 group mb-6" href={`/${country}`}>
           <div className="h-8 w-8 flex items-center justify-center bg-red-600 rounded-lg shadow-lg shadow-red-900/10 group-hover:scale-105 transition-transform">
             <span className="text-white font-black text-lg">Φ</span>
           </div>

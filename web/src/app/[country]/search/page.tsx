@@ -3,18 +3,34 @@ import { Suspense } from 'react';
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ country: string }>;
+  searchParams: Promise<{ 
+    cityId?: string; 
+    serviceId?: string;
+  }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
   const country = resolvedParams.country || 'cy';
   const isGreece = country.toLowerCase() === 'gr';
+
+  const resolvedSearchParams = await searchParams;
+  const canonicalParams = new URLSearchParams();
+  if (resolvedSearchParams.cityId) canonicalParams.set('cityId', resolvedSearchParams.cityId);
+  if (resolvedSearchParams.serviceId) canonicalParams.set('serviceId', resolvedSearchParams.serviceId);
+
+  const queryStr = canonicalParams.toString();
+  const canonicalUrl = `https://tofrontistirio.com/${country}/search${queryStr ? `?${queryStr}` : ''}`;
 
   return {
     title: isGreece ? 'Αναζήτηση Φροντιστηρίων στην Ελλάδα | ToFrontistirio' : 'Αναζήτηση Φροντιστηρίων στην Κύπρο | ToFrontistirio',
     description: isGreece
       ? 'Βρες φροντιστήρια στην Ελλάδα με βάση το μάθημα, την πόλη ή την απόσταση. Δες αξιολογήσεις και στοιχεία επικοινωνίας.'
       : 'Βρες φροντιστήρια στην Κύπρο με βάση το μάθημα, την πόλη ή την απόσταση. Δες αξιολογήσεις και στοιχεία επικοινωνίας.',
+    alternates: {
+      canonical: canonicalUrl,
+    },
   };
 }
 

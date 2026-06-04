@@ -152,7 +152,7 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
                            Δοκιμάστε να αυξήσετε την <b>ακτίνα</b> στα 30km ή απενεργοποιήστε την "Κοντά σε μένα" αναζήτηση.
                          </p>
                          <Link 
-                           href={`/search?${(() => {
+                           href={`/${country}/search?${(() => {
                              const p = new URLSearchParams(resolvedParams as any);
                              p.delete('lat');
                              p.delete('lng');

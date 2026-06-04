@@ -6,14 +6,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 1. Core public pages
   const routes: MetadataRoute.Sitemap = [
-    '',
-    '/search',
-    '/contact',
+    '/cy',
+    '/cy/search',
+    '/cy/contact',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: 'daily',
-    priority: route === '' ? 1 : 0.8,
+    priority: route === '/cy' ? 1 : 0.8,
   }));
 
   try {
@@ -43,7 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 4. Generate Institute URLs
     const instituteRoutes: MetadataRoute.Sitemap = institutes.map((inst: any) => ({
-      url: `${baseUrl}/institute/${inst.id}`,
+      url: `${baseUrl}/cy/institute/${inst.id}`,
       lastModified: new Date(inst.updatedAt),
       changeFrequency: 'weekly',
       priority: 0.7,
@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 5. Generate City Landing Pages
     const cityRoutes: MetadataRoute.Sitemap = cities.map((city: any) => ({
-      url: `${baseUrl}/search?cityId=${city.id}`,
+      url: `${baseUrl}/cy/search?cityId=${city.id}`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 6. Generate Subject Category Pages
     const serviceRoutes: MetadataRoute.Sitemap = services.map((service: any) => ({
-      url: `${baseUrl}/search?serviceId=${service.id}`,
+      url: `${baseUrl}/cy/search?serviceId=${service.id}`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
@@ -70,7 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     cities.forEach((city: any) => {
       services.forEach((service: any) => {
         comboRoutes.push({
-          url: `${baseUrl}/search?cityId=${city.id}&amp;serviceId=${service.id}`,
+          url: `${baseUrl}/cy/search?cityId=${city.id}&serviceId=${service.id}`,
           lastModified: new Date(),
           changeFrequency: 'daily',
           priority: 0.6,

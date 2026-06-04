@@ -2,7 +2,26 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
+
+  // Split pathname to analyze segments
+  const segments = pathname.split('/');
+  const rootSegment = segments[1];
+
+  // List of valid root segments that shouldn't be prefixed with /cy
+  const validRootSegments = new Set([
+    'cy',
+    'gr',
+    'admin',
+    'owner',
+    'login',
+    'reset-password',
+    'forgot-password',
+    'onboard',
+    'institute',
+    'sitemap.xml',
+    'robots.txt',
+  ]);
 
   // 1. Root level redirect or /gr redirect (force cy until Greece is launched)
   if (pathname === '/' || pathname === '/gr' || pathname.startsWith('/gr/')) {
@@ -12,7 +31,7 @@ export function middleware(request: NextRequest) {
     } else {
       newPath = pathname.replace(/^\/gr\//i, '/cy/');
     }
-    const url = new URL(newPath, request.url);
+    const url = new URL(newPath + search, request.url);
     return NextResponse.redirect(url);
   }
 
@@ -22,15 +41,33 @@ export function middleware(request: NextRequest) {
 
     if (role !== 'ADMIN') {
       // Redirect to login if not an admin
-      const url = new URL('/login', request.url);
+      const url = new URL('/login' + search, request.url);
       return NextResponse.redirect(url);
     }
+    return NextResponse.next();
+  }
+
+  // 3. Redirect invalid country routes (e.g. /search, /contact, or /search/institute/...)
+  if (rootSegment && !validRootSegments.has(rootSegment)) {
+    // If the path looks like /[dummy]/institute/[id]
+    // redirect directly to the canonical /cy/institute/[id]
+    if (segments[2] === 'institute' && segments[3]) {
+      const remainingPath = segments.slice(3).join('/');
+      const url = new URL(`/cy/institute/${remainingPath}${search}`, request.url);
+      return NextResponse.redirect(url);
+    }
+
+    // Otherwise, prepend /cy to the path
+    const url = new URL(`/cy${pathname}${search}`, request.url);
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
 }
 
-// Ensure middleware runs on root, admin, and /gr routes
+// Match all requests except static files, assets, API routes, and favicon
 export const config = {
-  matcher: ['/', '/gr', '/gr/:path*', '/admin/:path*'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|images|subjects|.*\\.png$|.*\\.gif$|.*\\.webp$|.*\\.svg$).*)',
+  ],
 };

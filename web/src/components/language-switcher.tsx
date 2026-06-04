@@ -28,7 +28,11 @@ export function LanguageSwitcher() {
       // THE ULTIMATE NUCLEAR COOKIE CLEAR
       const cookieName = 'googtrans';
       const domainParts = domain.split('.');
-      const paths = ['/', '', '/search', '/contact', '/login', '/admin'];
+      const paths = [
+        '/', '', '/search', '/contact', '/login', '/admin',
+        '/cy', '/cy/search', '/cy/contact',
+        '/gr', '/gr/search', '/gr/contact'
+      ];
       
       // We want to hit every possible combination that could EXIST
       while (domainParts.length >= 2) { // Stop at 'com' or 'net'

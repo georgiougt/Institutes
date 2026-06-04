@@ -45,6 +45,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return {
     title: `${institute.name} - Φροντιστήριο στη ${cityName}`,
     description: institute.description || `Βρείτε πληροφορίες, μαθήματα και κριτικές για το φροντιστήριο ${institute.name} στη ${cityName}.`,
+    alternates: {
+      canonical: `https://tofrontistirio.com/${country}/institute/${resolvedParams.id}`,
+    },
     openGraph: {
       title: institute.name,
       description: institute.description,
