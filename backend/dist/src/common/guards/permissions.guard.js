@@ -25,7 +25,7 @@ let PermissionGuard = class PermissionGuard {
         const request = context.switchToHttp().getRequest();
         let user = request.user;
         if (!user) {
-            const headerUserId = request.headers['x-user-id'];
+            const headerUserId = request.headers ? request.headers['x-user-id'] : undefined;
             if (headerUserId) {
                 user = await this.prisma.user.findUnique({
                     where: { id: headerUserId },
@@ -51,6 +51,13 @@ let PermissionGuard = class PermissionGuard {
             const instituteId = request.params.id || request.body.instituteId || request.query.instituteId;
             if (!instituteId) {
                 throw new common_1.ForbiddenException('Institute context required');
+            }
+            const institute = await this.prisma.institute.findUnique({
+                where: { id: instituteId },
+                select: { ownerId: true }
+            });
+            if (institute && institute.ownerId === user.id) {
+                return true;
             }
             const membership = await this.prisma.instituteMember.findUnique({
                 where: {

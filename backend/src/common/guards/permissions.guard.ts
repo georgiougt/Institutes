@@ -22,7 +22,7 @@ export class PermissionGuard implements CanActivate {
 
     // As a pseudo-auth mechanism for this demo without full JWT:
     if (!user) {
-      const headerUserId = request.headers['x-user-id'];
+      const headerUserId = request.headers ? request.headers['x-user-id'] : undefined;
       if (headerUserId) {
         user = await this.prisma.user.findUnique({
           where: { id: headerUserId },
@@ -60,6 +60,16 @@ export class PermissionGuard implements CanActivate {
       if (!instituteId) {
         // If we need institute roles but no ID is provided, we can't verify
         throw new ForbiddenException('Institute context required');
+      }
+
+      // Check if user is the direct owner of the institute
+      const institute = await this.prisma.institute.findUnique({
+        where: { id: instituteId },
+        select: { ownerId: true }
+      });
+
+      if (institute && institute.ownerId === user.id) {
+        return true;
       }
 
       const membership = await this.prisma.instituteMember.findUnique({

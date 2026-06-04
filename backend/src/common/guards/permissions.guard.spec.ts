@@ -14,6 +14,9 @@ describe('PermissionGuard', () => {
     instituteMember: {
       findUnique: jest.fn(),
     },
+    institute: {
+      findUnique: jest.fn(),
+    },
   };
 
   const mockReflector = {
@@ -32,6 +35,10 @@ describe('PermissionGuard', () => {
     guard = module.get<PermissionGuard>(PermissionGuard);
     reflector = module.get<Reflector>(Reflector);
     prisma = module.get<PrismaService>(PrismaService);
+
+    // Reset mocks before each test
+    mockPrisma.instituteMember.findUnique.mockReset();
+    mockPrisma.institute.findUnique.mockReset();
   });
 
   it('should be defined', () => {
@@ -62,9 +69,18 @@ describe('PermissionGuard', () => {
     expect(await guard.canActivate(context)).toBe(true);
   });
 
+  it('should allow if user is the direct owner of the institute', async () => {
+    mockReflector.getAllAndOverride.mockReturnValue({ instituteRoles: [InstituteRole.OWNER] });
+    const context = createMockContext({ id: 'u1' }, { id: 'inst1' });
+    mockPrisma.institute.findUnique.mockResolvedValue({ ownerId: 'u1' });
+
+    expect(await guard.canActivate(context)).toBe(true);
+  });
+
   it('should allow if institute role matches', async () => {
     mockReflector.getAllAndOverride.mockReturnValue({ instituteRoles: [InstituteRole.OWNER] });
     const context = createMockContext({ id: 'u1' }, { id: 'inst1' });
+    mockPrisma.institute.findUnique.mockResolvedValue(null);
     mockPrisma.instituteMember.findUnique.mockResolvedValue({ role: 'OWNER' });
 
     expect(await guard.canActivate(context)).toBe(true);
@@ -73,6 +89,7 @@ describe('PermissionGuard', () => {
   it('should throw ForbiddenException if institute role does not match', async () => {
     mockReflector.getAllAndOverride.mockReturnValue({ instituteRoles: [InstituteRole.OWNER] });
     const context = createMockContext({ id: 'u1' }, { id: 'inst1' });
+    mockPrisma.institute.findUnique.mockResolvedValue(null);
     mockPrisma.instituteMember.findUnique.mockResolvedValue({ role: 'STAFF' });
 
     await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
