@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { getBlogPosts } from '@/lib/blog';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tofrontistirio.com';
@@ -9,6 +10,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/cy',
     '/cy/search',
     '/cy/contact',
+    '/cy/faq',
+    '/cy/blog',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
@@ -43,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // 4. Generate Institute URLs
     const instituteRoutes: MetadataRoute.Sitemap = institutes.map((inst: any) => ({
-      url: `${baseUrl}/cy/institute/${inst.id}`,
+      url: `${baseUrl}/cy/institute/${inst.slug || inst.id}`,
       lastModified: new Date(inst.updatedAt),
       changeFrequency: 'weekly',
       priority: 0.7,
@@ -78,7 +81,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
     });
 
-    return [...routes, ...instituteRoutes, ...cityRoutes, ...serviceRoutes, ...comboRoutes];
+    // 8. Generate Blog Post URLs
+    const blogPosts = getBlogPosts('cy');
+    const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+      url: `${baseUrl}/cy/blog/${post.slug}`,
+      lastModified: new Date(post.date),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    }));
+
+    return [...routes, ...instituteRoutes, ...cityRoutes, ...serviceRoutes, ...comboRoutes, ...blogRoutes];
   } catch (error) {
     console.error('[Sitemap] Failed to generate dynamic sitemap:', error);
     return routes; // Fallback to static routes if API fails

@@ -262,7 +262,7 @@ function OwnerDashboardContent() {
                             >
                               <Trash2 className="h-5 w-5" />
                             </Button>
-                            <Link href={`/${countryCode}/institute/${inst.id}`}>
+                            <Link href={`/${countryCode}/institute/${inst.slug || inst.id}`}>
                               <Button variant="ghost" className="p-2 h-10 w-10 text-slate-400 hover:text-slate-900">
                                 <ChevronRight className="h-6 w-6" />
                               </Button>

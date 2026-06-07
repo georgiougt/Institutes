@@ -46,6 +46,7 @@ export default function SearchMap({ institutes, userLocation }: SearchMapProps) 
         position: [b.latitude, b.longitude] as [number, number],
         name: inst.name,
         instituteId: inst.id,
+        instituteSlug: inst.slug,
         address: b.address
       }))
   );
@@ -96,7 +97,7 @@ export default function SearchMap({ institutes, userLocation }: SearchMapProps) 
                 <h4 className="font-bold text-sm mb-1">{marker.name}</h4>
                 <p className="text-xs text-gray-500 mb-2">{marker.address}</p>
                 <Link 
-                  href={`/${country}/institute/${marker.instituteId}`}
+                  href={`/${country}/institute/${marker.instituteSlug || marker.instituteId}`}
                   className="text-xs font-bold text-red-600 hover:underline"
                 >
                   Προβολή Προφίλ

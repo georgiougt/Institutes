@@ -27,6 +27,7 @@ class SearchInstitutesDto {
     limit;
     country;
     seed;
+    slugs;
 }
 exports.SearchInstitutesDto = SearchInstitutesDto;
 __decorate([
@@ -124,4 +125,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], SearchInstitutesDto.prototype, "seed", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ description: 'Filter by city/service slugs (comma-separated)' }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], SearchInstitutesDto.prototype, "slugs", void 0);
 //# sourceMappingURL=search-institutes.dto.js.map

@@ -122,9 +122,24 @@ let InstitutesService = class InstitutesService {
     }
     async search(dto) {
         await this.checkAndExpireStatus();
-        let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country, seed } = dto;
+        let { lat, lng, radius = 5, serviceId, cityId, query, sort, location, minRating, page = 1, limit = 20, country, seed, slugs } = dto;
         country = 'CY';
         const skip = (page - 1) * limit;
+        if (slugs) {
+            const slugList = typeof slugs === 'string' ? slugs.split(',') : slugs;
+            if (slugList.length > 0) {
+                const cityMatches = await this.prisma.city.findMany({
+                    where: { slug: { in: slugList } }
+                });
+                const serviceMatches = await this.prisma.service.findMany({
+                    where: { slug: { in: slugList } }
+                });
+                if (cityMatches.length > 0)
+                    cityId = cityMatches[0].id;
+                if (serviceMatches.length > 0)
+                    serviceId = serviceMatches[0].id;
+            }
+        }
         if (!cityId && location) {
             const city = await this.prisma.city.findFirst({
                 where: { name: { equals: location, mode: 'insensitive' } }
@@ -207,6 +222,7 @@ let InstitutesService = class InstitutesService {
                 const distanceData = nearby.find(n => n.id === inst.id);
                 return {
                     id: inst.id,
+                    slug: inst.slug,
                     name: inst.name,
                     description: inst.description,
                     logoUrl: inst.logoUrl,
@@ -319,6 +335,7 @@ let InstitutesService = class InstitutesService {
                 : 0;
             return {
                 id: inst.id,
+                slug: inst.slug,
                 name: inst.name,
                 description: inst.description,
                 logoUrl: inst.logoUrl,
@@ -345,10 +362,11 @@ let InstitutesService = class InstitutesService {
             limit
         };
     }
-    async findOne(id) {
+    async findOne(idOrSlug) {
         await this.checkAndExpireStatus();
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
         return this.prisma.institute.findUnique({
-            where: { id },
+            where: isUuid ? { id: idOrSlug } : { slug: idOrSlug },
             include: {
                 branches: { include: { schedules: true, city: true, area: true } },
                 services: { include: { service: true } },
@@ -383,7 +401,7 @@ let InstitutesService = class InstitutesService {
                     }
                 }
             },
-            select: { id: true, updatedAt: true }
+            select: { id: true, slug: true, updatedAt: true }
         });
     }
     async onboard(dto) {

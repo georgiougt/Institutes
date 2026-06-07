@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/select";
 
 interface Metadata {
-  cities: { id: string; name: string }[]
-  services: { id: string; name: string }[]
+  cities: { id: string; name: string; slug?: string }[]
+  services: { id: string; name: string; slug?: string }[]
 }
 
 export function ClientSearchForm() {

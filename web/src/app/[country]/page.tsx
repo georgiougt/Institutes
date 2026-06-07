@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { SubjectsSection } from '@/components/subjects-section';
 import { Navbar } from '@/components/navbar';
 import { RecentActivityFeed } from '@/components/recent-activity-feed';
+import { FAQSection } from '@/components/faq-section';
 
 async function getRecentInstitutes(country: string) {
   try {
@@ -103,6 +104,8 @@ export default async function Home({
           <RecentActivityFeed initialData={recentInstitutes} />
         </div>
       </main>
+
+      <FAQSection country={country} />
 
       <Footer />
     </div>

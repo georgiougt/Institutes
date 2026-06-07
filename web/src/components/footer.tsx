@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { LanguageSwitcher } from './language-switcher';
+import { Facebook, Instagram } from 'lucide-react';
 
 export function Footer() {
   const params = useParams();
@@ -14,7 +15,8 @@ export function Footer() {
         <div>
           <h4 className="text-gray-900 font-bold mb-4 text-[15px]">Σχετικά</h4>
           <ul className="space-y-2 font-medium">
-            {/* <li><Link href="#" className="hover:underline text-[#0073bb]">Σχετικά με εμάς</Link></li> */}
+            <li><Link href={`/${country}/faq`} className="hover:underline text-[#0073bb]">Συχνές Ερωτήσεις</Link></li>
+            <li><Link href={`/${country}/blog`} className="hover:underline text-[#0073bb]">Blog & Νέα</Link></li>
             <li><Link href={`/${country}/contact`} className="hover:underline text-[#0073bb]">Επικοινωνία</Link></li>
           </ul>
         </div>
@@ -35,6 +37,29 @@ export function Footer() {
         </div>
         <div className="flex flex-col items-start gap-4 pt-4 border-t border-gray-100 sm:border-t-0 sm:pt-0">
            <LanguageSwitcher />
+           <div className="mt-2 w-full">
+             <h4 className="text-gray-900 font-bold mb-3 text-[14px]">Ακολουθήστε μας</h4>
+             <div className="flex items-center gap-3">
+               <a 
+                 href="https://www.facebook.com/profile.php?id=61588935170827" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="h-8 w-8 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50/20 transition-all shadow-sm"
+                 title="Facebook"
+               >
+                 <Facebook className="h-4 w-4" />
+               </a>
+               <a 
+                 href="https://www.instagram.com/to.frontistirio/" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="h-8 w-8 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-center text-slate-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50/20 transition-all shadow-sm"
+                 title="Instagram"
+               >
+                 <Instagram className="h-4 w-4" />
+               </a>
+             </div>
+           </div>
         </div>
       </div>
       

@@ -12,4 +12,5 @@ export declare class SearchInstitutesDto {
     limit?: number;
     country?: string;
     seed?: string;
+    slugs?: string;
 }

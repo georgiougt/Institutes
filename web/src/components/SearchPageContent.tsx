@@ -235,7 +235,7 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
                 <div className="flex-1 py-1">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Link href={`/${country}/institute/${inst.id}`} className="text-2xl font-black text-slate-900 hover:text-red-600 transition-colors leading-tight">
+                      <Link href={`/${country}/institute/${inst.slug || inst.id}`} className="text-2xl font-black text-slate-900 hover:text-red-600 transition-colors leading-tight">
                         {index + 1}. {inst.name}
                       </Link>
                       {inst.isVerified && (

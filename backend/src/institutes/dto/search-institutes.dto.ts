@@ -84,4 +84,10 @@ export class SearchInstitutesDto {
   @IsOptional()
   @IsString()
   seed?: string;
+
+  @ApiPropertyOptional({ description: 'Filter by city/service slugs (comma-separated)' })
+  @IsOptional()
+  @IsString()
+  slugs?: string;
 }
+

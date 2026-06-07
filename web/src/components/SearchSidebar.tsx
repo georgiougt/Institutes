@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
 
 interface Metadata {
-  cities: { id: string; name: string }[]
-  services: { id: string; name: string }[]
+  cities: { id: string; name: string; slug?: string }[]
+  services: { id: string; name: string; slug?: string }[]
 }
 
 interface SearchSidebarProps {
@@ -24,11 +24,33 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
   
   const [metadata, setMetadata] = useState<Metadata | null>(null)
   const [loadingLocation, setLoadingLocation] = useState(false)
+
+  const slugs = (params?.slugs as string[]) || []
+  const slugsString = slugs.join(',')
+
+  // Helper to resolve city/service IDs from dynamic slugs
+  const resolveSlugs = useCallback(() => {
+    const slugsList = slugsString ? slugsString.split(',') : []
+    let cityId = ""
+    let serviceId = ""
+    if (metadata) {
+      slugsList.forEach(slug => {
+        const city = metadata.cities.find(c => c.slug === slug)
+        if (city) cityId = city.id
+
+        const service = metadata.services.find(s => s.slug === slug)
+        if (service) serviceId = service.id
+      })
+    }
+    return { cityId, serviceId }
+  }, [slugsString, metadata])
+
+  const initialResolved = resolveSlugs()
   
-  // Local state synced with URL
+  // Local state synced with URL / slugs
   const [filters, setFilters] = useState({
-    cityId: searchParams.get("cityId") || "",
-    serviceId: searchParams.get("serviceId") || "",
+    cityId: initialResolved.cityId,
+    serviceId: initialResolved.serviceId,
     minRating: searchParams.get("minRating") || "",
     query: searchParams.get("query") || "",
     radius: searchParams.get("radius") || "10",
@@ -36,18 +58,20 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
     lng: searchParams.get("lng") || "",
   })
 
-  // Sync state with URL changes (e.g. browser back/forward)
+  // Sync state with URL or metadata changes
   useEffect(() => {
+    const res = resolveSlugs()
     setFilters({
-      cityId: searchParams.get("cityId") || "",
-      serviceId: searchParams.get("serviceId") || "",
+      cityId: res.cityId,
+      serviceId: res.serviceId,
       minRating: searchParams.get("minRating") || "",
       query: searchParams.get("query") || "",
       radius: searchParams.get("radius") || "10",
       lat: searchParams.get("lat") || "",
       lng: searchParams.get("lng") || "",
     })
-  }, [searchParams])
+  }, [searchParams, resolveSlugs])
+
 
   // Automatic location on mount
   useEffect(() => {
@@ -78,15 +102,29 @@ export function SearchSidebar({ className }: SearchSidebarProps) {
 
   // Push updates to URL
   const pushFilters = useCallback((newFilters: any) => {
+    const citySlug = metadata?.cities.find(c => c.id === newFilters.cityId)?.slug
+    const serviceSlug = metadata?.services.find(s => s.id === newFilters.serviceId)?.slug
+
+    let path = `/${country}/search`
+    if (citySlug && serviceSlug) {
+      path += `/${citySlug}/${serviceSlug}`
+    } else if (citySlug) {
+      path += `/${citySlug}`
+    } else if (serviceSlug) {
+      path += `/${serviceSlug}`
+    }
+
     const searchParams = new URLSearchParams()
     Object.entries(newFilters).forEach(([key, value]) => {
-      if (value) searchParams.set(key, value as string)
+      if (key !== 'cityId' && key !== 'serviceId' && value) {
+        searchParams.set(key, value as string)
+      }
     })
     // Append a fresh random seed for this search session!
     searchParams.set('seed', Math.random().toString(36).substring(7))
     
-    router.push(`/${country}/search?${searchParams.toString()}`)
-  }, [router, country])
+    router.push(`${path}?${searchParams.toString()}`)
+  }, [router, country, metadata])
 
   const handleUpdate = (updates: Partial<typeof filters>, debounce = false) => {
     const next = { ...filters, ...updates }
