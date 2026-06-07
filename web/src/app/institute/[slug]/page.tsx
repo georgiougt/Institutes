@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 interface InstituteRedirectPageProps {
   params: Promise<{ slug: string }>;
@@ -19,20 +19,23 @@ export default async function InstituteRedirectPage({
     const res = await fetch(`${apiUrl}/institutes/${slug}`, {
       cache: 'no-store',
     });
-    if (res.ok) {
-      const inst = await res.json();
-      const countryCode = inst.branches?.[0]?.city?.countryCode;
-      if (countryCode) {
-        country = countryCode.toLowerCase();
-      }
-      if (inst.slug) {
-        canonicalSlug = inst.slug;
-      }
+    if (!res.ok) {
+      notFound();
+    }
+    const inst = await res.json();
+    const countryCode = inst.branches?.[0]?.city?.countryCode;
+    if (countryCode) {
+      country = countryCode.toLowerCase();
+    }
+    if (inst.slug) {
+      canonicalSlug = inst.slug;
     }
   } catch (error) {
-    console.error('Failed to resolve institute country for redirect, defaulting to cy:', error);
+    console.error('Failed to resolve institute country for redirect, defaulting to 404:', error);
+    notFound();
   }
 
   permanentRedirect(`/${country}/institute/${canonicalSlug}`);
 }
+
 
