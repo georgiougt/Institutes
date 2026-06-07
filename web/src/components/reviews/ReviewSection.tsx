@@ -27,6 +27,7 @@ export function ReviewSection({ instituteId }: { instituteId: string }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -57,6 +58,14 @@ export function ReviewSection({ instituteId }: { instituteId: string }) {
       toast.error('Παρακαλώ εισάγετε ένα όνομα.');
       return;
     }
+    if (!guestEmail.trim()) {
+      toast.error('Παρακαλώ εισάγετε ένα email.');
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error('Παρακαλώ γράψτε ένα σχόλιο/εξήγηση για την κριτική σας.');
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -65,13 +74,14 @@ export function ReviewSection({ instituteId }: { instituteId: string }) {
         headers: { 
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ instituteId, rating, comment, guestName }),
+        body: JSON.stringify({ instituteId, rating, comment, guestName, guestEmail }),
       });
 
       if (res.ok) {
         toast.success('Η κριτική σας υποβλήθηκε και εκκρεμεί έγκριση!');
         setComment('');
         setGuestName('');
+        setGuestEmail('');
         setRating(5);
         // We don't add it to the list yet because it's PENDING
       } else {
@@ -125,11 +135,20 @@ export function ReviewSection({ instituteId }: { instituteId: string }) {
               className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-red-500/10"
               required
             />
+            <input 
+              type="email"
+              placeholder="Το email σας..."
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm focus:border-red-500 focus:ring-red-500/10"
+              required
+            />
             <Textarea 
-              placeholder="Γράψτε την εμπειρία σας... (προαιρετικό)"
+              placeholder="Γράψτε την εμπειρία σας..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               className="rounded-xl border-slate-200 bg-white min-h-[100px]"
+              required
             />
           </div>
 

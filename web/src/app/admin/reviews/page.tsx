@@ -21,6 +21,7 @@ interface Review {
   rating: number;
   comment: string;
   guestName?: string;
+  guestEmail?: string;
   createdAt: string;
   institute: {
     name: string;
@@ -118,10 +119,16 @@ export default function AdminReviewsPage() {
                     {rev.institute?.name || 'Άγνωστο'}
                   </TableCell>
                   <TableCell>
-                    {rev.user 
-                      ? <Badge variant="secondary">{rev.user.firstName} {rev.user.lastName}</Badge>
-                      : <span className="text-slate-600 font-medium">{rev.guestName || 'Ανώνυμος'}</span>
-                    }
+                    {rev.user ? (
+                      <Badge variant="secondary">{rev.user.firstName} {rev.user.lastName}</Badge>
+                    ) : (
+                      <div className="flex flex-col">
+                        <span className="text-slate-600 font-medium">{rev.guestName || 'Ανώνυμος'}</span>
+                        {rev.guestEmail && (
+                          <span className="text-xs text-slate-400 font-normal">{rev.guestEmail}</span>
+                        )}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex">

@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: { instituteId: string; userId?: string; guestName?: string; rating: number; comment?: string }) {
+  async create(data: { instituteId: string; userId?: string; guestName?: string; guestEmail?: string; rating: number; comment?: string }) {
     return this.prisma.review.create({
       data: {
         ...data,

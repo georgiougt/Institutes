@@ -10,7 +10,7 @@ export class ReviewsController {
 
   @Post()
   @ApiOperation({ summary: 'Post a new review (Guest)' })
-  async create(@Body() data: { instituteId: string; rating: number; comment?: string; guestName?: string }) {
+  async create(@Body() data: { instituteId: string; rating: number; comment?: string; guestName?: string; guestEmail?: string }) {
     return this.reviewsService.create({ ...data });
   }
 
