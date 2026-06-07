@@ -103,12 +103,13 @@ import { AnalyticsCharts } from '@/components/admin/AnalyticsCharts';
 // };
 
 export default async function AdminDashboard() {
-  const [metrics, counts, pendingInstitutes, recentAudit, analytics] = await Promise.all([
+  const [metrics, counts, pendingInstitutes, recentAudit, analytics, recentContacts] = await Promise.all([
     fetchMetrics(),
     fetchCounts(),
     fetchPendingInstitutes(),
     fetchRecentAudit(),
     fetchAnalytics(),
+    fetchRecentContacts(),
   ]);
 
   return (
@@ -185,27 +186,27 @@ export default async function AdminDashboard() {
           </div>
         )}
 
-        {/* ── Two Column Activity ──────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ── Three Column Activity ────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Pending Institutes */}
-          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-              <h2 className="text-sm font-semibold text-slate-800">Pending Institutes</h2>
+          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm flex flex-col h-[400px]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+              <h2 className="text-sm font-semibold text-slate-800">Pending Review</h2>
               <Link href="/admin/institutes?status=PENDING" className="text-xs font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
                 View all <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 flex-1 overflow-y-auto">
               {pendingInstitutes.length === 0 ? (
-                <div className="py-10 text-center">
+                <div className="py-16 text-center">
                   <p className="text-sm text-slate-400">No pending institutes</p>
                 </div>
               ) : (
                 pendingInstitutes.map((inst: any) => (
-                  <div key={inst.id} className="flex items-center justify-between px-5 py-3 hover:bg-slate-50/50 transition-colors">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-slate-800 truncate">{inst.name}</p>
+                  <div key={inst.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50/50 transition-colors">
+                    <div className="min-w-0 flex-1 mr-3">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{inst.name}</p>
                       <p className="text-xs text-slate-400 mt-0.5">
                         {inst.owner?.firstName} {inst.owner?.lastName} · {new Date(inst.createdAt).toLocaleDateString()}
                       </p>
@@ -217,22 +218,53 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
+          {/* Recent Messages to Institutes */}
+          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm flex flex-col h-[400px]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
+              <h2 className="text-sm font-semibold text-slate-800">Recent Messages to Institutes</h2>
+              <Link href="/admin/contact-requests" className="text-xs font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                View all <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-50 flex-1 overflow-y-auto">
+              {recentContacts.length === 0 ? (
+                <div className="py-16 text-center">
+                  <p className="text-sm text-slate-400">No recent messages</p>
+                </div>
+              ) : (
+                recentContacts.map((req: any) => (
+                  <div key={req.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50/50 transition-colors">
+                    <div className="min-w-0 flex-1 mr-3">
+                      <p className="text-sm font-semibold text-slate-800 truncate">
+                        {req.user ? `${req.user.firstName} ${req.user.lastName}` : req.guestName || 'Guest'}
+                      </p>
+                      <p className="text-xs text-slate-400 mt-0.5 truncate">
+                        {req.institute ? `To: ${req.institute.name}` : 'General Inquiry'} · {new Date(req.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <StatusBadge status={req.status} />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
           {/* Recent Admin Activity */}
-          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+          <div className="bg-white rounded-xl border border-slate-200/60 shadow-sm flex flex-col h-[400px]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0">
               <h2 className="text-sm font-semibold text-slate-800">Recent Activity</h2>
               <Link href="/admin/audit-logs" className="text-xs font-medium text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
                 View all <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 flex-1 overflow-y-auto">
               {recentAudit.length === 0 ? (
-                <div className="py-10 text-center">
+                <div className="py-16 text-center">
                   <p className="text-sm text-slate-400">No recent activity</p>
                 </div>
               ) : (
                 recentAudit.map((log: any) => (
-                  <div key={log.id} className="flex items-start gap-3 px-5 py-3 hover:bg-slate-50/50 transition-colors">
+                  <div key={log.id} className="flex items-start gap-3 px-5 py-3.5 hover:bg-slate-50/50 transition-colors">
                     <div className="h-7 w-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-xs font-bold text-slate-500">
                         {(log.actor?.firstName?.[0] || 'S').toUpperCase()}
@@ -240,7 +272,7 @@ export default async function AdminDashboard() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm text-slate-700">
-                        <span className="font-medium">{log.actor?.firstName || 'System'}</span>{' '}
+                        <span className="font-semibold">{log.actor?.firstName || 'System'}</span>{' '}
                         <span className="text-slate-400">{formatAction(log.actionType)}</span>
                       </p>
                       <p className="text-xs text-slate-400 mt-0.5">
