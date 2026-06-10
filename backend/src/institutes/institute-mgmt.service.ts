@@ -69,7 +69,7 @@ export class InstituteMgmtService {
   }
 
   async updateProfile(instituteId: string, dto: UpdateInstituteProfileDto) {
-    const sensitiveFields = ['name', 'slug', 'logoUrl', 'website'];
+    const sensitiveFields = ['name', 'slug', 'logoUrl'];
     const current = await this.prisma.institute.findUnique({ where: { id: instituteId } });
     if (!current) throw new NotFoundException('Institute not found');
 
