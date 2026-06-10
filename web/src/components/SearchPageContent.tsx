@@ -64,6 +64,15 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
       });
       searchParams.append('page', nextPage.toString());
       searchParams.append('limit', '20');
+      
+      if (country) {
+        searchParams.append('country', country);
+      }
+      
+      const slugs = params?.slugs;
+      if (slugs && Array.isArray(slugs) && slugs.length > 0) {
+        searchParams.append('slugs', slugs.join(','));
+      }
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
       const res = await fetch(`${apiUrl}/institutes?${searchParams.toString()}`);
