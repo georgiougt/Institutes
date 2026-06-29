@@ -1,6 +1,19 @@
 import { MetadataRoute } from 'next';
 import { getBlogPosts } from '@/lib/blog';
 
+/**
+ * Encode a URL for safe inclusion in XML sitemaps.
+ * Replaces XML-special characters (&, <, >, ", ') that would break the XML parser.
+ */
+function xmlSafeUrl(url: string): string {
+  return url
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tofrontistirio.com';
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001/api/v1';
@@ -53,27 +66,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // 5. Generate City Landing Pages
-    const cityRoutes: MetadataRoute.Sitemap = cities.map((city: any) => ({
-      url: `${baseUrl}/cy/search?cityId=${city.id}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    }));
+    const cityRoutes: MetadataRoute.Sitemap = cities
+      .filter((city: any) => city.slug)
+      .map((city: any) => ({
+        url: `${baseUrl}/cy/search/${city.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      }));
 
     // 6. Generate Subject Category Pages
-    const serviceRoutes: MetadataRoute.Sitemap = services.map((service: any) => ({
-      url: `${baseUrl}/cy/search?serviceId=${service.id}`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    }));
+    const serviceRoutes: MetadataRoute.Sitemap = services
+      .filter((service: any) => service.slug)
+      .map((service: any) => ({
+        url: `${baseUrl}/cy/search/${service.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.8,
+      }));
 
     // 7. Generate Subject-City Combination Pages
     const comboRoutes: MetadataRoute.Sitemap = [];
     cities.forEach((city: any) => {
+      if (!city.slug) return;
       services.forEach((service: any) => {
+        if (!service.slug) return;
         comboRoutes.push({
-          url: `${baseUrl}/cy/search?cityId=${city.id}&serviceId=${service.id}`,
+          url: `${baseUrl}/cy/search/${city.slug}/${service.slug}`,
           lastModified: new Date(),
           changeFrequency: 'daily',
           priority: 0.6,
@@ -90,9 +109,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-    return [...routes, ...instituteRoutes, ...cityRoutes, ...serviceRoutes, ...comboRoutes, ...blogRoutes];
+    const allRoutes = [...routes, ...instituteRoutes, ...cityRoutes, ...serviceRoutes, ...comboRoutes, ...blogRoutes];
+    return allRoutes.map(route => ({
+      ...route,
+      url: xmlSafeUrl(route.url),
+    }));
   } catch (error) {
     console.error('[Sitemap] Failed to generate dynamic sitemap:', error);
-    return routes; // Fallback to static routes if API fails
+    return routes.map(route => ({
+      ...route,
+      url: xmlSafeUrl(route.url),
+    }));
   }
 }
+
