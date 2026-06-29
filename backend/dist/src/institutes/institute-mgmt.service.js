@@ -47,6 +47,7 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const supabase_js_1 = require("@supabase/supabase-js");
 const bcrypt = __importStar(require("bcryptjs"));
+const slugify_1 = require("../common/slugify");
 let InstituteMgmtService = class InstituteMgmtService {
     prisma;
     supabase;
@@ -105,7 +106,7 @@ let InstituteMgmtService = class InstituteMgmtService {
         return { score: Math.min(score, 100), steps };
     }
     async updateProfile(instituteId, dto) {
-        const sensitiveFields = ['name', 'slug', 'logoUrl', 'website'];
+        const sensitiveFields = ['name', 'slug', 'logoUrl'];
         const current = await this.prisma.institute.findUnique({ where: { id: instituteId } });
         if (!current)
             throw new common_1.NotFoundException('Institute not found');
@@ -131,9 +132,13 @@ let InstituteMgmtService = class InstituteMgmtService {
                 }
             });
         }
+        const updateData = { ...normalData };
+        if (!current.slug) {
+            updateData.slug = (0, slugify_1.generateSlug)(current.name);
+        }
         return this.prisma.institute.update({
             where: { id: instituteId },
-            data: normalData
+            data: updateData
         });
     }
     async getInquiries(instituteId) {

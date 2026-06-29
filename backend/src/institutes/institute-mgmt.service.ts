@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateInstituteProfileDto } from './dto/owner-dashboard.dto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcryptjs';
+import { generateSlug } from '../common/slugify';
+
 
 @Injectable()
 export class InstituteMgmtService {
@@ -101,9 +103,14 @@ export class InstituteMgmtService {
     }
 
     // Update normal fields immediately
+    const updateData = { ...normalData };
+    if (!current.slug) {
+      updateData.slug = generateSlug(current.name);
+    }
+
     return this.prisma.institute.update({
       where: { id: instituteId },
-      data: normalData
+      data: updateData
     });
   }
 

@@ -48,6 +48,7 @@ const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
 const bcrypt = __importStar(require("bcryptjs"));
 const supabase_js_1 = require("@supabase/supabase-js");
+const slugify_1 = require("../common/slugify");
 let InstitutesService = class InstitutesService {
     prisma;
     supabase;
@@ -435,6 +436,7 @@ let InstitutesService = class InstitutesService {
                 data: {
                     ownerId: userId,
                     name: dto.instituteName,
+                    slug: (0, slugify_1.generateSlug)(dto.instituteName),
                     description: dto.description,
                     website: dto.website,
                     status: 'PENDING',

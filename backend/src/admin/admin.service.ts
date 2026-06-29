@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { ListingStatus } from '@prisma/client';
 import { AuditService } from './audit.service';
+import { generateSlug } from '../common/slugify';
 
 @Injectable()
 export class AdminService {
@@ -164,9 +165,17 @@ export class AdminService {
 
   async updateInstitute(id: string, data: any, adminId: string) {
     const oldVal = await this.prisma.institute.findUnique({ where: { id } });
+    if (!oldVal) throw new NotFoundException(`Institute ${id} not found`);
+
+    const updateData = { ...data };
+    if (!oldVal.slug && !updateData.slug) {
+      const slugName = updateData.name || oldVal.name;
+      updateData.slug = generateSlug(slugName);
+    }
+
     const inst = await this.prisma.institute.update({
       where: { id },
-      data,
+      data: updateData,
       include: { owner: true, branches: true, services: { include: { service: true } } },
     });
 
@@ -177,7 +186,7 @@ export class AdminService {
       entityId: id,
       reason: 'Administrative update',
       oldValues: oldVal,
-      newValues: data,
+      newValues: updateData,
     });
 
     return inst;
@@ -238,7 +247,10 @@ export class AdminService {
 
     const updated = await this.prisma.institute.update({
       where: { id },
-      data: { status: ListingStatus.APPROVED },
+      data: {
+        status: ListingStatus.APPROVED,
+        ...(!inst.slug && { slug: generateSlug(inst.name) }),
+      },
     });
 
     // Status history
@@ -622,7 +634,13 @@ export class AdminService {
       throw new BadRequestException('Revision not found or not pending');
     }
 
-    const proposedData = rev.proposedData as any;
+    const proposedData = { ...rev.proposedData as any };
+
+    // If the slug is missing in the database, generate it!
+    if (!rev.institute.slug && !proposedData.slug) {
+      const slugName = proposedData.name || rev.institute.name;
+      proposedData.slug = generateSlug(slugName);
+    }
 
     return this.prisma.$transaction(async (tx) => {
       // 1. Update Institute

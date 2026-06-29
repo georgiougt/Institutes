@@ -69,6 +69,22 @@ describe('InstituteMgmtService', () => {
       });
     });
 
+    it('should generate a slug if the database slug is missing', async () => {
+      const currentInstNoSlug = { id: instId, name: 'Old School', slug: null, status: 'APPROVED' };
+      mockPrisma.institute.findUnique.mockResolvedValue(currentInstNoSlug);
+      const dto = { description: 'New description' };
+
+      await service.updateProfile(instId, dto);
+
+      expect(mockPrisma.institute.update).toHaveBeenCalledWith({
+        where: { id: instId },
+        data: {
+          description: 'New description',
+          slug: expect.stringMatching(/^old-school-[a-z0-9]{4}$/),
+        },
+      });
+    });
+
     it('should throw NotFoundException if institute missing', async () => {
       mockPrisma.institute.findUnique.mockResolvedValue(null);
       await expect(service.updateProfile('invalid', {})).rejects.toThrow(NotFoundException);

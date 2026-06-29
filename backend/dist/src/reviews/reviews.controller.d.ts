@@ -7,6 +7,7 @@ export declare class ReviewsController {
         rating: number;
         comment?: string;
         guestName?: string;
+        guestEmail?: string;
     }): Promise<{
         id: string;
         status: import("@prisma/client").$Enums.RevStatus;
@@ -17,6 +18,7 @@ export declare class ReviewsController {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     }>;
     findPending(): Promise<({
         institute: {
@@ -36,6 +38,7 @@ export declare class ReviewsController {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     })[]>;
     findRecent(): Promise<({
         institute: {
@@ -66,6 +69,7 @@ export declare class ReviewsController {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     })[]>;
     findByInstitute(id: string): Promise<({
         user: {
@@ -82,6 +86,7 @@ export declare class ReviewsController {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     })[]>;
     moderate(id: string, status: 'APPROVED' | 'REJECTED'): Promise<{
         id: string;
@@ -93,5 +98,6 @@ export declare class ReviewsController {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     }>;
 }

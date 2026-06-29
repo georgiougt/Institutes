@@ -46,6 +46,7 @@ exports.OnboardingService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
 const bcrypt = __importStar(require("bcryptjs"));
+const slugify_1 = require("../../common/slugify");
 let OnboardingService = class OnboardingService {
     prisma;
     constructor(prisma) {
@@ -75,6 +76,9 @@ let OnboardingService = class OnboardingService {
             data: { onboardingStep: step }
         });
         if (instituteId) {
+            const current = await this.prisma.institute.findUnique({ where: { id: instituteId } });
+            const nameUpdated = data.name && data.name !== current?.name;
+            const slugNeeded = !current?.slug || nameUpdated;
             return this.prisma.institute.update({
                 where: { id: instituteId },
                 data: {
@@ -82,6 +86,7 @@ let OnboardingService = class OnboardingService {
                     description: data.description,
                     website: data.website,
                     logoUrl: data.logoUrl,
+                    ...(slugNeeded && data.name && { slug: (0, slugify_1.generateSlug)(data.name) }),
                     status: 'DRAFT',
                     ...(data.serviceIds && {
                         services: {
@@ -93,10 +98,12 @@ let OnboardingService = class OnboardingService {
             });
         }
         else {
+            const draftName = data.name || 'Προσωρινό Όνομα';
             return this.prisma.institute.create({
                 data: {
                     ownerId: userId,
-                    name: data.name || 'Προσωρινό Όνομα',
+                    name: draftName,
+                    slug: (0, slugify_1.generateSlug)(draftName),
                     status: 'DRAFT',
                 }
             });

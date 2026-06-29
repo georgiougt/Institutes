@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
 const client_1 = require("@prisma/client");
 const audit_service_1 = require("./audit.service");
+const slugify_1 = require("../common/slugify");
 let AdminService = class AdminService {
     prisma;
     audit;
@@ -142,9 +143,16 @@ let AdminService = class AdminService {
     }
     async updateInstitute(id, data, adminId) {
         const oldVal = await this.prisma.institute.findUnique({ where: { id } });
+        if (!oldVal)
+            throw new common_1.NotFoundException(`Institute ${id} not found`);
+        const updateData = { ...data };
+        if (!oldVal.slug && !updateData.slug) {
+            const slugName = updateData.name || oldVal.name;
+            updateData.slug = (0, slugify_1.generateSlug)(slugName);
+        }
         const inst = await this.prisma.institute.update({
             where: { id },
-            data,
+            data: updateData,
             include: { owner: true, branches: true, services: { include: { service: true } } },
         });
         await this.audit.log({
@@ -154,7 +162,7 @@ let AdminService = class AdminService {
             entityId: id,
             reason: 'Administrative update',
             oldValues: oldVal,
-            newValues: data,
+            newValues: updateData,
         });
         return inst;
     }
@@ -210,7 +218,10 @@ let AdminService = class AdminService {
             throw new common_1.NotFoundException(`Institute ${id} not found`);
         const updated = await this.prisma.institute.update({
             where: { id },
-            data: { status: client_1.ListingStatus.APPROVED },
+            data: {
+                status: client_1.ListingStatus.APPROVED,
+                ...(!inst.slug && { slug: (0, slugify_1.generateSlug)(inst.name) }),
+            },
         });
         await this.prisma.instituteStatusHistory.create({
             data: {
@@ -543,7 +554,11 @@ let AdminService = class AdminService {
         if (!rev || rev.status !== 'PENDING') {
             throw new common_1.BadRequestException('Revision not found or not pending');
         }
-        const proposedData = rev.proposedData;
+        const proposedData = { ...rev.proposedData };
+        if (!rev.institute.slug && !proposedData.slug) {
+            const slugName = proposedData.name || rev.institute.name;
+            proposedData.slug = (0, slugify_1.generateSlug)(slugName);
+        }
         return this.prisma.$transaction(async (tx) => {
             await tx.institute.update({
                 where: { id: rev.instituteId },

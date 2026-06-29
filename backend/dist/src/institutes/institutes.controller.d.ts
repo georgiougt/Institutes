@@ -19,10 +19,10 @@ export declare class InstitutesController {
             images: {
                 id: string;
                 createdAt: Date;
-                order: number;
                 instituteId: string;
                 url: string;
                 caption: string | null;
+                order: number;
                 isApproved: boolean;
             }[];
             branches: ({
@@ -49,15 +49,15 @@ export declare class InstitutesController {
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
+                instituteId: string;
                 email: string | null;
                 phone: string;
-                instituteId: string;
                 address: string;
-                cityId: string;
-                areaId: string | null;
                 latitude: number | null;
                 longitude: number | null;
                 isMain: boolean;
+                cityId: string;
+                areaId: string | null;
             })[];
             services: ({
                 service: {
@@ -67,18 +67,18 @@ export declare class InstitutesController {
                     description: string | null;
                     createdAt: Date;
                     updatedAt: Date;
+                    isActive: boolean;
                     displayOrder: number;
                     category: string | null;
                     iconUrl: string | null;
-                    isActive: boolean;
                 };
             } & {
                 id: string;
                 instituteId: string;
-                serviceId: string;
                 priceInfo: string | null;
                 isOnline: boolean;
                 isInPerson: boolean;
+                serviceId: string;
             })[];
             avgRating: number;
             reviewCount: number;
@@ -102,10 +102,10 @@ export declare class InstitutesController {
             images: {
                 id: string;
                 createdAt: Date;
-                order: number;
                 instituteId: string;
                 url: string;
                 caption: string | null;
+                order: number;
                 isApproved: boolean;
             }[];
             branches: ({
@@ -132,15 +132,15 @@ export declare class InstitutesController {
                 createdAt: Date;
                 updatedAt: Date;
                 deletedAt: Date | null;
+                instituteId: string;
                 email: string | null;
                 phone: string;
-                instituteId: string;
                 address: string;
-                cityId: string;
-                areaId: string | null;
                 latitude: number | null;
                 longitude: number | null;
                 isMain: boolean;
+                cityId: string;
+                areaId: string | null;
             })[];
             services: ({
                 service: {
@@ -150,18 +150,18 @@ export declare class InstitutesController {
                     description: string | null;
                     createdAt: Date;
                     updatedAt: Date;
+                    isActive: boolean;
                     displayOrder: number;
                     category: string | null;
                     iconUrl: string | null;
-                    isActive: boolean;
                 };
             } & {
                 id: string;
                 instituteId: string;
-                serviceId: string;
                 priceInfo: string | null;
                 isOnline: boolean;
                 isInPerson: boolean;
+                serviceId: string;
             })[];
             avgRating: number;
             reviewCount: number;
@@ -192,23 +192,23 @@ export declare class InstitutesController {
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            instituteId: string;
             email: string | null;
             phone: string;
-            instituteId: string;
             address: string;
-            cityId: string;
-            areaId: string | null;
             latitude: number | null;
             longitude: number | null;
             isMain: boolean;
+            cityId: string;
+            areaId: string | null;
         })[];
         images: {
             id: string;
             createdAt: Date;
-            order: number;
             instituteId: string;
             url: string;
             caption: string | null;
+            order: number;
             isApproved: boolean;
         }[];
         owner: {
@@ -253,10 +253,10 @@ export declare class InstitutesController {
             description: string | null;
             createdAt: Date;
             updatedAt: Date;
+            isActive: boolean;
             displayOrder: number;
             category: string | null;
             iconUrl: string | null;
-            isActive: boolean;
         }[];
     }>;
     sitemap(): Promise<{
@@ -297,35 +297,35 @@ export declare class InstitutesController {
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            instituteId: string;
             email: string | null;
             phone: string;
-            instituteId: string;
             address: string;
-            cityId: string;
-            areaId: string | null;
             latitude: number | null;
             longitude: number | null;
             isMain: boolean;
+            cityId: string;
+            areaId: string | null;
         })[];
         featuredListings: {
             id: string;
             createdAt: Date;
             instituteId: string;
-            isActive: boolean;
-            endsAt: Date | null;
             placementType: string;
             placementKey: string | null;
             priority: number;
             startsAt: Date;
+            endsAt: Date | null;
+            isActive: boolean;
             createdBy: string;
         }[];
         images: {
             id: string;
             createdAt: Date;
-            order: number;
             instituteId: string;
             url: string;
             caption: string | null;
+            order: number;
             isApproved: boolean;
         }[];
         services: ({
@@ -336,18 +336,18 @@ export declare class InstitutesController {
                 description: string | null;
                 createdAt: Date;
                 updatedAt: Date;
+                isActive: boolean;
                 displayOrder: number;
                 category: string | null;
                 iconUrl: string | null;
-                isActive: boolean;
             };
         } & {
             id: string;
             instituteId: string;
-            serviceId: string;
             priceInfo: string | null;
             isOnline: boolean;
             isInPerson: boolean;
+            serviceId: string;
         })[];
     } & {
         id: string;
@@ -441,23 +441,23 @@ export declare class InstitutesController {
             createdAt: Date;
             updatedAt: Date;
             deletedAt: Date | null;
+            instituteId: string;
             email: string | null;
             phone: string;
-            instituteId: string;
             address: string;
-            cityId: string;
-            areaId: string | null;
             latitude: number | null;
             longitude: number | null;
             isMain: boolean;
+            cityId: string;
+            areaId: string | null;
         })[];
         images: {
             id: string;
             createdAt: Date;
-            order: number;
             instituteId: string;
             url: string;
             caption: string | null;
+            order: number;
             isApproved: boolean;
         }[];
     } & {
@@ -491,9 +491,9 @@ export declare class InstitutesController {
         instituteId: string | null;
         userId: string | null;
         guestName: string | null;
+        guestEmail: string | null;
         serviceId: string | null;
         message: string;
-        guestEmail: string | null;
         guestPhone: string | null;
         subject: string | null;
         isSpam: boolean;
@@ -506,9 +506,9 @@ export declare class InstitutesController {
         instituteId: string | null;
         userId: string | null;
         guestName: string | null;
+        guestEmail: string | null;
         serviceId: string | null;
         message: string;
-        guestEmail: string | null;
         guestPhone: string | null;
         subject: string | null;
         isSpam: boolean;

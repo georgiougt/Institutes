@@ -2,6 +2,7 @@ import { Injectable, ConflictException, NotFoundException, BadRequestException }
 import { PrismaService } from '../../prisma/prisma.service';
 import { OnboardingSignupDto, UpdateDraftDto, ClaimSubmitDto } from './onboarding.dto';
 import * as bcrypt from 'bcryptjs';
+import { generateSlug } from '../../common/slugify';
 
 @Injectable()
 export class OnboardingService {
@@ -35,6 +36,10 @@ export class OnboardingService {
     });
 
     if (instituteId) {
+      const current = await this.prisma.institute.findUnique({ where: { id: instituteId } });
+      const nameUpdated = data.name && data.name !== current?.name;
+      const slugNeeded = !current?.slug || nameUpdated;
+
       // Update existing draft
       return this.prisma.institute.update({
         where: { id: instituteId },
@@ -43,6 +48,7 @@ export class OnboardingService {
           description: data.description,
           website: data.website,
           logoUrl: data.logoUrl,
+          ...(slugNeeded && data.name && { slug: generateSlug(data.name) }),
           // Calculate completeness score here if needed
           status: 'DRAFT',
           // Handle services if provided
@@ -56,10 +62,12 @@ export class OnboardingService {
       });
     } else {
       // Create new draft
+      const draftName = data.name || 'Προσωρινό Όνομα';
       return this.prisma.institute.create({
         data: {
           ownerId: userId,
-          name: data.name || 'Προσωρινό Όνομα',
+          name: draftName,
+          slug: generateSlug(draftName),
           status: 'DRAFT',
         }
       });

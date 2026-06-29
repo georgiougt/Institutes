@@ -6,6 +6,7 @@ export declare class ReviewsService {
         instituteId: string;
         userId?: string;
         guestName?: string;
+        guestEmail?: string;
         rating: number;
         comment?: string;
     }): Promise<{
@@ -18,6 +19,7 @@ export declare class ReviewsService {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     }>;
     findByInstitute(instituteId: string): Promise<({
         user: {
@@ -34,6 +36,7 @@ export declare class ReviewsService {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     })[]>;
     findPending(): Promise<({
         institute: {
@@ -53,6 +56,7 @@ export declare class ReviewsService {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     })[]>;
     moderate(id: string, status: 'APPROVED' | 'REJECTED'): Promise<{
         id: string;
@@ -64,6 +68,7 @@ export declare class ReviewsService {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     }>;
     findRecentApproved(limit?: number): Promise<({
         institute: {
@@ -94,5 +99,6 @@ export declare class ReviewsService {
         rating: number;
         comment: string | null;
         guestName: string | null;
+        guestEmail: string | null;
     })[]>;
 }

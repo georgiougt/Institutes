@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { OnboardInstituteDto } from './dto/onboard-institute.dto';
 import * as bcrypt from 'bcryptjs';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { generateSlug } from '../common/slugify';
 
 @Injectable()
 export class InstitutesService {
@@ -448,6 +449,7 @@ export class InstitutesService {
         data: {
           ownerId: userId,
           name: dto.instituteName,
+          slug: generateSlug(dto.instituteName),
           description: dto.description,
           website: dto.website,
           status: 'PENDING',

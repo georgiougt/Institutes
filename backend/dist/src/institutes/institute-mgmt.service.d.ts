@@ -30,9 +30,9 @@ export declare class InstituteMgmtService {
             instituteId: string | null;
             userId: string | null;
             guestName: string | null;
+            guestEmail: string | null;
             serviceId: string | null;
             message: string;
-            guestEmail: string | null;
             guestPhone: string | null;
             subject: string | null;
             isSpam: boolean;
@@ -95,9 +95,9 @@ export declare class InstituteMgmtService {
         instituteId: string | null;
         userId: string | null;
         guestName: string | null;
+        guestEmail: string | null;
         serviceId: string | null;
         message: string;
-        guestEmail: string | null;
         guestPhone: string | null;
         subject: string | null;
         isSpam: boolean;
@@ -110,9 +110,9 @@ export declare class InstituteMgmtService {
         instituteId: string | null;
         userId: string | null;
         guestName: string | null;
+        guestEmail: string | null;
         serviceId: string | null;
         message: string;
-        guestEmail: string | null;
         guestPhone: string | null;
         subject: string | null;
         isSpam: boolean;
