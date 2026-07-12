@@ -32,7 +32,7 @@ export function AdminTopbar({ title, subtitle }: { title: string; subtitle?: str
         <h1 className="text-lg font-bold text-slate-900 tracking-tight">{title}</h1>
         {subtitle && <p className="text-xs text-slate-500 -mt-0.5">{subtitle}</p>}
       </div>
-      <div className="flex-1 max-w-md mx-4">
+      <div className="hidden sm:block flex-1 max-w-md mx-4">
         <div className="relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
           <input

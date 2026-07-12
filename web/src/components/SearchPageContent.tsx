@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { Star, MapPin, Globe, Phone, Navigation, List, Map as MapIcon, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ClientMap from '@/components/ClientMap';
-import { cn } from "@/lib/utils";
+import { cn, formatWebsiteUrl } from "@/lib/utils";
 import { SearchSidebar } from '@/components/SearchSidebar';
 import { 
   Sheet, 
@@ -335,7 +335,7 @@ export function SearchPageContent({ initialResults, resolvedParams }: SearchPage
 
                     {inst.website ? (
                       <a 
-                        href={inst.website.startsWith('http') ? inst.website : `https://${inst.website}`}
+                        href={formatWebsiteUrl(inst.website)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 hover:text-red-600 transition-colors"

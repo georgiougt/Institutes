@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
+import { formatWebsiteUrl } from '@/lib/utils';
 import { 
   Star, MapPin, Phone, Globe, Clock, ChevronRight, 
   CheckCircle2, Info, MessageSquare, Share2, Heart,
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: `${institute.name} - Φροντιστήριο στη ${cityName}`,
     description: institute.description || `Βρείτε πληροφορίες, μαθήματα και κριτικές για το φροντιστήριο ${institute.name} στη ${cityName}.`,
     alternates: {
-      canonical: `https://tofrontistirio.com/${country}/institute/${institute.slug}`,
+      canonical: `https://tofrontistirio.com/${country}/institute/${institute.slug || institute.id}`,
     },
     openGraph: {
       title: institute.name,
@@ -70,7 +71,7 @@ export default async function InstituteProfilePage({
     notFound();
   }
 
-  if (resolvedParams.slug !== institute.slug) {
+  if (institute.slug && resolvedParams.slug !== institute.slug) {
     permanentRedirect(`/${country}/institute/${institute.slug}`);
   }
 
@@ -83,7 +84,7 @@ export default async function InstituteProfilePage({
     'description': institute.description,
     'image': institute.images?.[0]?.url,
     'logo': institute.logoUrl,
-    'url': `https://tofrontistirio.com/${country}/institute/${institute.slug}`,
+    'url': `https://tofrontistirio.com/${country}/institute/${institute.slug || institute.id}`,
     'telephone': mainBranch?.phone,
     'address': {
       '@type': 'PostalAddress',
@@ -341,14 +342,22 @@ export default async function InstituteProfilePage({
 
               {/* Side Meta */}
               <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4">
-                <Link 
-                  href={institute.website || '#'} 
-                  target="_blank" 
-                  className={`flex items-center justify-between group cursor-pointer ${!institute.website && 'opacity-50 pointer-events-none'}`}
-                >
-                  <span className="text-sm font-bold text-slate-600 group-hover:text-red-600 transition-colors">Website</span>
-                  <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-red-600" />
-                </Link>
+                {institute.website ? (
+                  <a 
+                    href={formatWebsiteUrl(institute.website)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between group cursor-pointer"
+                  >
+                    <span className="text-sm font-bold text-slate-600 group-hover:text-red-600 transition-colors">Website</span>
+                    <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-red-600" />
+                  </a>
+                ) : (
+                  <div className="flex items-center justify-between opacity-50 pointer-events-none">
+                    <span className="text-sm font-bold text-slate-600">Website</span>
+                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                  </div>
+                )}
                 <Link href="#reviews" className="flex items-center justify-between group cursor-pointer border-t border-slate-200 pt-4">
                   <span className="text-sm font-bold text-slate-600 group-hover:text-red-600 transition-colors">Κριτικές</span>
                   <MessageSquare className="h-4 w-4 text-slate-400 group-hover:text-red-600" />

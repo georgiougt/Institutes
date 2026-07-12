@@ -1,6 +1,5 @@
 import { OwnerSidebar } from './components/OwnerSidebar';
-import { Building2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { OwnerMobileNav } from './components/OwnerMobileNav';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
@@ -47,30 +46,31 @@ export default async function OwnerLayout({
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Topbar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-          <div className="flex items-center gap-2 text-slate-400 text-sm">
-             <Link href="/owner" className="hover:text-slate-900 transition-colors">My Institutes</Link>
-             <span>/</span>
-             <span className="text-slate-900 font-medium">{name}</span>
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between gap-3 px-4 md:px-8 shrink-0">
+          <div className="flex items-center gap-2 text-slate-400 text-sm min-w-0">
+             <OwnerMobileNav instituteId={id} />
+             <Link href="/owner" className="hidden sm:inline hover:text-slate-900 transition-colors shrink-0">My Institutes</Link>
+             <span className="hidden sm:inline shrink-0">/</span>
+             <span className="text-slate-900 font-medium truncate">{name}</span>
           </div>
-          
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-3 md:gap-4 shrink-0">
             <div className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold uppercase",
               statusConfig.color
             )}>
                {statusConfig.animate && <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
-               <span>Status: {statusConfig.label}</span>
+               <span><span className="hidden sm:inline">Status: </span>{statusConfig.label}</span>
             </div>
-            
-            <div className="h-8 w-8 bg-slate-900 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm cursor-pointer hover:bg-slate-800 transition-colors">
+
+            <div className="h-8 w-8 bg-slate-900 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm cursor-pointer hover:bg-slate-800 transition-colors shrink-0">
                OG
             </div>
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>
